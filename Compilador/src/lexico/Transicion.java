@@ -20,4 +20,8 @@ public class Transicion {
     public int ejecutarAccion() {
         return this.accionSemantica.ejecutar();
     }
+    
+    public int getEstado() {
+        return estadoSig;
+    }
 }

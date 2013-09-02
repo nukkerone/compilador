@@ -11,10 +11,10 @@ import java.util.Hashtable;
  * @author Gabriel
  */
 public class MatrizTransicion {
-    private Hashtable<Integer, Hashtable<Integer, Transicion>> transiciones;
+    private Hashtable<Integer, Hashtable<String, Transicion>> transiciones;
     
     public MatrizTransicion() {
-        this.transiciones = new Hashtable<Integer, Hashtable<Integer, Transicion>>();
+        this.transiciones = new Hashtable<Integer, Hashtable<String, Transicion>>();
     }
     
     /**
@@ -26,15 +26,15 @@ public class MatrizTransicion {
      * @param estadoSiguiente
      * @param accionSemantica 
      */
-    public void setTransicion(int estadoInicial, int entrada, int estadoSiguiente, AccionSemantica accionSemantica) {
+    public void setTransicion(int estadoInicial, String entrada, int estadoSiguiente, AccionSemantica accionSemantica) {
         Transicion t = new Transicion(estadoSiguiente, accionSemantica);
         
         if (this.tieneEstado(estadoInicial)) {
-            Hashtable<Integer, Transicion> hash_t = this.transiciones.get(estadoInicial);
+            Hashtable<String, Transicion> hash_t = this.transiciones.get(estadoInicial);
             hash_t.put(entrada, t);
             this.transiciones.put(estadoInicial, hash_t);
         } else {
-            Hashtable<Integer, Transicion> hash_t = new Hashtable<Integer, Transicion>();
+            Hashtable<String, Transicion> hash_t = new Hashtable<String, Transicion>();
             hash_t.put(entrada, t);
             this.transiciones.put(estadoInicial, hash_t);
         }
@@ -46,7 +46,7 @@ public class MatrizTransicion {
      * @return 
      */
     public boolean tieneEstado(int estado) {
-        Hashtable<Integer, Transicion> t;
+        Hashtable<String, Transicion> t;
         try {
             t = this.transiciones.get(estado);
         } catch ( NullPointerException e ) {
@@ -73,9 +73,9 @@ public class MatrizTransicion {
      * @param entrada
      * @return 
      */
-    public Transicion getTransicion(int estado, int entrada) {
+    public Transicion getTransicion(int estado, String entrada) {
         if (this.tieneEstado(estado)) { // Existe una fila en la matriz para el estado
-            Hashtable<Integer, Transicion> hash_t = this.transiciones.get(estado);
+            Hashtable<String, Transicion> hash_t = this.transiciones.get(estado);
             Transicion t = hash_t.get(entrada);
             return t;
         }
@@ -92,7 +92,7 @@ public class MatrizTransicion {
      * @param estado
      * @param entrada 
      */
-    public void ejecutarTransicion(int estado, int entrada) {
+    public void ejecutarTransicion(int estado, String entrada) {
         Transicion t = this.getTransicion(estado, entrada);
         if (t != null) {    // Si la transición existe
             t.ejecutarAccion(); // Delegar ejecución de la acción
