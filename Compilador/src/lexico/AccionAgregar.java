@@ -9,12 +9,17 @@ package lexico;
  * @author Gabriel
  */
 public class AccionAgregar extends AccionSemantica {
+    
+    AccionAgregar(AnalizadorLexico analizador) {
+        super(analizador);    
+    }
 
     @Override
     int ejecutar() {
-        // Ejecuta
-        System.out.println("Ejecuta AccionAgregar");
+        this.analizadorLexico.saveTempChar(this.analizadorLexico.getCaracterActual());
         return 0;
     }
+    
+    
     
 }

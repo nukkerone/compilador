@@ -10,5 +10,11 @@ package lexico;
  */
 public abstract class AccionSemantica {
     
+    AnalizadorLexico analizadorLexico;
+    
+    AccionSemantica(AnalizadorLexico analizador) {
+        this.analizadorLexico = analizador;
+    }
+    
     abstract int ejecutar();
 }

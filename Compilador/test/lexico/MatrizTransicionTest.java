@@ -16,7 +16,7 @@ import lexico.AccionSemantica;
 public class MatrizTransicionTest {
     private MatrizTransicion matrizTransicion;
     private AccionSemantica accionSemantica;
-    
+    /*
     public MatrizTransicionTest() {
         this.matrizTransicion = new MatrizTransicion();
         this.accionSemantica = new AccionAgregar();
@@ -60,4 +60,5 @@ public class MatrizTransicionTest {
         Transicion t1 = this.matrizTransicion.getTransicion(2, "1");
         assertTrue("Se pregunto por una transición nunca agregada y se devolvio una", t1 == null);
     }
+    * */
 }

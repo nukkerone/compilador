@@ -4,7 +4,9 @@
  */
 package lexico;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  *
@@ -26,8 +28,8 @@ public class MatrizTransicion {
      * @param estadoSiguiente
      * @param accionSemantica 
      */
-    public void setTransicion(int estadoInicial, String entrada, int estadoSiguiente, AccionSemantica accionSemantica) {
-        Transicion t = new Transicion(estadoSiguiente, accionSemantica);
+    public void setTransicion(int estadoInicial, String entrada, int estadoSiguiente, List<AccionSemantica> accionesSemanticas) {
+        Transicion t = new Transicion(estadoSiguiente, (List<AccionSemantica>) accionesSemanticas);
         
         if (this.tieneEstado(estadoInicial)) {
             Hashtable<String, Transicion> hash_t = this.transiciones.get(estadoInicial);
@@ -92,11 +94,11 @@ public class MatrizTransicion {
      * @param estado
      * @param entrada 
      */
-    public void ejecutarTransicion(int estado, String entrada) {
+    /*public void ejecutarTransicion(int estado, String entrada) {
         Transicion t = this.getTransicion(estado, entrada);
         if (t != null) {    // Si la transición existe
-            t.ejecutarAccion(); // Delegar ejecución de la acción
+            t.ejecutarAccion(""); // Delegar ejecución de la acción
         }
-    }
+    }*/
     
 }

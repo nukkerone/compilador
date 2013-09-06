@@ -28,12 +28,12 @@ public class AnalizadorLexicoTest {
     }
 
     @Test
-    public void testGetToken() {
-        try {
-            this.anlizadorLexico.getToken("dsgdfdf");
-        } catch( Exception e) {
-            System.out.println("Exception " + e);
+    public void testGetToken() throws Exception {
+        this.anlizadorLexico.setBuffer("var tamanio = 10;");
+        while(this.anlizadorLexico.hasNext()) {
+            System.out.println("Token : '" + this.anlizadorLexico.getNextToken() + "'");
         }
+        this.anlizadorLexico.printSimbolos();
     }
 
     @Test

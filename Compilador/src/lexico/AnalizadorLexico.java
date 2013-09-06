@@ -4,60 +4,189 @@
  */
 package lexico;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 /**
  *
  * @author Gabriel
  */
 public class AnalizadorLexico {
     private MatrizTransicion matrizTransicion;
-    private int estadoActual;
     private int cursorCar;
+    private String buffer;
+    private String cadenaTemporal;
+    private int estadoTemporal;
+    private ArrayList<Token> tokens;
+    private TablaSimbolos tablaSimbolos;
     
     final static String ET_LETRAS = "letras";
     final static String ET_DIGITOS = "digitos";
     final static String ET_ANGULARES = "<>";
     final static String ET_OPERADORES = "+-";
+    final static String ET_IGUAL = "=";
     final static String ET_POR = "*";
     final static String ET_ESPACIO = " ";
+    final static String ET_PUNTOCOMA = ";";
     
     final static int EST_INICIAL = 0;
     final static int EST_POSIBLE_IDENTIFICADOR = 1;
+    final static int EST_POSIBLE_DIGITO = 2;
     final static int EST_FINAL = 69;
+    
+    final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return"};
     
     public AnalizadorLexico() {
         this.matrizTransicion = new MatrizTransicion();
-        this.estadoActual = EST_INICIAL;
         this.cursorCar = 0;
         this.cargarGrafo();
+        this.buffer = "";
+        this.cadenaTemporal = "";
+        this.estadoTemporal = EST_INICIAL;
+        this.tokens = new ArrayList();
+        this.tablaSimbolos = new TablaSimbolos();
     }
     
     public void cargarGrafo() {
-        AccionSemantica accionSimple = new AccionAgregar();
+        AccionSemantica accionAgregar = new AccionAgregar(this);
+        AccionSemantica accionNoAgregar = new AccionNoAgregar(this);
+        AccionSemantica accionConsumir = new AccionConsumir(this);
+        AccionSemantica accionNoConsumir = new AccionNoConsumir(this);
+        AccionSemantica accionFin = new AccionFin(this);
         
-        // Flujo identificador
-        this.matrizTransicion.setTransicion(EST_INICIAL, ET_LETRAS, EST_POSIBLE_IDENTIFICADOR, accionSimple);
-        this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_LETRAS, EST_POSIBLE_IDENTIFICADOR, accionSimple);
-        this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_DIGITOS, EST_POSIBLE_IDENTIFICADOR, accionSimple);
-        this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_ANGULARES, EST_FINAL, accionSimple);
-        this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_OPERADORES, EST_FINAL, accionSimple);
-        this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_POR, EST_FINAL, accionSimple);
-        this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_ESPACIO, EST_FINAL, accionSimple);
+        ArrayList<AccionSemantica> accionesAgregarConsumir = new ArrayList();
+        accionesAgregarConsumir.add(accionAgregar);
+        accionesAgregarConsumir.add(accionConsumir);
+        
+        ArrayList<AccionSemantica> accionesNoAgregarNoConsumir = new ArrayList();
+        accionesNoAgregarNoConsumir.add(accionNoAgregar);
+        accionesNoAgregarNoConsumir.add(accionNoConsumir);
+        
+        ArrayList<AccionSemantica> accionesNoAgregarConsumir = new ArrayList();
+        accionesNoAgregarConsumir.add(accionNoAgregar);
+        accionesNoAgregarConsumir.add(accionConsumir);
+        
+        // Reglas Identificar Identificadores
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_LETRAS, EST_POSIBLE_IDENTIFICADOR, 
+                accionesAgregarConsumir);
+        this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_LETRAS, EST_POSIBLE_IDENTIFICADOR, accionesAgregarConsumir);
+        this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_DIGITOS, EST_POSIBLE_IDENTIFICADOR, accionesAgregarConsumir);
+        this.setTransicionOtros(EST_POSIBLE_IDENTIFICADOR, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
+                (List<String>) Arrays.asList(new String[] { ET_LETRAS, ET_DIGITOS }));
+        
+        // Reglas Identificar Operador Asignacion  (=)
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_IGUAL, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
+        
+        // Reglas Identificar Digitos
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_DIGITOS, EST_POSIBLE_DIGITO, accionesAgregarConsumir);
+        this.matrizTransicion.setTransicion(EST_POSIBLE_DIGITO, ET_DIGITOS, EST_POSIBLE_DIGITO, accionesAgregarConsumir);
+        this.setTransicionOtros(EST_POSIBLE_DIGITO, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
+                (List<String>) Arrays.asList(new String[] { ET_DIGITOS }));
+        
+        // Reglas Identificar Espacio
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_ESPACIO, EST_INICIAL, accionesNoAgregarConsumir);
+        // Reglas Identificar Punto/Coma
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_PUNTOCOMA, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin }));
     }
     
-    public String getToken(String cadena) throws Exception {
-        cadena = "v9ar identificador1 = 90";
-        int estado = 0;
+    public String getNextToken() throws Exception {
+        this.cadenaTemporal = "";
+        this.estadoTemporal = 0;
         String etiquetaEntrada = "";
-        for (; this.cursorCar < cadena.length(); this.cursorCar++) {
-            etiquetaEntrada = clasificacionEntrada(cadena.charAt(cursorCar));
-            Transicion transicion = this.matrizTransicion.getTransicion(estado, etiquetaEntrada);
-            if (transicion == null) {
-                throw new Exception("No se encontro transición para el estado/entrada");
+        for (; this.cursorCar < buffer.length(); this.cursorCar++) {
+            char caracter = buffer.charAt(cursorCar);
+            etiquetaEntrada = clasificacionEntrada(caracter);
+            Transicion transicion = this.matrizTransicion.getTransicion(this.estadoTemporal, etiquetaEntrada);
+            if (this.estadoTemporal == this.EST_FINAL) {
+                return this.cadenaTemporal;
+            } else {
+                if (transicion == null) {
+                    //return this.cadenaTemporal;
+                    throw new Exception("No se encontró transición para el estado: " + this.estadoTemporal + "  -- Entrada: " + caracter);
+                    //@TODO implementar error por no reconocer el token
+                }
             }
-            estado = transicion.getEstado();
-            transicion.ejecutarAccion();
+            
+            transicion.ejecutarAccion(this);
+            this.estadoTemporal = transicion.getEstado();
         }
-        return "";
+        if (this.estadoTemporal == this.EST_FINAL) {
+            return this.cadenaTemporal;
+        } else {
+            throw new Exception("No se llego a estado final y se acabaron los caracteres de entrada");
+        }
+    }
+    
+    public void goBack() {
+        this.cursorCar--;
+    }
+    
+    public void saveTempChar(char c) {
+        this.cadenaTemporal += c;
+    }
+    
+    public void setBuffer(String buffer) {
+        this.buffer = buffer;
+    }
+    
+    public boolean hasNext() {
+        if (this.cursorCar < this.buffer.length()) {
+            return true;
+        }
+        return false;
+    }
+    
+    public String getCadenaTemporal() {
+        return this.cadenaTemporal;
+    }
+    
+    /**
+     * Devuelve el caracter en la posicion del cursor actual
+     * 
+     * @return 
+     */
+    public char getCaracterActual() {
+        return this.buffer.charAt(cursorCar);        
+    }
+    
+    /**
+     * Devuelve el estado temporal, que está analizando el analizador léxico
+     * 
+     * @return 
+     */
+    public int getEstado() {
+        return this.estadoTemporal;
+    }
+    
+    public void addToken(Token token) {
+        this.tokens.add(token);
+        this.tablaSimbolos.addSimbolo(token);
+    }
+    
+    public void reset() {
+        this.tokens.clear();
+        this.cadenaTemporal = "";
+        this.estadoTemporal = this.EST_INICIAL;
+        this.cursorCar = 0;
+        this.buffer = "";
+        this.tablaSimbolos.reset();
+    }
+    
+    public void printSimbolos() {
+        Iterator<Token> tablaSimbolosIterator = this.tablaSimbolos.createIterator();
+        while(tablaSimbolosIterator.hasNext()) {
+            Token simbolo = tablaSimbolosIterator.next();
+            System.out.println("Simbolo: " + simbolo.getLexema() );
+        }                                                                                                                                                                                                          
     }
     
     public String clasificacionEntrada(char c)
@@ -93,7 +222,7 @@ public class AnalizadorLexico {
             return "-";
 
         case 59: // ';'
-            return ";";
+            return ET_PUNTOCOMA;
 
         case 44: // ','
             return ",";
@@ -114,7 +243,7 @@ public class AnalizadorLexico {
             return "\"";
 
         case 61: // '='
-            return "=";
+            return this.ET_IGUAL;
 
         case 60: // '<'
             return this.ET_ANGULARES;
@@ -126,6 +255,25 @@ public class AnalizadorLexico {
             return "!";
         }
         return "otro";
+    }
+
+    /**
+     * Setea todas las transiciones para 'Otros', es dinamico y depende de la etiqueta a evitar
+     * 
+     * @param estadoActual
+     * @param estadoSiguiente
+     * @param acciones
+     * @param etiquetaAEvitar 
+     */
+    private void setTransicionOtros(int estadoActual, int estadoSiguiente, List<AccionSemantica> acciones, List<String> etiquetaAEvitar) {
+        String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_ANGULARES,ET_OPERADORES,ET_IGUAL,ET_POR,ET_ESPACIO, ET_PUNTOCOMA};
+        ArrayList<String> etiquetasArray = new ArrayList(Arrays.asList(etiquetas));
+        for(int i=0; i<etiquetasArray.size(); i++) {
+            String etiqueta = etiquetasArray.get(i);
+            if ( !etiquetaAEvitar.contains(etiqueta) ) {
+                this.matrizTransicion.setTransicion(estadoActual, etiqueta, estadoSiguiente, acciones);
+            }
+        }
     }
 
 
