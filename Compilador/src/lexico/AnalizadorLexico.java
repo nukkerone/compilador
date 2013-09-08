@@ -22,12 +22,16 @@ public class AnalizadorLexico {
     private String buffer;
     private String cadenaTemporal;
     private int estadoTemporal;
+    private int nroLinea;
     private ArrayList<Token> tokens;
+    private ArrayList<Error> errors;
     private TablaSimbolos tablaSimbolos;
+    
     
     final static String ET_LETRAS = "letras";
     final static String ET_DIGITOS = "digitos";
     final static String ET_ANGULARES = "<>";
+    final static String ET_SALTO_LINEA = "\n";
     final static String ET_OPERADORES = "+-";
     final static String ET_IGUAL = "=";
     final static String ET_POR = "*";
@@ -47,8 +51,10 @@ public class AnalizadorLexico {
         this.cargarGrafo();
         this.buffer = "";
         this.cadenaTemporal = "";
+        this.nroLinea = 1;
         this.estadoTemporal = EST_INICIAL;
         this.tokens = new ArrayList();
+        this.errors = new ArrayList();
         this.tablaSimbolos = new TablaSimbolos();
     }
     
@@ -96,9 +102,14 @@ public class AnalizadorLexico {
         // Reglas Identificar Punto/Coma
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_PUNTOCOMA, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin }));
+        
+        // Reglas Identificar Salto Línea
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_SALTO_LINEA, EST_INICIAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
+        
     }
     
-    public String getNextToken() throws Exception {
+    public Token getNextToken() {
         this.cadenaTemporal = "";
         this.estadoTemporal = 0;
         String etiquetaEntrada = "";
@@ -107,12 +118,12 @@ public class AnalizadorLexico {
             etiquetaEntrada = clasificacionEntrada(caracter);
             Transicion transicion = this.matrizTransicion.getTransicion(this.estadoTemporal, etiquetaEntrada);
             if (this.estadoTemporal == this.EST_FINAL) {
-                return this.cadenaTemporal;
+                return this.getLastToken();
             } else {
                 if (transicion == null) {
-                    //return this.cadenaTemporal;
-                    throw new Exception("No se encontró transición para el estado: " + this.estadoTemporal + "  -- Entrada: " + caracter);
-                    //@TODO implementar error por no reconocer el token
+                    Error err = new Error("La entrada del símbolo " + caracter + " luego de la cadena " + this.cadenaTemporal +
+                            " no es un token valido para el lenguaje", this.getNroLinea());
+                    this.addError(err);
                 }
             }
             
@@ -120,10 +131,11 @@ public class AnalizadorLexico {
             this.estadoTemporal = transicion.getEstado();
         }
         if (this.estadoTemporal == this.EST_FINAL) {
-            return this.cadenaTemporal;
-        } else {
-            throw new Exception("No se llego a estado final y se acabaron los caracteres de entrada");
+            if (this.tokens.size() > 0) {
+                return this.getLastToken();
+            }
         }
+        return null;
     }
     
     public void goBack() {
@@ -174,6 +186,7 @@ public class AnalizadorLexico {
     
     public void reset() {
         this.tokens.clear();
+        this.errors.clear();
         this.cadenaTemporal = "";
         this.estadoTemporal = this.EST_INICIAL;
         this.cursorCar = 0;
@@ -266,7 +279,7 @@ public class AnalizadorLexico {
      * @param etiquetaAEvitar 
      */
     private void setTransicionOtros(int estadoActual, int estadoSiguiente, List<AccionSemantica> acciones, List<String> etiquetaAEvitar) {
-        String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_ANGULARES,ET_OPERADORES,ET_IGUAL,ET_POR,ET_ESPACIO, ET_PUNTOCOMA};
+        String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_ANGULARES,ET_OPERADORES,ET_IGUAL,ET_POR,ET_ESPACIO, ET_PUNTOCOMA, ET_SALTO_LINEA};
         ArrayList<String> etiquetasArray = new ArrayList(Arrays.asList(etiquetas));
         for(int i=0; i<etiquetasArray.size(); i++) {
             String etiqueta = etiquetasArray.get(i);
@@ -274,6 +287,30 @@ public class AnalizadorLexico {
                 this.matrizTransicion.setTransicion(estadoActual, etiqueta, estadoSiguiente, acciones);
             }
         }
+    }
+
+    boolean esReservada(String cadenaTemporal) {
+        return Arrays.asList(this.RESERVADAS).contains(cadenaTemporal);
+    }
+
+    private Token getLastToken() {
+        if (this.tokens.size() > 0) {
+            return this.tokens.get(this.tokens.size()-1);
+        }
+        
+        return null;        
+    }
+
+    public void avanzarLinea() {
+        this.nroLinea++;
+    }
+    
+    public int getNroLinea() {
+        return this.nroLinea;
+    }
+
+    private void addError(Error err) {
+        this.errors.add(err);
     }
 
 

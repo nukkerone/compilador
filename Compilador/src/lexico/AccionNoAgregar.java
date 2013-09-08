@@ -15,6 +15,10 @@ public class AccionNoAgregar extends AccionSemantica {
 
     @Override
     int ejecutar() {
+        char caracter = this.analizadorLexico.getCaracterActual();
+        if (caracter == 10) {   // 10 es el salto de línea => \n
+            this.analizadorLexico.avanzarLinea();
+        }
         return 0;
     }
     
