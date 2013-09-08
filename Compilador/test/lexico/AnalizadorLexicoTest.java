@@ -29,11 +29,11 @@ public class AnalizadorLexicoTest {
 
     @Test
     public void testGetToken() throws Exception {
-        this.anlizadorLexico.setBuffer("var tamanio = 10;");
+        this.anlizadorLexico.setBuffer("1if tamanio = 10;\nvar casa;");
         while(this.anlizadorLexico.hasNext()) {
             System.out.println("Token : '" + this.anlizadorLexico.getNextToken() + "'");
         }
-        this.anlizadorLexico.printSimbolos();
+        //this.anlizadorLexico.printSimbolos();
     }
 
     @Test
