@@ -33,7 +33,7 @@ public class AccionFin extends AccionSemantica{
             token = new TokenLexemaDistinto("CTE", cadenaTemporal);
             break;
         default:
-            token = new Token(cadenaTemporal);;
+            token = new Token(cadenaTemporal);
             break;
         }
         token.setNroLinea(this.analizadorLexico.getNroLinea());
