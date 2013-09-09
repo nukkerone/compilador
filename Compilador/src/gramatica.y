@@ -22,20 +22,97 @@ import java.util.Hashtable;
 %token FOR
 
 %%
-
-expresion : expresion '+' termino |
-            expresion '-' termino |
-            termino
+programa : declaraciones sentencias
+ ;
+declaraciones : /* no hay mas declaraciones */
+|  declaraciones declaracion
 ;
 
-termino :   termino '*' factor |
-            termino '/' factor |
-            factor
+declaracion : tipo lista_variables ';' { /* eventos.EventNewRule("Declaracion de vars", analizador_lexico.getNumLinea()); */}
 ;
 
-factor :    ID  |
-            CTE |
+tipo : INT | STRING
 ;
+
+lista_variables: ID
+| lista_variables ',' ID 
+;
+
+sentencias : sentencia 
+| sentencias sentencia 
+;
+
+sentencia : sentencia_completa {/* eventos.EventNewRule("Sentencia Completa", analizador_lexico.getNumLinea()); */}
+| sentencia_incompleta { /* eventos.EventNewRule("Sentencia Incompleta", analizador_lexico.getNumLinea()); */}
+//| error ';' {/*eventos.EventError("sentencia incorrecta", analizador_lexico.getNumLinea());
+//				huboError = true; */}
+;
+
+sentencia_completa: asignacion
+| sentencia_if_completo
+| sentencia_while_completa
+| sentencia_print
+;
+
+bloque: '{' sentencias '}'
+| '{' '}'
+;
+
+bloque_o_completa: bloque
+| sentencia_completa
+;
+
+bloque_o_sentencia: bloque
+| sentencia
+;
+
+sentencia_incompleta : IF condicion bloque_o_completa ELSE sentencia_incompleta
+| IF condicion bloque_o_sentencia
+|FOR condicion sentencia_incompleta
+;
+
+condicion : '(' comparacion ')'
+;
+
+sentencia_if_completo : IF condicion bloque_o_completa ELSE bloque_o_completa
+;
+
+
+asignacion: ID '=' expresion ';'
+| ID '=' expresion {/* eventos.EventError("falta un punto y coma", analizador_lexico.getNumLinea());
+				huboError = true; */}
+;
+
+comparacion : expresion COMPARADOR expresion
+;
+
+sentencia_while_completa: FOR condicion bloque_o_completa
+;
+
+sentencia_print: PRINT '(' STRING ')' ';'
+| PRINT '(' STRING ')' {/* eventos.EventError("falta un ';'", analizador_lexico.getNumLinea());
+				huboError = true; */}
+| PRINT '(' STRING {/* eventos.EventError("falta un ')'", analizador_lexico.getNumLinea());
+				huboError = true; */}
+| PRINT STRING ')' {/* eventos.EventError("falta un '('", analizador_lexico.getNumLinea());
+				huboError = true; */}
+;
+
+expresion : expresion '+' termino
+| expresion '-' termino
+| termino
+;
+
+termino : termino '*' factor
+| termino '/' factor
+| factor
+;
+
+factor : ID
+| CTE
+| '(' expresion ')'
+;
+
 
 %%
 
@@ -80,7 +157,7 @@ static {
 	
 	Conversor.put("CADENA", STRING);
 	Conversor.put("INTEGER", CTE);
-	Conversor.put("IDENTIFICADOR", ID);
+	Conversor.put("ID", ID);
 	Conversor.put("if", IF);
 	Conversor.put( "else", ELSE);
 	Conversor.put( "print", PRINT);
