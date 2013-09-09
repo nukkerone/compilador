@@ -126,7 +126,7 @@ public class AnalizadorLexico {
         this.setTransicionOtros(EST_POSIBLE_FIN_COMENTARIO, EST_COMENTARIO, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir}), //modificado
                 (List<String>) Arrays.asList(new String[] { ET_POR, ET_DIVISOR }));
-        this.matrizTransicion.setTransicion(EST_COMENTARIO, ET_DIVISOR, EST_INICIAL, 
+        this.matrizTransicion.setTransicion(EST_POSIBLE_FIN_COMENTARIO, ET_DIVISOR, EST_INICIAL, 
          (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionLimpiarCadenaTemp }));
         
         // Reglas Identificar Identificadores
@@ -158,7 +158,7 @@ public class AnalizadorLexico {
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
         // Reglas Identificar Punto/Coma
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_PUNTOCOMA, EST_FINAL, 
-                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir, accionFin }));
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin }));
    // Reglas Identificar Salto Linea
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_SALTO_LINEA, EST_INICIAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
