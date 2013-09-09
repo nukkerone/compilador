@@ -151,6 +151,10 @@ public void addAnalizadorLexico( AnalizadorLexico al)
     anLexico = al;
 }
 
+public int parse() {
+    return yyparse();
+}
+
 static Hashtable<String, Short> Conversor;
 static {
 	Conversor = new Hashtable<String, Short>();
