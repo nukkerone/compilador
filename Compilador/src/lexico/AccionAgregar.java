@@ -16,6 +16,10 @@ public class AccionAgregar extends AccionSemantica {
 
     @Override
     int ejecutar() {
+        char caracter = this.analizadorLexico.getCaracterActual();
+        if (caracter == 10) {   // 10 es el salto de línea => \n
+            this.analizadorLexico.avanzarLinea();
+        }
         this.analizadorLexico.saveTempChar(this.analizadorLexico.getCaracterActual());
         return 0;
     }

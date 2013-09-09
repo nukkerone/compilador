@@ -23,19 +23,22 @@ public class AccionFin extends AccionSemantica{
         switch(estado)
         {
         case 1: // Identificando Identificador
-            token = new TokenLexemaDistinto("ID", cadenaTemporal );
+            if (analizadorLexico.esReservada(cadenaTemporal)) {
+                token = new Token(cadenaTemporal);
+            } else {
+                token = new TokenLexemaDistinto("ID", cadenaTemporal );
+            }
             break;
         case 2: // Identificando Constantes (Digitos)
             token = new TokenLexemaDistinto("CTE", cadenaTemporal);
             break;
         default:
-            token = null;
+            token = new Token(cadenaTemporal);
             break;
         }
+        token.setNroLinea(this.analizadorLexico.getNroLinea());
+        analizadorLexico.addToken(token);
         
-        if (token != null) {
-            analizadorLexico.addToken(token);
-        }
         return 0;
     }
     
