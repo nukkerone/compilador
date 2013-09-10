@@ -31,7 +31,7 @@ public class AnalizadorLexicoTest {
 
     @Test
     public void testGetToken() throws Exception {
-           this.anlizadorLexico.setBuffer("\"HOLA \"+\n+\"seseses\";");
+           this.anlizadorLexico.setBuffer("\"!#$%&/() █ Æ  \";");
      //   this.anlizadorLexico.setBuffer(" \"HOLA \" + \n +\" hpepe\" ;");
         while(this.anlizadorLexico.hasNext()) {
             Token token = this.anlizadorLexico.getNextToken();
