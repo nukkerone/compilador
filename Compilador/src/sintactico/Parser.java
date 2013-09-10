@@ -414,6 +414,10 @@ public void addAnalizadorLexico( AnalizadorLexico al)
     anLexico = al;
 }
 
+public int parse() {
+    return yyparse();
+}
+
 static Hashtable<String, Short> Conversor;
 static {
 	Conversor = new Hashtable<String, Short>();
@@ -444,7 +448,7 @@ static {
 	Conversor.put( "*", new Short((short)'*'));
 	Conversor.put( "/", new Short((short)'/'));	
 }
-//#line 376 "Parser.java"
+//#line 380 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -630,7 +634,7 @@ case 35:
 {/* eventos.EventError("falta un '('", analizador_lexico.getNumLinea());
 				huboError = true; */}
 break;
-//#line 557 "Parser.java"
+//#line 561 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

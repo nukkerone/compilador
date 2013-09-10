@@ -30,7 +30,7 @@ public class ParserTest {
         AnalizadorLexico al = new AnalizadorLexico();
         al.setBuffer("int peso;");
         p.addAnalizadorLexico(al);
-        p.run();
+        int resultado = p.parse();
         //System.out.println("Resultado: " + result);
     }
 
