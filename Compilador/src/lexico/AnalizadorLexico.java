@@ -40,6 +40,11 @@ public class AnalizadorLexico {
     final static String ET_ESPACIO = " ";
     final static String ET_PUNTOCOMA = ";";
     final static String ET_SALTO_LINEA = "\n";
+    final static String ET_ABRE_PARENT = "(";
+    final static String ET_CIERRA_PARENT = ")";
+    final static String ET_ABRE_LLAVE = "{";
+    final static String ET_CIERRA_LLAVE = "}";
+    final static String ET_CADENA = "cadena";
     
     final static int EST_INICIAL = 0;
     final static int EST_POSIBLE_IDENTIFICADOR = 1;
@@ -50,6 +55,10 @@ public class AnalizadorLexico {
     final static int EST_COMPMAYOR = 6;
     final static int EST_COMPMENOR = 7;
     final static int EST_IGUAL = 8;
+    final static int EST_PARENTESIS = 9;
+    final static int EST_LLAVES = 10;
+    final static int EST_CADENA_CARACTER = 11;
+    
     final static int EST_FINAL = 69;
     
     final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return"};
@@ -87,7 +96,36 @@ public class AnalizadorLexico {
         accionesNoAgregarConsumir.add(accionLimpiarCadenaTemp);
         accionesNoAgregarConsumir.add(accionConsumir);
         
-         // Reglas Comparadores MENOR
+ //Parentesis
+         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_PARENT, EST_PARENTESIS, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
+         this.setTransicionOtros(EST_PARENTESIS, EST_PARENTESIS, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
+                (List<String>) Arrays.asList(new String[] { ET_CIERRA_PARENT }));
+         this.matrizTransicion.setTransicion(EST_PARENTESIS, ET_CIERRA_PARENT, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir, accionFin }));
+       
+ //llaves
+         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_LLAVE, EST_LLAVES, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
+         this.setTransicionOtros(EST_LLAVES, EST_LLAVES, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
+                (List<String>) Arrays.asList(new String[] { ET_CIERRA_LLAVE }));
+         this.matrizTransicion.setTransicion(EST_LLAVES, ET_CIERRA_LLAVE, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir, accionFin }));
+      
+ //multilineas  
+         this.matrizTransicion.setTransicion(EST_INICIAL, ET_CADENA, EST_CADENA_CARACTER, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
+         this.setTransicionOtros(EST_CADENA_CARACTER, EST_CADENA_CARACTER, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
+                (List<String>) Arrays.asList(new String[] { ET_CADENA }));
+         this.matrizTransicion.setTransicion(EST_CADENA_CARACTER, ET_CADENA, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir, accionFin }));
+      
+                 
+                 
+// Reglas Comparadores MENOR
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ANGMENOR, EST_COMPMENOR, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
         this.matrizTransicion.setTransicion(EST_COMPMENOR, ET_IGUAL, EST_FINAL, 
@@ -97,7 +135,7 @@ public class AnalizadorLexico {
                 (List<String>) Arrays.asList(new String[] { ET_IGUAL, ET_ANGMENOR }));
         
         
-       // Reglas Comparadores MAYOR
+// Reglas Comparadores MAYOR
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ANGMAYOR, EST_COMPMAYOR,
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionAgregar}));
         this.matrizTransicion.setTransicion(EST_COMPMAYOR, ET_IGUAL, EST_FINAL, 
@@ -107,7 +145,7 @@ public class AnalizadorLexico {
                 (List<String>) Arrays.asList(new String[] { ET_IGUAL, ET_ANGMAYOR })); 
         
         
-        // Reglas COMENTARIO ADEMAS SE OBTIENE LA BARRA O DIVISION
+// Reglas COMENTARIO ADEMAS SE OBTIENE LA BARRA O DIVISION
       
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_DIVISOR, EST_POSIBLE_COMENTARIO, 
          (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir }));
@@ -130,7 +168,7 @@ public class AnalizadorLexico {
         this.matrizTransicion.setTransicion(EST_POSIBLE_FIN_COMENTARIO, ET_DIVISOR, EST_INICIAL, 
          (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionLimpiarCadenaTemp }));
         
-        // Reglas Identificar Identificadores
+// Reglas Identificar Identificadores
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_LETRAS, EST_POSIBLE_IDENTIFICADOR, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir}));
         this.matrizTransicion.setTransicion(EST_POSIBLE_IDENTIFICADOR, ET_LETRAS, EST_POSIBLE_IDENTIFICADOR, 
@@ -140,12 +178,21 @@ public class AnalizadorLexico {
         this.setTransicionOtros(EST_POSIBLE_IDENTIFICADOR, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
                 (List<String>) Arrays.asList(new String[] { ET_LETRAS, ET_DIGITOS }));
+       
         
-        // Reglas Identificar Operador Asignacion  (=)
+        
+ // Reglas Identificar Operador Asignacion  (=)
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_IGUAL, EST_IGUAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir}));
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_IGUAL, EST_FINAL, 
-                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir,accionFin}));
+        this.setTransicionOtros(EST_IGUAL, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
+                (List<String>) Arrays.asList(new String[] { ET_IGUAL}));
         
-        // Reglas Identificar Digitos
+        
+        
+ // Reglas Identificar Digitos
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_DIGITOS, EST_POSIBLE_DIGITO, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir }));
         this.matrizTransicion.setTransicion(EST_POSIBLE_DIGITO, ET_DIGITOS, EST_POSIBLE_DIGITO,
@@ -154,13 +201,13 @@ public class AnalizadorLexico {
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
                 (List<String>) Arrays.asList(new String[] { ET_DIGITOS }));
         
-        // Reglas Identificar Espacio
+ // Reglas Identificar Espacio
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ESPACIO, EST_INICIAL,
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
-        // Reglas Identificar Punto/Coma
+ // Reglas Identificar Punto/Coma
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_PUNTOCOMA, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin }));
-   // Reglas Identificar Salto Linea
+ // Reglas Identificar Salto Linea
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_SALTO_LINEA, EST_INICIAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
         
