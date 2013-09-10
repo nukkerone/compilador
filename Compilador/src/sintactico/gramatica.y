@@ -30,6 +30,20 @@ programa: declaraciones FIN;
 declaraciones: 
 ;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %%
 
 boolean finished = false;
