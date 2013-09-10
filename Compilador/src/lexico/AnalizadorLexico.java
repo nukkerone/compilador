@@ -61,7 +61,7 @@ public class AnalizadorLexico {
     
     final static int EST_FINAL = 69;
     
-    final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return"};
+    final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return", "int"};
     
     public AnalizadorLexico() {
         this.matrizTransicion = new MatrizTransicion();

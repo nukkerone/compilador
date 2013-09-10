@@ -7,9 +7,9 @@ package sintacticoTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import sintactico.*;
 import compilador.*;
 import lexico.*;
-import sintactico.*;
 
 /**
  *
@@ -28,10 +28,10 @@ public class ParserTest {
     public void testParser() {
         Parser p = new Parser(true);
         AnalizadorLexico al = new AnalizadorLexico();
-        al.setBuffer("int peso;");
+        al.setBuffer("int");
         p.addAnalizadorLexico(al);
         int resultado = p.parse();
-        //System.out.println("Resultado: " + result);
+        System.out.println("Resultado: " + resultado);
     }
 
    
