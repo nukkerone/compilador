@@ -45,6 +45,7 @@ public class AnalizadorLexico {
     final static String ET_ABRE_LLAVE = "{";
     final static String ET_CIERRA_LLAVE = "}";
     final static String ET_CADENA = "cadena";
+    final static String ET_EXCLAMACION = "exclamacion";
     
     final static int EST_INICIAL = 0;
     final static int EST_POSIBLE_IDENTIFICADOR = 1;
@@ -95,6 +96,15 @@ public class AnalizadorLexico {
         ArrayList<AccionSemantica> accionesNoAgregarConsumir = new ArrayList();
         accionesNoAgregarConsumir.add(accionLimpiarCadenaTemp);
         accionesNoAgregarConsumir.add(accionConsumir);
+        
+ 
+ //DISTINTO
+         this.matrizTransicion.setTransicion(EST_INICIAL, ET_EXCLAMACION, EST_IGUAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
+         this.matrizTransicion.setTransicion(EST_IGUAL, ET_IGUAL, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir, accionFin }));
+       
+            
         
  //Parentesis
          this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_PARENT, EST_PARENTESIS, 
@@ -324,16 +334,16 @@ public class AnalizadorLexico {
             return ET_POR;
 
         case 40: // '('
-            return "(";
+            return ET_ABRE_PARENT;
 
         case 41: // ')'
-            return ")";
+            return ET_CIERRA_PARENT;
 
         case 123: // '{'
-            return "{";
+            return ET_ABRE_LLAVE;
 
         case 125: // '}'
-            return "}";
+            return ET_CIERRA_LLAVE;
 
         case 43: // '+'
             return "+";
@@ -372,7 +382,7 @@ public class AnalizadorLexico {
             return this.ET_ANGMENOR;
 
         case 33: // '!'
-            return "!";
+            return ET_EXCLAMACION;
         }
         return "otro";
     }
@@ -386,7 +396,8 @@ public class AnalizadorLexico {
      * @param etiquetaAEvitar 
      */
     private void setTransicionOtros(int estadoActual, int estadoSiguiente, List<AccionSemantica> acciones, List<String> etiquetaAEvitar) {
-        String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_ANGMENOR,ET_ANGMAYOR,ET_OPERADORES,ET_IGUAL,ET_POR,ET_ESPACIO, ET_PUNTOCOMA};
+        String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_DIVISOR,ET_ANGMENOR,ET_ANGMAYOR,ET_OPERADORES,ET_IGUAL,ET_POR,
+            ET_ESPACIO, ET_PUNTOCOMA, ET_SALTO_LINEA,ET_ABRE_LLAVE,ET_CIERRA_LLAVE,ET_ABRE_PARENT,ET_CIERRA_PARENT,ET_CADENA,ET_EXCLAMACION};
         ArrayList<String> etiquetasArray = new ArrayList(Arrays.asList(etiquetas));
         for(int i=0; i<etiquetasArray.size(); i++) {
             String etiqueta = etiquetasArray.get(i);
@@ -395,8 +406,9 @@ public class AnalizadorLexico {
             }
         }
     }
-
-    boolean esReservada(String cadenaTemporal) {
+    
+      
+   boolean esReservada(String cadenaTemporal) {
         return Arrays.asList(this.RESERVADAS).contains(cadenaTemporal);
     }
 
