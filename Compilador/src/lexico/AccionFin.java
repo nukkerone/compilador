@@ -36,7 +36,7 @@ public class AccionFin extends AccionSemantica{
             token = new Token(cadenaTemporal);
             break;
         }
-        token.setNroLinea(this.analizadorLexico.getNroLinea());
+        token.setNroLinea(this.analizadorLexico.getlineaInicUltimoToken());
         analizadorLexico.addToken(token);
         
         return 0;
