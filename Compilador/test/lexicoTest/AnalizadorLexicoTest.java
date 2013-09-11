@@ -4,6 +4,7 @@
  */
 package lexicoTest;
 
+import herramientaerror.EventoError;
 import lexico.AnalizadorLexico;
 import lexico.Token;
 import org.junit.BeforeClass;
@@ -15,10 +16,10 @@ import static org.junit.Assert.*;
  * @author Gabriel
  */
 public class AnalizadorLexicoTest {
-    private AnalizadorLexico anlizadorLexico = new AnalizadorLexico();
+    private AnalizadorLexico anlizadorLexico;
     
     public AnalizadorLexicoTest() {
-        this.anlizadorLexico = new AnalizadorLexico();
+        this.anlizadorLexico = new AnalizadorLexico(new EventoError());
     }
     
     @BeforeClass
@@ -31,7 +32,7 @@ public class AnalizadorLexicoTest {
 
     @Test
     public void testGetToken() throws Exception {
-           this.anlizadorLexico.setBuffer("\"!#$%&/() █ Æ  \";");
+           this.anlizadorLexico.setBuffer(" int a ");
      //   this.anlizadorLexico.setBuffer(" \"HOLA \" + \n +\" hpepe\" ;");
         while(this.anlizadorLexico.hasNext()) {
             Token token = this.anlizadorLexico.getNextToken();
