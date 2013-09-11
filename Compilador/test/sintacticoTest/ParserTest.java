@@ -23,7 +23,7 @@ public class ParserTest {
     public ParserTest() {
         this.debug = true;
         this.p = new Parser(this.debug);
-        this.al = new AnalizadorLexico();
+        this.al = new AnalizadorLexico(null);
         this.p.addAnalizadorLexico(this.al);
     }
     
