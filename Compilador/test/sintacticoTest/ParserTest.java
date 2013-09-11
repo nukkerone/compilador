@@ -76,13 +76,41 @@ public class ParserTest {
         this.prepareParser("function getColor(string color)");
         assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
         */
+        
+        this.prepareParser("function getColor(string color)");
+        assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
     }
     
     @Test
     public void testIf() {
-        this.prepareParser("if (valor > 10) { valor = 5; }");
-        assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+        /*
+        this.prepareParser("if (valor > 10) then { valor = 5; } else { valor = 2; }");
+        assertTrue("Sentencia IF completa y correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+        
+        this.prepareParser("if (valor > 10) then { valor = 5; }");
+        assertTrue("Sentencia IF sin ELSE correcta no pasó el analizador sintáctico", this.p.parse() == 0);
                 
+        this.prepareParser("if  then { valor = 5; }");
+        assertTrue("Sentencia IF sin CONDICION (Incorrecta) pasó el analizador sintáctico", this.p.parse() != 0);
+        
+        this.prepareParser("if (valor > 10)");
+        assertTrue("Sentencia IF sin Then ni bloque de ejecución (Incorrecta) pasó el analizador sintáctico", this.p.parse() != 0);
+        * */
+    }
+    
+    @Test
+    public void testBloques() {
+        /*
+        this.prepareParser("valor = 10;");
+        assertTrue("Se definio un bloque correcto pero no pasó el analizador sintáctico", this.p.parse() == 0);
+        
+        this.prepareParser("color = \"rojo\";");
+        assertTrue("Se definio un bloque (Asignación String) correcto pero no pasó el analizador sintáctico", this.p.parse() == 0);
+        
+        this.prepareParser("valor = 10; color = \"rojo\";");
+        assertTrue("Bloque multiple correcto pero no pasó el analizador sintáctico", this.p.parse() == 0);
+        */
+        
     }
 
    

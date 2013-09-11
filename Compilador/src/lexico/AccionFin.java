@@ -33,10 +33,10 @@ public class AccionFin extends AccionSemantica{
             token = new TokenLexemaDistinto("CTE", cadenaTemporal);
             break;
         case 12: // Identificando String (cadena de caracteres)
-            token = new TokenLexemaDistinto("String", cadenaTemporal);
+            token = new TokenLexemaDistinto("string", cadenaTemporal);
             break;
         case 13: // Identificando String (cadena de caracteres)
-            token = new TokenLexemaDistinto("String", cadenaTemporal);
+            token = new TokenLexemaDistinto("string", cadenaTemporal);
             break;    
    //     case     
         default:

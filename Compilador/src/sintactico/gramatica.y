@@ -32,8 +32,15 @@ declaraciones:
 | declaraciones declaracion;
 ;
 
-declaracion: tipo lista_variables ';'
-| FUNCTION ID '(' parametro ')' bloque_funcion
+declaracion: declaracion_simple
+| FUNCTION ID '(' parametro ')' '{' declaraciones_funcion ejecutable '}'
+;
+
+declaraciones_funcion: 
+| declaraciones_funcion declaracion_simple
+;
+
+declaracion_simple: tipo lista_variables ';'
 ;
 
 parametro: 
@@ -48,27 +55,32 @@ lista_variables: ID
 | lista_variables ',' ID
 ;
 
-ejecutable: sentencia
-| bloque
+ejecutable: 
+| sentencias
 ;
 
 bloque: '{' sentencias '}'
 ;
 
-bloque_funcion:
+cuerpo_funcion: declaraciones_funcion ejecutable
 ;
 
 llamado_funcion: ID '(' parametro ')' ';'
 ;
 
-sentencias: sentencias sentencia
+sentencias: sentencia
+| sentencias sentencia
 ;
 
 sentencia: sentencia_if
 | sentencia_asignacion
 ;
 
-sentencia_if: IF condicion bloque ELSE bloque
+sentencia_if: IF condicion THEN bloque parte_else
+;
+
+parte_else: 
+| ELSE bloque
 ;
 
 condicion: '(' comparacion ')'
@@ -92,9 +104,9 @@ termino : termino '*' factor
 
 factor: ID
 | CTE
+| STRING
 | '(' expresion ')'
 ;
-
 
 %%
 
@@ -148,6 +160,7 @@ static {
 	Conversor.put("CTE", CTE);
 	Conversor.put("ID", ID);
 	Conversor.put("if", IF);
+        Conversor.put("then", THEN);
 	Conversor.put( "else", ELSE);
 	Conversor.put( "print", PRINT);
 	Conversor.put( "for", FOR);
