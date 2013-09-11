@@ -49,6 +49,7 @@ public class AnalizadorLexico {
     final static String ET_CADENA = "\"";
     final static String ET_EXCLAMACION = "!";
     final static String ET_COMA = ",";
+    final static String ET_OTRO = "otro";
     
     final static int EST_INICIAL = 0;
     final static int EST_POSIBLE_IDENTIFICADOR = 1;
@@ -418,7 +419,7 @@ public class AnalizadorLexico {
         case 33: // '!'
             return ET_EXCLAMACION;
         }
-        return "otro";
+        return ET_OTRO;
     }
 
     /**
@@ -431,7 +432,8 @@ public class AnalizadorLexico {
      */
     private void setTransicionOtros(int estadoActual, int estadoSiguiente, List<AccionSemantica> acciones, List<String> etiquetaAEvitar) {
         String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_DIVISOR,ET_ANGMENOR,ET_ANGMAYOR,ET_OPERADORES,ET_IGUAL,ET_POR,
-            ET_ESPACIO, ET_PUNTOCOMA, ET_SALTO_LINEA,ET_ABRE_LLAVE,ET_CIERRA_LLAVE,ET_ABRE_PARENT,ET_CIERRA_PARENT,ET_CADENA,ET_EXCLAMACION,ET_COMA};
+            ET_ESPACIO, ET_PUNTOCOMA, ET_SALTO_LINEA,ET_ABRE_LLAVE,ET_CIERRA_LLAVE,ET_ABRE_PARENT,ET_CIERRA_PARENT,
+            ET_CADENA,ET_EXCLAMACION,ET_COMA,ET_OTRO};
         ArrayList<String> etiquetasArray = new ArrayList(Arrays.asList(etiquetas));
         for(int i=0; i<etiquetasArray.size(); i++) {
             String etiqueta = etiquetasArray.get(i);
