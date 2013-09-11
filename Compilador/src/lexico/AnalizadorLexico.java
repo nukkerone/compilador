@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import compilador.Error;
+import herramientaerror.EventoError;
 
 /**
  *
@@ -28,6 +29,8 @@ public class AnalizadorLexico {
     private ArrayList<Error> errors;
     private TablaSimbolos tablaSimbolos;
     private int lineaInicUltimoToken;
+    private AccionSemantica accionFinError;
+    private EventoError eventoError;
     
     
     final static String ET_LETRAS = "letras";
@@ -71,7 +74,7 @@ public class AnalizadorLexico {
     
     final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return", "int", "string"};
     
-    public AnalizadorLexico() {
+    public AnalizadorLexico(EventoError eventoError) {
         this.matrizTransicion = new MatrizTransicion();
         this.cursorCar = 0;
         this.cargarGrafo();
@@ -83,6 +86,8 @@ public class AnalizadorLexico {
         this.tokens = new ArrayList();
         this.errors = new ArrayList();
         this.tablaSimbolos = new TablaSimbolos();
+        accionFinError = new AccionFinError(this);
+        this.eventoError = eventoError;
     }
     
     public void cargarGrafo() {
@@ -92,6 +97,8 @@ public class AnalizadorLexico {
         AccionSemantica accionConsumir = new AccionConsumir(this);
         AccionSemantica accionNoConsumir = new AccionNoConsumir(this);
         AccionSemantica accionFin = new AccionFin(this);
+       
+/******** NO VAN MASSS*////
         
         ArrayList<AccionSemantica> accionesAgregarConsumir = new ArrayList();
         accionesAgregarConsumir.add(accionAgregar);
@@ -104,9 +111,9 @@ public class AnalizadorLexico {
         ArrayList<AccionSemantica> accionesNoAgregarConsumir = new ArrayList();
         accionesNoAgregarConsumir.add(accionLimpiarCadenaTemp);
         accionesNoAgregarConsumir.add(accionConsumir);
-        
+/*********** HASTA ACA*************************/
  
- //DISTINTO
+       //DISTINTO
          this.matrizTransicion.setTransicion(EST_INICIAL, ET_EXCLAMACION, EST_IGUAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
          this.matrizTransicion.setTransicion(EST_IGUAL, ET_IGUAL, EST_FINAL, 
@@ -128,17 +135,7 @@ public class AnalizadorLexico {
          this.matrizTransicion.setTransicion(EST_INICIAL, ET_CIERRA_PARENT, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
          
-       
- //llaves
-         /*
-         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_LLAVE, EST_LLAVES, 
-                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
-         this.setTransicionOtros(EST_LLAVES, EST_LLAVES, 
-                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
-                (List<String>) Arrays.asList(new String[] { ET_CIERRA_LLAVE }));
-         this.matrizTransicion.setTransicion(EST_LLAVES, ET_CIERRA_LLAVE, EST_FINAL, 
-                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir, accionFin }));
-       */
+
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_LLAVE, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_CIERRA_LLAVE, EST_FINAL, 
@@ -275,13 +272,14 @@ public class AnalizadorLexico {
             char caracter = buffer.charAt(cursorCar);
             etiquetaEntrada = clasificacionEntrada(caracter);
             Transicion transicion = this.matrizTransicion.getTransicion(this.estadoTemporal, etiquetaEntrada);
-            if (this.estadoTemporal == this.EST_FINAL) {
+            if (this.estadoTemporal == AnalizadorLexico.EST_FINAL) {
                 return this.getLastToken();
             } else {
-                if (transicion == null) {
-                    Error err = new Error("La entrada del símbolo " + caracter + " luego de la cadena " + this.cadenaTemporal +
-                            " no es un token valido para el lenguaje", this.getNroLinea());
-                    this.addError(err);
+                  if (transicion == null) {
+                    //Error err = new Error("La entrada del símbolo " + caracter + " luego de la cadena " + this.cadenaTemporal +
+                      //      " no es un token valido para el lenguaje", this.getNroLinea());
+                   // this.addError(err);
+                    return this.getLastToken(); // Intento devolver el siguiente token
                 }
             }
             
@@ -293,9 +291,39 @@ public class AnalizadorLexico {
                 return this.getLastToken();
             }
         }
-        return null;
+        else{
+            int errorlex;
+            errorlex = accionFinError.ejecutar();
+           }
+        visualizar();
+        return this.getNextToken();
     }
     
+    
+    /***************************************************************************************************************/
+    
+    public void addError(String m,int Nl,String Te,String E){
+       this.eventoError.add(m, Nl, Te,E);
+     }  
+    
+    
+    /**borrar**/
+    
+    
+    public void visualizar(){
+     ArrayList<String> aux = new ArrayList<String>();
+     aux = eventoError.visualizarMensaje();
+      Iterator<String> IterError = aux.iterator();
+      String simbolo;
+      while(IterError.hasNext()) {
+            simbolo = IterError.next();
+          System.out.println(simbolo);
+      }
+    
+    }
+    public int getEstadoTemporal() {
+        return this.estadoTemporal;
+    }
     public void goBack() {
         this.cursorCar--;
     }
@@ -478,9 +506,9 @@ public class AnalizadorLexico {
         return this.nroLinea;
     }
 
-    private void addError(Error err) {
+   /* private void addError(Error err) {
         this.errors.add(err);
-    }
+    }*/
 
 
 }
