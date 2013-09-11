@@ -69,7 +69,7 @@ public class AnalizadorLexico {
     
     final static int EST_FINAL = 69;
     
-    final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return", "int"};
+    final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return", "int", "string"};
     
     public AnalizadorLexico() {
         this.matrizTransicion = new MatrizTransicion();
@@ -115,15 +115,22 @@ public class AnalizadorLexico {
             
         
  //Parentesis
-         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_PARENT, EST_PARENTESIS, 
+         /*this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_PARENT, EST_PARENTESIS, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
          this.setTransicionOtros(EST_PARENTESIS, EST_PARENTESIS, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
                 (List<String>) Arrays.asList(new String[] { ET_CIERRA_PARENT }));
          this.matrizTransicion.setTransicion(EST_PARENTESIS, ET_CIERRA_PARENT, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir, accionFin }));
+          */
+         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_PARENT, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
+         this.matrizTransicion.setTransicion(EST_INICIAL, ET_CIERRA_PARENT, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
+         
        
  //llaves
+         /*
          this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_LLAVE, EST_LLAVES, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
          this.setTransicionOtros(EST_LLAVES, EST_LLAVES, 
@@ -131,7 +138,12 @@ public class AnalizadorLexico {
                 (List<String>) Arrays.asList(new String[] { ET_CIERRA_LLAVE }));
          this.matrizTransicion.setTransicion(EST_LLAVES, ET_CIERRA_LLAVE, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir, accionFin }));
-      
+       */
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_ABRE_LLAVE, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_CIERRA_LLAVE, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
+         
  //multilineas  
          this.matrizTransicion.setTransicion(EST_INICIAL, ET_CADENA, EST_CADENA_CARACTER, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar,accionConsumir}));
@@ -299,6 +311,7 @@ public class AnalizadorLexico {
     }
     
     public void setBuffer(String buffer) {
+        this.reset();
         this.buffer = buffer;
     }
     
@@ -419,6 +432,7 @@ public class AnalizadorLexico {
         case 33: // '!'
             return ET_EXCLAMACION;
         }
+        
         return ET_OTRO;
     }
 

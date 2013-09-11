@@ -21,6 +21,4 @@ public class AccionNoAgregar extends AccionSemantica {
         }
         return 0;
     }
-    
-    
 }
