@@ -22,7 +22,7 @@ public class AccionFinError extends AccionSemantica{
                //System.out.print("Falta finalizar token ");
                break;
            case 1: // 'cadena ingresada incorrecta, espera fin que nunca esta'
-              analizadorLexico.addError("Cadena de caracteres incorrecta ",analizadorLexico.getNroLinea(),"Lexico","Error");
+              analizadorLexico.addError("Identificador inválido ",analizadorLexico.getNroLinea(),"Lexico","Error");
                // System.out.print("cadena de caracteres incorrecta ");
                 break;
            case 2: // 'no ingresa un valor distinto al estar en el estado posible digito'

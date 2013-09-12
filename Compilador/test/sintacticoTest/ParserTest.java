@@ -9,6 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import sintactico.*;
 import compilador.*;
+import herramientaerror.EventoError;
 import lexico.*;
 
 /**
@@ -19,11 +20,14 @@ public class ParserTest {
     private Parser p;
     AnalizadorLexico al;
     boolean debug;
+    EventoError eventoError;
     
     public ParserTest() {
         this.debug = true;
+        this.eventoError = new EventoError();
         this.p = new Parser(this.debug);
-        this.al = new AnalizadorLexico(null);
+        this.p.addEventoError(this.eventoError);
+        this.al = new AnalizadorLexico(this.eventoError);
         this.p.addAnalizadorLexico(this.al);
     }
     
@@ -44,6 +48,7 @@ public class ParserTest {
     private void prepareParser(String buffer) {
         this.al.setBuffer(buffer);
         this.p = new Parser(this.debug);
+        this.p.addEventoError(this.eventoError);
         this.p.addAnalizadorLexico(this.al);
     }
     
@@ -69,16 +74,41 @@ public class ParserTest {
     
     @Test
     public void testDeclaracionesFunciones() {
-        
-        /*this.prepareParser("function peso()");
+        /*
+        this.prepareParser("function peso(){}");
         assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
         
-        this.prepareParser("function getColor(string color)");
+        this.prepareParser("function getColor(string color){}");
+        assertTrue("Declaracion de function (Parametros) correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+        
+        this.prepareParser("function getColor(string color) { if (color > \"azul\") then valor = 10; }");
         assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+        
+        this.prepareParser("function getColor(string color) { if (color > \"azul\") then { valor = 10; } else valor = 5; }");
+        assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+        
+        this.prepareParser("function getColor(string color) { if (color > \"azul\") then valor = 10; else valor = 5; }");
+        assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+        
+        this.prepareParser("function getColor(string color) { if (color > \"azul\") then { valor = 10; } else { valor = 5; } }");
+        assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+        
+        this.prepareParser("function getColor(string color) { return(auto); if (color > \"azul\") then { valor = 10; } else { valor = 5; } }");
+        assertTrue("Declaracion de function (Con return) correcta no pasó el analizador sintáctico", this.p.parse() == 0);
         */
+        this.prepareParser("var a = 10;");
+        int resultadoParse = this.p.parse();
+        this.eventoError.visualizar();
+        assertTrue("Declaracion de function (Con return) correcta no pasó el analizador sintáctico", resultadoParse == 0);
         
-        this.prepareParser("function getColor(string color)");
-        assertTrue("Declaracion de function correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+    }
+    
+    @Test
+    public void testFunciones() {
+        /*
+        this.prepareParser("getColor();");
+        assertTrue("Llamada a función correcta no pasó el analizador sintáctico", this.p.parse() == 0);
+        */
     }
     
     @Test
@@ -95,7 +125,7 @@ public class ParserTest {
         
         this.prepareParser("if (valor > 10)");
         assertTrue("Sentencia IF sin Then ni bloque de ejecución (Incorrecta) pasó el analizador sintáctico", this.p.parse() != 0);
-        * */
+        */
     }
     
     @Test
@@ -108,10 +138,24 @@ public class ParserTest {
         assertTrue("Se definio un bloque (Asignación String) correcto pero no pasó el analizador sintáctico", this.p.parse() == 0);
         
         this.prepareParser("valor = 10; color = \"rojo\";");
-        assertTrue("Bloque multiple correcto pero no pasó el analizador sintáctico", this.p.parse() == 0);
+        assertTrue("Bloque multiple correcto pero no pasó el analizador sintáctico", this.p.parse() == 0);   
         */
-        
     }
-
+    
+    @Test
+    public void testFor() {
+        /*
+        this.prepareParser("if (c == 10) then { for (i = 1; i > n ) { valor = 10; color = \"azul\"; if (a == b) then { value = 5; } } } else { }");
+        assertTrue("Sentencia For correcta pero no pasó el analizador sintáctico", this.p.parse() == 0);   
+        */
+    }
+    
+    @Test
+    public void testPrint() {
+        /*
+        this.prepareParser("print (\"casa\");");
+        assertTrue("Sentencia Print correcta pero no pasó el analizador sintáctico", this.p.parse() == 0);   
+        */
+    }    
    
 }

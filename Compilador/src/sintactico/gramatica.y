@@ -2,6 +2,7 @@
 package sintactico;
 
 import lexico.*; 
+import herramientaerror.*;
 import java.util.Hashtable;
 
 %}
@@ -23,9 +24,14 @@ import java.util.Hashtable;
 %token COMPARADOR
 %token FOR
 
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
+
 %%
 
 programa: declaraciones ejecutable FIN
+| declaraciones error FIN { this.eventoError.add("No se encuentran sentencias ejecutables para el programa", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
+| declaraciones ejecutable error { this.eventoError.add("No se encontro el fin de linea", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 declaraciones: 
@@ -33,7 +39,7 @@ declaraciones:
 ;
 
 declaracion: declaracion_simple
-| FUNCTION ID '(' parametro ')' '{' declaraciones_funcion ejecutable '}'
+| FUNCTION ID '(' parametro_formal ')' '{' declaraciones_funcion ejecutable_funcion '}'
 ;
 
 declaraciones_funcion: 
@@ -43,8 +49,12 @@ declaraciones_funcion:
 declaracion_simple: tipo lista_variables ';'
 ;
 
-parametro: 
+parametro_formal: 
 | tipo ID
+;
+
+parametro_real:
+| ID
 ;
 
 tipo: INT 
@@ -59,28 +69,49 @@ ejecutable:
 | sentencias
 ;
 
-bloque: '{' sentencias '}'
+ejecutable_funcion: 
+| sentencias_funcion
 ;
 
-cuerpo_funcion: declaraciones_funcion ejecutable
+bloque: sentencia 
+| '{' sentencias '}'
+| '{' '}'
 ;
 
-llamado_funcion: ID '(' parametro ')' ';'
+llamado_funcion: ID '(' parametro_real ')' ';'
 ;
 
 sentencias: sentencia
 | sentencias sentencia
 ;
 
+sentencias_funcion: sentencia
+| return_funcion
+| sentencias_funcion sentencia
+| sentencias_funcion return_funcion
+;
+
+return_funcion: RETURN ';'
+| RETURN '(' expresion ')' ';'
+;
+
 sentencia: sentencia_if
+| sentencia_for
 | sentencia_asignacion
+| sentencia_print
+| llamado_funcion
 ;
 
-sentencia_if: IF condicion THEN bloque parte_else
+sentencia_if: IF condicion THEN bloque      %prec LOWER_THAN_ELSE
+| IF condicion THEN bloque ELSE bloque
 ;
 
-parte_else: 
-| ELSE bloque
+sentencia_for: FOR '(' condicion_for ')' bloque;
+
+condicion_for: ID '=' expresion ';' comparacion
+;
+
+sentencia_print: PRINT '(' STRING ')' ';';
 ;
 
 condicion: '(' comparacion ')'
@@ -143,7 +174,12 @@ void yyerror(String s)
 AnalizadorLexico anLexico;
 public void addAnalizadorLexico( AnalizadorLexico al)
 {
-    anLexico = al;
+    this.anLexico = al;
+}
+
+EventoError eventoError;
+public void addEventoError( EventoError e ) {
+    this.eventoError = e;
 }
 
 public int parse() {
@@ -161,8 +197,9 @@ static {
 	Conversor.put("ID", ID);
 	Conversor.put("if", IF);
         Conversor.put("then", THEN);
-	Conversor.put( "else", ELSE);
-	Conversor.put( "print", PRINT);
+	Conversor.put("else", ELSE);
+	Conversor.put("print", PRINT);
+        Conversor.put("return", RETURN);
 	Conversor.put( "for", FOR);
 	Conversor.put( "<=", COMPARADOR);
 	Conversor.put( "==", COMPARADOR);

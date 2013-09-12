@@ -72,7 +72,7 @@ public class AnalizadorLexico {
     
     final static int EST_FINAL = 69;
     
-    final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return", "int", "string"};
+    final static String[] RESERVADAS = {"if", "then", "else", "begin", "end", "print", "function", "return", "int", "string", "for"};
     
     public AnalizadorLexico(EventoError eventoError) {
         this.matrizTransicion = new MatrizTransicion();
@@ -175,17 +175,17 @@ public class AnalizadorLexico {
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir, accionFin }));
         this.setTransicionOtros(EST_COMPMENOR, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
-                (List<String>) Arrays.asList(new String[] { ET_IGUAL, ET_ANGMENOR }));
+                (List<String>) Arrays.asList(new String[] { ET_IGUAL  }));
         
         
 // Reglas Comparadores MAYOR
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ANGMAYOR, EST_COMPMAYOR,
-                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionAgregar}));
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar,accionConsumir}));
         this.matrizTransicion.setTransicion(EST_COMPMAYOR, ET_IGUAL, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin }));
         this.setTransicionOtros(EST_COMPMAYOR, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
-                (List<String>) Arrays.asList(new String[] { ET_IGUAL, ET_ANGMAYOR })); 
+                (List<String>) Arrays.asList(new String[] { ET_IGUAL })); 
         
         
 // Reglas COMENTARIO ADEMAS SE OBTIENE LA BARRA O DIVISION
@@ -227,7 +227,7 @@ public class AnalizadorLexico {
  // Reglas Identificar Operador Asignacion  (=)
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_IGUAL, EST_IGUAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir}));
-        this.matrizTransicion.setTransicion(EST_INICIAL, ET_IGUAL, EST_FINAL, 
+        this.matrizTransicion.setTransicion(EST_IGUAL, ET_IGUAL, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir,accionFin}));
         this.setTransicionOtros(EST_IGUAL, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
@@ -295,8 +295,8 @@ public class AnalizadorLexico {
             int errorlex;
             errorlex = accionFinError.ejecutar();
            }
-        visualizar();
-        return this.getNextToken();
+        
+        return null;
     }
     
     

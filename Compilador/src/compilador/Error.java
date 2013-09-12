@@ -22,11 +22,10 @@ public class Error {
         this.seccion = seccion;
         this.tipoError = tipo;
     }
-
-      
-    public String devolverError() {
-        return mensaje + "----" + nroLinea + "---" + seccion + "----" + tipoError;
-   }
+    
+    public String toString() {
+        return seccion + ": " + mensaje + "-- Linea: " + nroLinea + "-- Tipo: " + tipoError;
+    }
     
     public String getSeccion()
     {return seccion;}

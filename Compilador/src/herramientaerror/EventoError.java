@@ -97,4 +97,12 @@ public ArrayList<String> devolverMensaje(String Merror){
       }
     return CadenaTemp;
    }
+
+    public void visualizar() {
+         Iterator<Error> IterError = this.CadenaError.iterator();
+         while(IterError.hasNext()) {
+            Error e = IterError.next();
+            System.out.println(e);
+         }
+    }
 }
