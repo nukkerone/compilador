@@ -39,7 +39,8 @@ public class AnalizadorLexico {
     final static String ET_ANGMAYOR = ">";
     final static String ET_ANGMENOR = "<";
     final static String ET_MAS = "+";
-    final static String ET_OPERADORES = "+-";
+    final static String ET_MENOS = "-";
+    //final static String ET_OPERADORES = "+-";
     final static String ET_IGUAL = "=";
     final static String ET_POR = "*";
     final static String ET_ESPACIO = " ";
@@ -53,6 +54,7 @@ public class AnalizadorLexico {
     final static String ET_EXCLAMACION = "!";
     final static String ET_COMA = ",";
     final static String ET_OTRO = "otro";
+    final static String ET_EOF = "EOF";
     
     final static int EST_INICIAL = 0;
     final static int EST_POSIBLE_IDENTIFICADOR = 1;
@@ -222,7 +224,13 @@ public class AnalizadorLexico {
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
                 (List<String>) Arrays.asList(new String[] { ET_LETRAS, ET_DIGITOS }));
        
-        
+        // Reglas identificar operadores
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_MAS, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_MENOS, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_POR, EST_FINAL, 
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin}));
         
  // Reglas Identificar Operador Asignacion  (=)
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_IGUAL, EST_IGUAL, 
@@ -268,9 +276,15 @@ public class AnalizadorLexico {
         this.estadoTemporal = 0;
         String etiquetaEntrada = "";
         lineaInicUltimoToken = this.getNroLinea();
-        for (; this.cursorCar < buffer.length(); this.cursorCar++) {
-            char caracter = buffer.charAt(cursorCar);
-            etiquetaEntrada = clasificacionEntrada(caracter);
+        for (; this.cursorCar <= buffer.length(); this.cursorCar++) {
+            int bufferLength = buffer.length();
+            if (this.cursorCar == bufferLength) {    // Esto es cuando ya se terminaron los caracteres
+                etiquetaEntrada = this.ET_EOF;  // La etiqueta será el Fin de entrada
+            } else {
+                char caracter = buffer.charAt(cursorCar);
+                etiquetaEntrada = clasificacionEntrada(caracter);
+            }
+            
             Transicion transicion = this.matrizTransicion.getTransicion(this.estadoTemporal, etiquetaEntrada);
             if (this.estadoTemporal == AnalizadorLexico.EST_FINAL) {
                 return this.getLastToken();
@@ -359,8 +373,13 @@ public class AnalizadorLexico {
      * 
      * @return 
      */
-    public char getCaracterActual() {
-        return this.buffer.charAt(cursorCar);        
+    public Character getCaracterActual() {
+        if (this.cursorCar == this.buffer.length()) {    // Esto es cuando ya se terminaron los caracteres
+            return null;  // La etiqueta será el Fin de entrada
+        } else {
+            return (Character) this.buffer.charAt(cursorCar);
+        }
+                
     }
     
     /**
@@ -422,10 +441,10 @@ public class AnalizadorLexico {
             return ET_CIERRA_LLAVE;
 
         case 43: // '+'
-            return "+";
+            return ET_MAS;
 
         case 45: // '-'
-            return "-";
+            return ET_MENOS;
 
         case 59: // ';'
             return ET_PUNTOCOMA;
@@ -473,9 +492,9 @@ public class AnalizadorLexico {
      * @param etiquetaAEvitar 
      */
     private void setTransicionOtros(int estadoActual, int estadoSiguiente, List<AccionSemantica> acciones, List<String> etiquetaAEvitar) {
-        String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_DIVISOR,ET_ANGMENOR,ET_ANGMAYOR,ET_OPERADORES,ET_IGUAL,ET_POR,
+        String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_DIVISOR,ET_ANGMENOR,ET_ANGMAYOR,ET_IGUAL,ET_POR,
             ET_ESPACIO, ET_PUNTOCOMA, ET_SALTO_LINEA,ET_ABRE_LLAVE,ET_CIERRA_LLAVE,ET_ABRE_PARENT,ET_CIERRA_PARENT,
-            ET_CADENA,ET_EXCLAMACION,ET_COMA,ET_OTRO};
+            ET_CADENA,ET_EXCLAMACION,ET_COMA,ET_OTRO, ET_EOF, ET_MAS, ET_MENOS};
         ArrayList<String> etiquetasArray = new ArrayList(Arrays.asList(etiquetas));
         for(int i=0; i<etiquetasArray.size(); i++) {
             String etiqueta = etiquetasArray.get(i);

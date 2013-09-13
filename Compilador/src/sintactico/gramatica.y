@@ -30,8 +30,6 @@ import java.util.Hashtable;
 %%
 
 programa: declaraciones ejecutable FIN
-| declaraciones error FIN { this.eventoError.add("No se encuentran sentencias ejecutables para el programa", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
-| declaraciones ejecutable error { this.eventoError.add("No se encontro el fin de linea", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 declaraciones: 
@@ -46,7 +44,8 @@ declaraciones_funcion:
 | declaraciones_funcion declaracion_simple
 ;
 
-declaracion_simple: tipo lista_variables ';'
+declaracion_simple: tipo lista_variables {this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
+| tipo lista_variables ';'
 ;
 
 parametro_formal: 
@@ -65,8 +64,7 @@ lista_variables: ID
 | lista_variables ',' ID
 ;
 
-ejecutable: 
-| sentencias
+ejecutable: sentencias
 ;
 
 ejecutable_funcion: 
@@ -78,7 +76,7 @@ bloque: sentencia
 | '{' '}'
 ;
 
-llamado_funcion: ID '(' parametro_real ')' ';'
+llamado_funcion: ID '(' parametro_real ')' ';'      { this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 ;
 
 sentencias: sentencia
@@ -102,41 +100,52 @@ sentencia: sentencia_if
 | llamado_funcion
 ;
 
-sentencia_if: IF condicion THEN bloque      %prec LOWER_THAN_ELSE
-| IF condicion THEN bloque ELSE bloque
+sentencia_if: IF condicion THEN bloque      %prec LOWER_THAN_ELSE       { this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| IF condicion THEN bloque ELSE bloque                                  { this.eventoError.add("Sentencia If completa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 ;
 
-sentencia_for: FOR '(' condicion_for ')' bloque;
+sentencia_for: FOR '(' condicion_for ')' bloque     { this.eventoError.add("Sentencia For", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| FOR '(' condicion_for bloque    { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+| FOR error condicion_for         { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+;        
 
 condicion_for: ID '=' expresion ';' comparacion
 ;
 
-sentencia_print: PRINT '(' STRING ')' ';';
+sentencia_print: PRINT '(' STRING ')' ';'              { this.eventoError.add("Sentencia Print", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| PRINT '(' STRING ';'    { this.eventoError.add("Falta cerrar parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+| PRINT STRING error        { this.eventoError.add("Falta abrir parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
 condicion: '(' comparacion ')'
+| '(' comparacion       { this.eventoError.add("Falta cierre parentesis en la condicion", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+| error                 { this.eventoError.add("Falta abrir parentesis en condición", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
 comparacion: expresion COMPARADOR expresion
 ;
 
-sentencia_asignacion: ID '=' expresion ';'
+sentencia_asignacion: ID '=' expresion ';'  { this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 ;
 
-expresion : expresion '+' termino
-| expresion '-' termino
+expresion : expresion '+' termino   { this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| expresion '-' termino { this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 | termino
 ;
 
-termino : termino '*' factor
-| termino '/' factor
+termino : termino '*' factor    { this.eventoError.add("Operación de multiplicacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| termino '/' factor            { this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 | factor
 ;
 
 factor: ID
-| CTE
+| constante
 | STRING
 | '(' expresion ')'
+;
+
+constante: CTE
+| '-' CTE
 ;
 
 %%

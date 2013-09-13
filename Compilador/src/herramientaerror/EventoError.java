@@ -105,4 +105,13 @@ public ArrayList<String> devolverMensaje(String Merror){
             System.out.println(e);
          }
     }
+    
+    /**
+     * Devuelve si hay errores capturados
+     * 
+     * @return 
+     */
+    public boolean hayErrores() {
+       return (this.CadenaError.size() > 0);
+    }
 }

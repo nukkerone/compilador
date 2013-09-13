@@ -96,11 +96,6 @@ public class ParserTest {
         this.prepareParser("function getColor(string color) { return(auto); if (color > \"azul\") then { valor = 10; } else { valor = 5; } }");
         assertTrue("Declaracion de function (Con return) correcta no pasó el analizador sintáctico", this.p.parse() == 0);
         */
-        this.prepareParser("var a = 10;");
-        int resultadoParse = this.p.parse();
-        this.eventoError.visualizar();
-        assertTrue("Declaracion de function (Con return) correcta no pasó el analizador sintáctico", resultadoParse == 0);
-        
     }
     
     @Test
@@ -157,5 +152,14 @@ public class ParserTest {
         assertTrue("Sentencia Print correcta pero no pasó el analizador sintáctico", this.p.parse() == 0);   
         */
     }    
+    
+    @Test
+    public void testErrores() {
+        this.prepareParser("for (i=10; i< 20) then {}");
+        int resultadoParse = this.p.parse();
+        System.out.println("Resultado parse: " + resultadoParse);
+        this.eventoError.visualizar();
+        assertTrue("Ultimos tests", resultadoParse == 0);
+    }
    
 }
