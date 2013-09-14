@@ -5,25 +5,32 @@
 package compilador;
 
 import filereader.SourceCode;
-import java.util.Iterator;
+import herramientaerror.EventoError;
+import java.io.*;
+import java.util.*;
+import lexico.AnalizadorLexico;
+import sintactico.Parser;
 
 /**
  *
  * @author Gabriel
  */
 public class Compilador {
-
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SourceCode s = new SourceCode("D:\\Java Projects\\TestApp\\files\\source.txt");
+        
+        /*SourceCode s = new SourceCode("D:\\Java Projects\\TestApp\\files\\source.txt");
         s.generateSource();
         Iterator sourceIterator = s.createIterator();
-        String text = "";
-        while( sourceIterator.hasNext() ) {
-            text += (String)sourceIterator.next() + " ";
-        }
-        System.out.println(text);
+        System.out.println(s.getAsString());*/
+        
+        CompiladorManager c = new CompiladorManager();
+        c.start();
+        
     }
+    
+    
 }

@@ -4,6 +4,8 @@
  */
 package lexico;
 
+import herramientaerror.EventoError;
+
 /**
  *
  * @author Gabriel
@@ -11,8 +13,8 @@ package lexico;
 public class AccionConsumir extends AccionSemantica {
     private boolean consume;
     
-    AccionConsumir(AnalizadorLexico analizador) {
-        super(analizador);
+    AccionConsumir(AnalizadorLexico analizador, EventoError e) {
+        super(analizador, e);
         consume = true;
     }
     

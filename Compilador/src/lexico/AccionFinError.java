@@ -4,13 +4,15 @@
  */
 package lexico;
 
+import herramientaerror.EventoError;
+
 /**
  *
  * @author damian
  */
 public class AccionFinError extends AccionSemantica{
- AccionFinError(AnalizadorLexico analizador ){
-     super(analizador);
+ AccionFinError(AnalizadorLexico analizador, EventoError e){
+     super(analizador, e);
 }
     @Override
     int ejecutar() {

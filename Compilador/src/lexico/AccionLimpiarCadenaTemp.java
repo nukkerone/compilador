@@ -4,13 +4,15 @@
  */
 package lexico;
 
+import herramientaerror.EventoError;
+
 /**
  *
  * @author Gabriel
  */
 public class AccionLimpiarCadenaTemp extends AccionSemantica {
-    AccionLimpiarCadenaTemp(AnalizadorLexico analizador) {
-        super(analizador);
+    AccionLimpiarCadenaTemp(AnalizadorLexico analizador, EventoError e) {
+        super(analizador, e);
     }
 
     @Override

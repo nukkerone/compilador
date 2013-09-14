@@ -19,33 +19,39 @@ import java.util.List;
 public class SourceCode {
     private ArrayList<String> source;
     private String filePath;
+    private String stringSource;
     
     public SourceCode(String filePath) {
         this.source = new ArrayList();
         this.filePath = filePath;
+        this.stringSource = "";
     }
     
     /**
      * Generates the representation of the Source
      */
-    public void generateSource() {
+    public int generateSource() {
         BufferedReader br = null;
- 
             try {
                 String sCurrentLine;
                 br = new BufferedReader(new FileReader(this.getFilePath()));
                 while ((sCurrentLine = br.readLine()) != null) {
                         this.source.add(sCurrentLine);
+                        this.stringSource += sCurrentLine;
                 }
             } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    return 1;
             } finally {
                 try {
                         if (br != null)br.close();
                 } catch (IOException ex) {
-                        ex.printStackTrace();
+                        //ex.printStackTrace();
+                        return 1;
                 }
             }
+            
+            return 0;
     }
 
     /**
@@ -75,6 +81,18 @@ public class SourceCode {
         }
         
         return elements.iterator();
+    }
+    
+    public String getAsString() {
+        String source = "";
+        Iterator sourceIterator = this.source.iterator();
+        while( sourceIterator.hasNext() ) {
+            source += (String)sourceIterator.next();
+            if (sourceIterator.hasNext()) {
+                source += "\n";
+            }
+        }
+        return source;
     }
     
 }

@@ -32,8 +32,8 @@ import java.util.Hashtable;
 programa: declaraciones ejecutable FIN
 ;
 
-declaraciones: 
-| declaraciones declaracion;
+declaraciones:
+| declaraciones declaracion
 ;
 
 declaracion: declaracion_simple
@@ -45,7 +45,7 @@ declaraciones_funcion:
 ;
 
 declaracion_simple: tipo lista_variables {this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
-| tipo lista_variables ';'
+| tipo lista_variables ';'  { this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 ;
 
 parametro_formal: 
@@ -64,7 +64,8 @@ lista_variables: ID
 | lista_variables ',' ID
 ;
 
-ejecutable: sentencias
+ejecutable: 
+| sentencias
 ;
 
 ejecutable_funcion: 
@@ -198,7 +199,6 @@ public int parse() {
 static Hashtable<String, Short> Conversor;
 static {
 	Conversor = new Hashtable<String, Short>();
-	
 	Conversor.put("string", STRING);
         Conversor.put("int", INT);
         Conversor.put("function", FUNCTION);

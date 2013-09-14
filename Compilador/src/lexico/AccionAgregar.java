@@ -4,14 +4,16 @@
  */
 package lexico;
 
+import herramientaerror.EventoError;
+
 /**
  *
  * @author Gabriel
  */
 public class AccionAgregar extends AccionSemantica {
     
-    AccionAgregar(AnalizadorLexico analizador) {
-        super(analizador);    
+    AccionAgregar(AnalizadorLexico analizador, EventoError e) {
+        super(analizador, e);    
     }
 
     @Override

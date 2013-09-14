@@ -4,14 +4,17 @@
  */
 package lexico;
 
+import herramientaerror.EventoError;
+
 /**
  *
  * @author Gabriel
  */
 public class AccionFin extends AccionSemantica{
+    final static int MAX_CHAR_ID = 15;
     
-    AccionFin(AnalizadorLexico analizador) {
-        super(analizador);
+    AccionFin(AnalizadorLexico analizador, EventoError e) {
+        super(analizador, e);
         
     }
     
@@ -26,6 +29,11 @@ public class AccionFin extends AccionSemantica{
             if (analizadorLexico.esReservada(cadenaTemporal)) {
                 token = new Token(cadenaTemporal);
             } else {
+                if (cadenaTemporal.length() > AccionFin.MAX_CHAR_ID) {
+                    String temp = cadenaTemporal;
+                    cadenaTemporal = cadenaTemporal.substring(0, AccionFin.MAX_CHAR_ID);
+                    this.eventoError.add("Identificador: " + temp + " superaba el máximo de carácteres permitidos, se truncó a: " + cadenaTemporal , estado, cadenaTemporal, cadenaTemporal);
+                }
                 token = new TokenLexemaDistinto("ID", cadenaTemporal );
             }
             break;

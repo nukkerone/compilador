@@ -79,7 +79,6 @@ public class AnalizadorLexico {
     public AnalizadorLexico(EventoError eventoError) {
         this.matrizTransicion = new MatrizTransicion();
         this.cursorCar = 0;
-        this.cargarGrafo();
         this.buffer = "";
         this.cadenaTemporal = "";
         this.nroLinea = 1;
@@ -88,17 +87,18 @@ public class AnalizadorLexico {
         this.tokens = new ArrayList();
         this.errors = new ArrayList();
         this.tablaSimbolos = new TablaSimbolos();
-        accionFinError = new AccionFinError(this);
         this.eventoError = eventoError;
+        this.accionFinError = new AccionFinError(this, this.eventoError);
+        this.cargarGrafo();
     }
     
     public void cargarGrafo() {
-        AccionSemantica accionAgregar = new AccionAgregar(this);
-        AccionSemantica accionNoAgregar = new AccionNoAgregar(this);
-        AccionSemantica accionLimpiarCadenaTemp = new AccionLimpiarCadenaTemp(this);
-        AccionSemantica accionConsumir = new AccionConsumir(this);
-        AccionSemantica accionNoConsumir = new AccionNoConsumir(this);
-        AccionSemantica accionFin = new AccionFin(this);
+        AccionSemantica accionAgregar = new AccionAgregar(this, this.eventoError);
+        AccionSemantica accionNoAgregar = new AccionNoAgregar(this, this.eventoError);
+        AccionSemantica accionLimpiarCadenaTemp = new AccionLimpiarCadenaTemp(this, this.eventoError);
+        AccionSemantica accionConsumir = new AccionConsumir(this, this.eventoError);
+        AccionSemantica accionNoConsumir = new AccionNoConsumir(this, this.eventoError);
+        AccionSemantica accionFin = new AccionFin(this, this.eventoError);
        
 /******** NO VAN MASSS*////
         
@@ -453,13 +453,13 @@ public class AnalizadorLexico {
             return ET_COMA;
 
         case 32: // ' '
-            return " ";
+            return ET_ESPACIO;
 
         case 9: // '\t'
             return "\t";
 
         case 10: // '\n'
-            return "\n";
+            return ET_SALTO_LINEA;
 
         case 13: // '\r'
             return "\r";

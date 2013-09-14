@@ -4,16 +4,20 @@
  */
 package lexico;
 
+import herramientaerror.EventoError;
+
 /**
  *
  * @author Gabriel
  */
 public abstract class AccionSemantica {
     
-    AnalizadorLexico analizadorLexico;
+    protected AnalizadorLexico analizadorLexico;
+    protected EventoError eventoError;
     
-    AccionSemantica(AnalizadorLexico analizador) {
+    AccionSemantica(AnalizadorLexico analizador, EventoError e) {
         this.analizadorLexico = analizador;
+        this.eventoError = e;
     }
     
     abstract int ejecutar();
