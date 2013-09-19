@@ -112,6 +112,13 @@ public ArrayList<String> devolverMensaje(String Merror){
      * @return 
      */
     public boolean hayErrores() {
-       return (this.CadenaError.size() > 0);
+       Iterator it = this.CadenaError.iterator();
+       while (it.hasNext()) {
+           Error log = (Error) it.next();
+           if (log.gettipoError() == "Error") {
+               return true;
+           }
+       }
+       return false;
     }
 }

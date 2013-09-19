@@ -12,6 +12,7 @@ import herramientaerror.EventoError;
  */
 public class AccionFin extends AccionSemantica{
     final static int MAX_CHAR_ID = 15;
+    final static int MAX_INT_VAL = 32768;
     
     AccionFin(AnalizadorLexico analizador, EventoError e) {
         super(analizador, e);
@@ -32,12 +33,17 @@ public class AccionFin extends AccionSemantica{
                 if (cadenaTemporal.length() > AccionFin.MAX_CHAR_ID) {
                     String temp = cadenaTemporal;
                     cadenaTemporal = cadenaTemporal.substring(0, AccionFin.MAX_CHAR_ID);
-                    this.eventoError.add("Identificador: " + temp + " superaba el máximo de carácteres permitidos, se truncó a: " + cadenaTemporal , estado, cadenaTemporal, cadenaTemporal);
+                    this.eventoError.add("Identificador: " + temp + " superaba el máximo de carácteres permitidos, se truncó a: " + cadenaTemporal , this.analizadorLexico.getNroLinea(), "Lexico", "Warning");
                 }
                 token = new TokenLexemaDistinto("ID", cadenaTemporal );
             }
             break;
         case 2: // Identificando Constantes (Digitos)
+            if (Integer.parseInt( cadenaTemporal ) > AccionFin.MAX_INT_VAL) {
+                String temp = cadenaTemporal;
+                cadenaTemporal = Integer.toString(AccionFin.MAX_INT_VAL);
+                this.eventoError.add("Constante: " + temp + " superaba el máximo valor permitido, se re-asignó al máximo: " + cadenaTemporal , this.analizadorLexico.getNroLinea(), "Lexico", "Warning");
+            }
             token = new TokenLexemaDistinto("CTE", cadenaTemporal);
             break;
         case 12: // Identificando String (cadena de caracteres)

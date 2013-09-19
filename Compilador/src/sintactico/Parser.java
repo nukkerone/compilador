@@ -713,7 +713,11 @@ case 57:
 //#line 138 "gramatica.y"
 { this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
-//#line 640 "Parser.java"
+case 64:
+//#line 149 "gramatica.y"
+{ this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+break;
+//#line 644 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

@@ -60,9 +60,18 @@ public class CompiladorManager {
     }
     
     public  void analizar(SourceCode s, Console console) {
-        System.out.println("Archivo dice: " + s.getAsString());
         this.prepareParser(s.getAsString());
-        int result = this.parser.parse();
+        this.parser.parse();
+        System.out.println("*************************");
+        System.out.println("Resultado del análisis: ");
+        if (this.eventoError.hayErrores()) {
+            System.out.println("Fallido - Errores");
+        } else {
+            System.out.println("Exitoso - Sin errores");
+        }
+        System.out.println("*************************");
         this.eventoError.visualizar();
+        System.out.println("*************************");
+        this.analizadorLexico.visualizarTablaSimbolos();
     }
 }

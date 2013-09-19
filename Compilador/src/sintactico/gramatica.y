@@ -146,7 +146,7 @@ factor: ID
 ;
 
 constante: CTE
-| '-' CTE
+| '-' CTE                       { this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 ;
 
 %%

@@ -46,6 +46,7 @@ public class AnalizadorLexico {
     final static String ET_ESPACIO = " ";
     final static String ET_PUNTOCOMA = ";";
     final static String ET_SALTO_LINEA = "\n";
+    final static String ET_TAB = "\t";
     final static String ET_ABRE_PARENT = "(";
     final static String ET_CIERRA_PARENT = ")";
     final static String ET_ABRE_LLAVE = "{";
@@ -255,6 +256,10 @@ public class AnalizadorLexico {
  // Reglas Identificar Espacio
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_ESPACIO, EST_INICIAL,
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
+ // Reglas Identificar Tab
+        this.matrizTransicion.setTransicion(EST_INICIAL, ET_TAB, EST_INICIAL,
+                (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
+        
  // Reglas Identificar PuntoyComa
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_PUNTOCOMA, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin }));
@@ -456,7 +461,7 @@ public class AnalizadorLexico {
             return ET_ESPACIO;
 
         case 9: // '\t'
-            return "\t";
+            return ET_TAB;
 
         case 10: // '\n'
             return ET_SALTO_LINEA;
@@ -494,7 +499,7 @@ public class AnalizadorLexico {
     private void setTransicionOtros(int estadoActual, int estadoSiguiente, List<AccionSemantica> acciones, List<String> etiquetaAEvitar) {
         String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_DIVISOR,ET_ANGMENOR,ET_ANGMAYOR,ET_IGUAL,ET_POR,
             ET_ESPACIO, ET_PUNTOCOMA, ET_SALTO_LINEA,ET_ABRE_LLAVE,ET_CIERRA_LLAVE,ET_ABRE_PARENT,ET_CIERRA_PARENT,
-            ET_CADENA,ET_EXCLAMACION,ET_COMA,ET_OTRO, ET_EOF, ET_MAS, ET_MENOS};
+            ET_CADENA,ET_EXCLAMACION,ET_COMA,ET_OTRO, ET_EOF, ET_MAS, ET_MENOS, ET_TAB};
         ArrayList<String> etiquetasArray = new ArrayList(Arrays.asList(etiquetas));
         for(int i=0; i<etiquetasArray.size(); i++) {
             String etiqueta = etiquetasArray.get(i);
@@ -528,6 +533,15 @@ public class AnalizadorLexico {
    /* private void addError(Error err) {
         this.errors.add(err);
     }*/
+    
+   public void visualizarTablaSimbolos() {
+       Iterator it = this.tablaSimbolos.createIterator();
+       System.out.println("Tabla de símbolos: ");
+       while (it.hasNext()) {
+           Token t = (Token)it.next();
+           System.out.println("Token: " + t);
+       }
+   }
 
 
 }

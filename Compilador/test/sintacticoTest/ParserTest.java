@@ -9,6 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import sintactico.*;
 import compilador.*;
+import filereader.SourceCode;
 import herramientaerror.EventoError;
 import lexico.*;
 
@@ -155,10 +156,16 @@ public class ParserTest {
     
     @Test
     public void testErrores() {
-        this.prepareParser("for (i=10; i< 20) then {}");
+        String filePath = "D:\\Java Projects\\TestApp\\files\\source.txt";
+        SourceCode s = new SourceCode(filePath);
+        String strCont;
+        s.generateSource();
+        
+        this.prepareParser(s.getAsString());
         int resultadoParse = this.p.parse();
         System.out.println("Resultado parse: " + resultadoParse);
         this.eventoError.visualizar();
+        this.al.visualizarTablaSimbolos();
         assertTrue("Ultimos tests", resultadoParse == 0);
     }
    
