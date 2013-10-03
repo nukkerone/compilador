@@ -274,6 +274,7 @@ public class AnalizadorLexico {
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_SALTO_LINEA, EST_INICIAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
         
+        System.out.println("Matriz " + this.matrizTransicion.stateSize() );
     }
     
     public Token getNextToken() {

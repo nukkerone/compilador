@@ -72,11 +72,11 @@ ejecutable_funcion:
 | sentencias_funcion
 ;
 
-bloque: sentencia 
-| '{' sentencias '}'
-| '{' '}'
-;
-
+bloque: sentencia
+	| '{' sentencias '}'
+	| '{' '}'
+	| error '}'
+	;
 llamado_funcion: ID '(' parametro_real ')' ';'      { this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 ;
 
