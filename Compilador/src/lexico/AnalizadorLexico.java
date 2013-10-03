@@ -443,7 +443,9 @@ public class AnalizadorLexico {
     public int getEstado() {
         return this.estadoTemporal;
     }
-    
+    public void serCadenaTemporal(String cade){
+            this.cadenaTemporal = cade;
+    }
     public void addToken(Token token) {
         this.tokens.add(token);
         this.tablaSimbolos.addSimbolo(token);
