@@ -32,8 +32,13 @@ public class AnalizadorLexicoTest {
 
     @Test
     public void testGetToken() throws Exception {
+<<<<<<< Updated upstream
 
 	   this.anlizadorLexico.setBuffer(" // hola \n int a;");
+=======
+           this.anlizadorLexico.setBuffer(" // hola \n int a;");
+     //   this.anlizadorLexico.setBuffer(" \"HOLA \" + \n +\" hpepe\" ;");
+>>>>>>> Stashed changes
         while(this.anlizadorLexico.hasNext()) {
             Token token = this.anlizadorLexico.getNextToken();
             System.out.println("Token : '" + token + "'");
