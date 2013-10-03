@@ -32,8 +32,9 @@ public class AnalizadorLexicoTest {
 
     @Test
     public void testGetToken() throws Exception {
-           this.anlizadorLexico.setBuffer(" int a; ");
-     //   this.anlizadorLexico.setBuffer(" \"HOLA \" + \n +\" hpepe\" ;");
+	//this.anlizadorLexico.setBuffer(" // hola \n int a;");   
+        this.anlizadorLexico.setBuffer(" \"HOLA  +   \n + hpepe\" ;");
+
         while(this.anlizadorLexico.hasNext()) {
             Token token = this.anlizadorLexico.getNextToken();
             System.out.println("Token : '" + token + "'");
