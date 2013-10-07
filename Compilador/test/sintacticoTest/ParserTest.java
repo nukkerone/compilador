@@ -156,15 +156,27 @@ public class ParserTest {
     
     @Test
     public void testErrores() {
-        String filePath = "D:\\Java Projects\\TestApp\\files\\source.txt";
+        String filePath = "D:\\Java Projects\\TestApp\\files\\sourceTest.txt";
         SourceCode s = new SourceCode(filePath);
-        String strCont;
         s.generateSource();
         
         this.prepareParser(s.getAsString());
         int resultadoParse = this.p.parse();
-        System.out.println("Resultado parse: " + resultadoParse);
-        this.eventoError.visualizar();
+        
+        System.out.println("\n*************************");
+        System.out.println("Resultado del análisis: ");
+        if (this.eventoError.hayErrores()) {
+            System.out.println("Fallido - Errores");
+        } else {
+            System.out.println("Exitoso - Sin errores");
+        }
+        System.out.println("\n*************************");
+        System.out.println("Errores durante la compilacion: ");
+        this.eventoError.visualizar("Error");
+        System.out.println("\n*************************");
+        System.out.println("Construcciones sintacticas: ");
+        this.eventoError.visualizar("Regla");
+        System.out.println("\n*************************");
         this.al.visualizarTablaSimbolos();
         assertTrue("Ultimos tests", resultadoParse == 0);
     }

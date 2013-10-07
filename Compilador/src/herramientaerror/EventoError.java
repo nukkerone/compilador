@@ -106,6 +106,16 @@ public ArrayList<String> devolverMensaje(String Merror){
          }
     }
     
+    public void visualizar(String type) {
+        Iterator it = this.CadenaError.iterator();
+        while (it.hasNext()) {
+           Error log = (Error) it.next();
+           if (log.gettipoError() == type) {
+               System.out.println(log);
+           }
+        }
+    }
+    
     /**
      * Devuelve si hay errores capturados
      * 

@@ -222,12 +222,12 @@ public class AnalizadorLexico {
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
                 (List<String>) Arrays.asList(new String[] { ET_DIVISOR }));
        this.matrizTransicion.setTransicion(EST_POSIBLE_COMENTARIO, ET_DIVISOR, EST_COMENTARIO, 
-         (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir}));
+         (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir}));
         this.setTransicionOtros(EST_COMENTARIO, EST_COMENTARIO, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir}), 
                 (List<String>) Arrays.asList(new String[] { ET_SALTO_LINEA}));
-        this.matrizTransicion.setTransicion(EST_COMENTARIO,ET_SALTO_LINEA , EST_FINAL, 
-         (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir,accionLimpiarCadenaTemp, accionFin }));
+        this.matrizTransicion.setTransicion(EST_COMENTARIO,ET_SALTO_LINEA , EST_INICIAL, 
+         (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir,accionLimpiarCadenaTemp }));
         
         
         
@@ -316,8 +316,6 @@ public class AnalizadorLexico {
         // Reglas Identificar Salto Linea
         this.matrizTransicion.setTransicion(EST_INICIAL, ET_SALTO_LINEA, EST_INICIAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionConsumir }));
-        
-        System.out.println("Matriz " + this.matrizTransicion.stateSize() );
     }
     
     public Token getNextToken() {
@@ -448,6 +446,9 @@ public class AnalizadorLexico {
     }
     public void addToken(Token token) {
         this.tokens.add(token);
+        if (token.getLexema().equals(token.getPalabraReservada())) {    // En este caso el toke no va a la tabla de simbolos
+            return;
+        }
         this.tablaSimbolos.addSimbolo(token);
     }
     

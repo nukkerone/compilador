@@ -1,18 +1,18 @@
    0  $accept : programa $end
 
    1  programa : declaraciones ejecutable FIN
-   2           | declaraciones error FIN
 
-   3  declaraciones :
-   4                | declaraciones declaracion
+   2  declaraciones :
+   3                | declaraciones declaracion
 
-   5  declaracion : declaracion_simple
-   6              | FUNCTION ID '(' parametro_formal ')' '{' declaraciones_funcion ejecutable_funcion '}'
+   4  declaracion : declaracion_simple
+   5              | FUNCTION ID '(' parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion END
 
-   7  declaraciones_funcion :
-   8                        | declaraciones_funcion declaracion_simple
+   6  declaraciones_funcion :
+   7                        | declaraciones_funcion declaracion_simple
 
-   9  declaracion_simple : tipo lista_variables ';'
+   8  declaracion_simple : tipo lista_variables
+   9                     | tipo lista_variables ';'
 
   10  parametro_formal :
   11                   | tipo ID
@@ -21,7 +21,7 @@
   13                 | ID
 
   14  tipo : INT
-  15       | STRING
+  15       | error
 
   16  lista_variables : ID
   17                  | lista_variables ',' ID
@@ -33,61 +33,72 @@
   21                     | sentencias_funcion
 
   22  bloque : sentencia
-  23         | '{' sentencias '}'
-  24         | '{' '}'
+  23         | BEGIN END
+  24         | BEGIN error
 
   25  llamado_funcion : ID '(' parametro_real ')' ';'
 
   26  sentencias : sentencia
-  27             | sentencias sentencia
+  27             | sentencia END
+  28             | sentencia declaracion error
+  29             | sentencias sentencia
 
-  28  sentencias_funcion : sentencia
-  29                     | return_funcion
-  30                     | sentencias_funcion sentencia
-  31                     | sentencias_funcion return_funcion
+  30  sentencias_funcion : sentencia
+  31                     | return_funcion
+  32                     | sentencias_funcion sentencia
+  33                     | sentencias_funcion return_funcion
 
-  32  return_funcion : RETURN ';'
-  33                 | RETURN '(' expresion ')' ';'
+  34  return_funcion : RETURN ';'
+  35                 | RETURN '(' expresion ')' ';'
 
-  34  sentencia : sentencia_if
-  35            | sentencia_for
-  36            | sentencia_asignacion
-  37            | sentencia_print
-  38            | llamado_funcion
+  36  sentencia : sentencia_if
+  37            | sentencia_for
+  38            | sentencia_asignacion
+  39            | sentencia_print
+  40            | llamado_funcion
 
-  39  sentencia_if : IF condicion THEN bloque
-  40               | IF condicion THEN bloque ELSE bloque
+  41  sentencia_if : IF condicion THEN bloque
+  42               | IF condicion THEN bloque ELSE bloque
 
-  41  sentencia_for : FOR '(' condicion_for ')' bloque
+  43  sentencia_for : FOR '(' condicion_for ')' bloque
+  44                | FOR '(' condicion_for bloque
+  45                | FOR error condicion_for
 
-  42  condicion_for : ID '=' expresion ';' comparacion
+  46  condicion_for : ID '=' expresion ';' comparacion
 
-  43  sentencia_print : PRINT '(' STRING ')' ';'
+  47  sentencia_print : PRINT '(' STRING ')' ';'
+  48                  | PRINT '(' STRING ';'
+  49                  | PRINT STRING error
 
-  44  condicion : '(' comparacion ')'
+  50  condicion : '(' comparacion ')'
+  51            | '(' comparacion
+  52            | error
 
-  45  comparacion : expresion COMPARADOR expresion
+  53  comparacion : expresion COMPARADOR expresion
 
-  46  sentencia_asignacion : ID '=' expresion ';'
+  54  sentencia_asignacion : ID '=' expresion ';'
 
-  47  expresion : expresion '+' termino
-  48            | expresion '-' termino
-  49            | termino
+  55  expresion : expresion '+' termino
+  56            | expresion '-' termino
+  57            | termino
 
-  50  termino : termino '*' factor
-  51          | termino '/' factor
-  52          | factor
+  58  termino : termino '*' factor
+  59          | termino '/' factor
+  60          | factor
 
-  53  factor : ID
-  54         | CTE
-  55         | STRING
-  56         | '(' expresion ')'
+  61  factor : ID
+  62         | constante
+  63         | STRING
+  64         | '(' expresion ')'
+
+  65  constante : CTE
+  66            | '-' CTE
 
 state 0
 	$accept : . programa $end  (0)
-	declaraciones : .  (3)
+	declaraciones : .  (2)
 
-	.  reduce 3
+	.  reduce 2
 
 	programa  goto 1
 	declaraciones  goto 2
@@ -101,8 +112,7 @@ state 1
 
 state 2
 	programa : declaraciones . ejecutable FIN  (1)
-	programa : declaraciones . error FIN  (2)
-	declaraciones : declaraciones . declaracion  (4)
+	declaraciones : declaraciones . declaracion  (3)
 	ejecutable : .  (18)
 
 	error  shift 3
@@ -110,50 +120,52 @@ state 2
 	PRINT  shift 5
 	FUNCTION  shift 6
 	ID  shift 7
-	STRING  shift 8
-	INT  shift 9
-	FOR  shift 10
+	INT  shift 8
+	FOR  shift 9
 	FIN  reduce 18
 
-	ejecutable  goto 11
-	declaracion  goto 12
-	declaracion_simple  goto 13
-	tipo  goto 14
-	sentencias  goto 15
-	sentencia  goto 16
-	llamado_funcion  goto 17
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
+	ejecutable  goto 10
+	declaracion  goto 11
+	declaracion_simple  goto 12
+	tipo  goto 13
+	sentencias  goto 14
+	sentencia  goto 15
+	llamado_funcion  goto 16
+	sentencia_if  goto 17
+	sentencia_for  goto 18
+	sentencia_asignacion  goto 19
+	sentencia_print  goto 20
 
 
 state 3
-	programa : declaraciones error . FIN  (2)
+	tipo : error .  (15)
 
-	FIN  shift 22
-	.  error
+	.  reduce 15
 
 
 state 4
-	sentencia_if : IF . condicion THEN bloque  (39)
-	sentencia_if : IF . condicion THEN bloque ELSE bloque  (40)
+	sentencia_if : IF . condicion THEN bloque  (41)
+	sentencia_if : IF . condicion THEN bloque ELSE bloque  (42)
 
-	'('  shift 23
+	error  shift 21
+	'('  shift 22
 	.  error
 
-	condicion  goto 24
+	condicion  goto 23
 
 
 state 5
-	sentencia_print : PRINT . '(' STRING ')' ';'  (43)
+	sentencia_print : PRINT . '(' STRING ')' ';'  (47)
+	sentencia_print : PRINT . '(' STRING ';'  (48)
+	sentencia_print : PRINT . STRING error  (49)
 
+	STRING  shift 24
 	'('  shift 25
 	.  error
 
 
 state 6
-	declaracion : FUNCTION . ID '(' parametro_formal ')' '{' declaraciones_funcion ejecutable_funcion '}'  (6)
+	declaracion : FUNCTION . ID '(' parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion END  (5)
 
 	ID  shift 26
 	.  error
@@ -161,7 +173,7 @@ state 6
 
 state 7
 	llamado_funcion : ID . '(' parametro_real ')' ';'  (25)
-	sentencia_asignacion : ID . '=' expresion ';'  (46)
+	sentencia_asignacion : ID . '=' expresion ';'  (54)
 
 	'('  shift 27
 	'='  shift 28
@@ -169,146 +181,169 @@ state 7
 
 
 state 8
-	tipo : STRING .  (15)
-
-	.  reduce 15
-
-
-state 9
 	tipo : INT .  (14)
 
 	.  reduce 14
 
 
-state 10
-	sentencia_for : FOR . '(' condicion_for ')' bloque  (41)
+state 9
+	sentencia_for : FOR . '(' condicion_for ')' bloque  (43)
+	sentencia_for : FOR . '(' condicion_for bloque  (44)
+	sentencia_for : FOR . error condicion_for  (45)
 
-	'('  shift 29
+	error  shift 29
+	'('  shift 30
+	.  error
+
+
+state 10
+	programa : declaraciones ejecutable . FIN  (1)
+
+	FIN  shift 31
 	.  error
 
 
 state 11
-	programa : declaraciones ejecutable . FIN  (1)
+	declaraciones : declaraciones declaracion .  (3)
 
-	FIN  shift 30
-	.  error
+	.  reduce 3
 
 
 state 12
-	declaraciones : declaraciones declaracion .  (4)
+	declaracion : declaracion_simple .  (4)
 
 	.  reduce 4
 
 
 state 13
-	declaracion : declaracion_simple .  (5)
+	declaracion_simple : tipo . lista_variables  (8)
+	declaracion_simple : tipo . lista_variables ';'  (9)
 
-	.  reduce 5
+	ID  shift 32
+	.  error
+
+	lista_variables  goto 33
 
 
 state 14
-	declaracion_simple : tipo . lista_variables ';'  (9)
-
-	ID  shift 31
-	.  error
-
-	lista_variables  goto 32
-
-
-state 15
 	ejecutable : sentencias .  (19)
-	sentencias : sentencias . sentencia  (27)
+	sentencias : sentencias . sentencia  (29)
 
 	IF  shift 4
 	PRINT  shift 5
 	ID  shift 7
-	FOR  shift 10
+	FOR  shift 9
 	FIN  reduce 19
 
-	sentencia  goto 33
-	llamado_funcion  goto 17
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
+	sentencia  goto 34
+	llamado_funcion  goto 16
+	sentencia_if  goto 17
+	sentencia_for  goto 18
+	sentencia_asignacion  goto 19
+	sentencia_print  goto 20
+
+
+state 15
+	sentencias : sentencia .  (26)
+	sentencias : sentencia . END  (27)
+	sentencias : sentencia . declaracion error  (28)
+
+	error  shift 3
+	END  shift 35
+	FUNCTION  shift 6
+	INT  shift 8
+	IF  reduce 26
+	PRINT  reduce 26
+	ID  reduce 26
+	FIN  reduce 26
+	FOR  reduce 26
+
+	declaracion  goto 36
+	declaracion_simple  goto 12
+	tipo  goto 13
 
 
 state 16
-	sentencias : sentencia .  (26)
+	sentencia : llamado_funcion .  (40)
 
-	.  reduce 26
+	.  reduce 40
 
 
 state 17
-	sentencia : llamado_funcion .  (38)
-
-	.  reduce 38
-
-
-state 18
-	sentencia : sentencia_if .  (34)
-
-	.  reduce 34
-
-
-state 19
-	sentencia : sentencia_for .  (35)
-
-	.  reduce 35
-
-
-state 20
-	sentencia : sentencia_asignacion .  (36)
+	sentencia : sentencia_if .  (36)
 
 	.  reduce 36
 
 
-state 21
-	sentencia : sentencia_print .  (37)
+state 18
+	sentencia : sentencia_for .  (37)
 
 	.  reduce 37
 
 
-state 22
-	programa : declaraciones error FIN .  (2)
+state 19
+	sentencia : sentencia_asignacion .  (38)
 
-	.  reduce 2
+	.  reduce 38
+
+
+state 20
+	sentencia : sentencia_print .  (39)
+
+	.  reduce 39
+
+
+state 21
+	condicion : error .  (52)
+
+	.  reduce 52
+
+
+state 22
+	condicion : '(' . comparacion ')'  (50)
+	condicion : '(' . comparacion  (51)
+
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion  goto 42
+	comparacion  goto 43
+	termino  goto 44
+	factor  goto 45
+	constante  goto 46
 
 
 state 23
-	condicion : '(' . comparacion ')'  (44)
+	sentencia_if : IF condicion . THEN bloque  (41)
+	sentencia_if : IF condicion . THEN bloque ELSE bloque  (42)
 
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
+	THEN  shift 47
 	.  error
-
-	expresion  goto 38
-	comparacion  goto 39
-	termino  goto 40
-	factor  goto 41
 
 
 state 24
-	sentencia_if : IF condicion . THEN bloque  (39)
-	sentencia_if : IF condicion . THEN bloque ELSE bloque  (40)
+	sentencia_print : PRINT STRING . error  (49)
 
-	THEN  shift 42
+	error  shift 48
 	.  error
 
 
 state 25
-	sentencia_print : PRINT '(' . STRING ')' ';'  (43)
+	sentencia_print : PRINT '(' . STRING ')' ';'  (47)
+	sentencia_print : PRINT '(' . STRING ';'  (48)
 
-	STRING  shift 43
+	STRING  shift 49
 	.  error
 
 
 state 26
-	declaracion : FUNCTION ID . '(' parametro_formal ')' '{' declaraciones_funcion ejecutable_funcion '}'  (6)
+	declaracion : FUNCTION ID . '(' parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion END  (5)
 
-	'('  shift 44
+	'('  shift 50
 	.  error
 
 
@@ -316,743 +351,887 @@ state 27
 	llamado_funcion : ID '(' . parametro_real ')' ';'  (25)
 	parametro_real : .  (12)
 
-	ID  shift 45
+	ID  shift 51
 	')'  reduce 12
 
-	parametro_real  goto 46
+	parametro_real  goto 52
 
 
 state 28
-	sentencia_asignacion : ID '=' . expresion ';'  (46)
+	sentencia_asignacion : ID '=' . expresion ';'  (54)
 
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
 	.  error
 
-	expresion  goto 47
-	termino  goto 40
-	factor  goto 41
+	expresion  goto 53
+	termino  goto 44
+	factor  goto 45
+	constante  goto 46
 
 
 state 29
-	sentencia_for : FOR '(' . condicion_for ')' bloque  (41)
+	sentencia_for : FOR error . condicion_for  (45)
 
-	ID  shift 48
+	ID  shift 54
 	.  error
 
-	condicion_for  goto 49
+	condicion_for  goto 55
 
 
 state 30
+	sentencia_for : FOR '(' . condicion_for ')' bloque  (43)
+	sentencia_for : FOR '(' . condicion_for bloque  (44)
+
+	ID  shift 54
+	.  error
+
+	condicion_for  goto 56
+
+
+state 31
 	programa : declaraciones ejecutable FIN .  (1)
 
 	.  reduce 1
 
 
-state 31
+state 32
 	lista_variables : ID .  (16)
 
 	.  reduce 16
 
 
-state 32
+state 33
+	declaracion_simple : tipo lista_variables .  (8)
 	declaracion_simple : tipo lista_variables . ';'  (9)
 	lista_variables : lista_variables . ',' ID  (17)
 
-	';'  shift 50
-	','  shift 51
-	.  error
+	';'  shift 57
+	','  shift 58
+	error  reduce 8
+	IF  reduce 8
+	END  reduce 8
+	PRINT  reduce 8
+	FUNCTION  reduce 8
+	RETURN  reduce 8
+	ID  reduce 8
+	FIN  reduce 8
+	INT  reduce 8
+	FOR  reduce 8
 
 
-state 33
-	sentencias : sentencias sentencia .  (27)
+state 34
+	sentencias : sentencias sentencia .  (29)
+
+	.  reduce 29
+
+
+state 35
+	sentencias : sentencia END .  (27)
 
 	.  reduce 27
 
 
-state 34
-	factor : ID .  (53)
-
-	.  reduce 53
-
-
-state 35
-	factor : CTE .  (54)
-
-	.  reduce 54
-
-
 state 36
-	factor : STRING .  (55)
+	sentencias : sentencia declaracion . error  (28)
 
-	.  reduce 55
+	error  shift 59
+	.  error
 
 
 state 37
-	factor : '(' . expresion ')'  (56)
+	factor : ID .  (61)
 
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
-	.  error
-
-	expresion  goto 52
-	termino  goto 40
-	factor  goto 41
+	.  reduce 61
 
 
 state 38
-	comparacion : expresion . COMPARADOR expresion  (45)
-	expresion : expresion . '+' termino  (47)
-	expresion : expresion . '-' termino  (48)
+	constante : CTE .  (65)
 
-	COMPARADOR  shift 53
-	'+'  shift 54
-	'-'  shift 55
-	.  error
+	.  reduce 65
 
 
 state 39
-	condicion : '(' comparacion . ')'  (44)
+	factor : STRING .  (63)
 
-	')'  shift 56
-	.  error
+	.  reduce 63
 
 
 state 40
-	expresion : termino .  (49)
-	termino : termino . '*' factor  (50)
-	termino : termino . '/' factor  (51)
+	factor : '(' . expresion ')'  (64)
 
-	'*'  shift 57
-	'/'  shift 58
-	COMPARADOR  reduce 49
-	')'  reduce 49
-	';'  reduce 49
-	'+'  reduce 49
-	'-'  reduce 49
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion  goto 60
+	termino  goto 44
+	factor  goto 45
+	constante  goto 46
 
 
 state 41
-	termino : factor .  (52)
+	constante : '-' . CTE  (66)
 
-	.  reduce 52
+	CTE  shift 61
+	.  error
 
 
 state 42
-	sentencia_if : IF condicion THEN . bloque  (39)
-	sentencia_if : IF condicion THEN . bloque ELSE bloque  (40)
+	comparacion : expresion . COMPARADOR expresion  (53)
+	expresion : expresion . '+' termino  (55)
+	expresion : expresion . '-' termino  (56)
 
-	IF  shift 4
-	PRINT  shift 5
-	ID  shift 7
-	FOR  shift 10
-	'{'  shift 59
+	COMPARADOR  shift 62
+	'+'  shift 63
+	'-'  shift 64
 	.  error
-
-	bloque  goto 60
-	sentencia  goto 61
-	llamado_funcion  goto 17
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
 
 
 state 43
-	sentencia_print : PRINT '(' STRING . ')' ';'  (43)
+	condicion : '(' comparacion . ')'  (50)
+	condicion : '(' comparacion .  (51)
 
-	')'  shift 62
-	.  error
+	')'  shift 65
+	THEN  reduce 51
 
 
 state 44
-	declaracion : FUNCTION ID '(' . parametro_formal ')' '{' declaraciones_funcion ejecutable_funcion '}'  (6)
-	parametro_formal : .  (10)
+	expresion : termino .  (57)
+	termino : termino . '*' factor  (58)
+	termino : termino . '/' factor  (59)
 
-	STRING  shift 8
-	INT  shift 9
-	')'  reduce 10
-
-	parametro_formal  goto 63
-	tipo  goto 64
+	'*'  shift 66
+	'/'  shift 67
+	error  reduce 57
+	IF  reduce 57
+	ELSE  reduce 57
+	THEN  reduce 57
+	BEGIN  reduce 57
+	END  reduce 57
+	PRINT  reduce 57
+	FUNCTION  reduce 57
+	RETURN  reduce 57
+	ID  reduce 57
+	FIN  reduce 57
+	INT  reduce 57
+	COMPARADOR  reduce 57
+	FOR  reduce 57
+	')'  reduce 57
+	';'  reduce 57
+	'+'  reduce 57
+	'-'  reduce 57
 
 
 state 45
+	termino : factor .  (60)
+
+	.  reduce 60
+
+
+state 46
+	factor : constante .  (62)
+
+	.  reduce 62
+
+
+state 47
+	sentencia_if : IF condicion THEN . bloque  (41)
+	sentencia_if : IF condicion THEN . bloque ELSE bloque  (42)
+
+	IF  shift 4
+	BEGIN  shift 68
+	PRINT  shift 5
+	ID  shift 7
+	FOR  shift 9
+	.  error
+
+	bloque  goto 69
+	sentencia  goto 70
+	llamado_funcion  goto 16
+	sentencia_if  goto 17
+	sentencia_for  goto 18
+	sentencia_asignacion  goto 19
+	sentencia_print  goto 20
+
+
+state 48
+	sentencia_print : PRINT STRING error .  (49)
+
+	.  reduce 49
+
+
+state 49
+	sentencia_print : PRINT '(' STRING . ')' ';'  (47)
+	sentencia_print : PRINT '(' STRING . ';'  (48)
+
+	')'  shift 71
+	';'  shift 72
+	.  error
+
+
+state 50
+	declaracion : FUNCTION ID '(' . parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion END  (5)
+	parametro_formal : .  (10)
+
+	error  shift 3
+	INT  shift 8
+	')'  reduce 10
+
+	parametro_formal  goto 73
+	tipo  goto 74
+
+
+state 51
 	parametro_real : ID .  (13)
 
 	.  reduce 13
 
 
-state 46
+state 52
 	llamado_funcion : ID '(' parametro_real . ')' ';'  (25)
 
-	')'  shift 65
+	')'  shift 75
 	.  error
 
 
-state 47
-	sentencia_asignacion : ID '=' expresion . ';'  (46)
-	expresion : expresion . '+' termino  (47)
-	expresion : expresion . '-' termino  (48)
+state 53
+	sentencia_asignacion : ID '=' expresion . ';'  (54)
+	expresion : expresion . '+' termino  (55)
+	expresion : expresion . '-' termino  (56)
 
-	';'  shift 66
-	'+'  shift 54
-	'-'  shift 55
+	';'  shift 76
+	'+'  shift 63
+	'-'  shift 64
 	.  error
 
 
-state 48
-	condicion_for : ID . '=' expresion ';' comparacion  (42)
+state 54
+	condicion_for : ID . '=' expresion ';' comparacion  (46)
 
-	'='  shift 67
+	'='  shift 77
 	.  error
 
 
-state 49
-	sentencia_for : FOR '(' condicion_for . ')' bloque  (41)
+state 55
+	sentencia_for : FOR error condicion_for .  (45)
 
-	')'  shift 68
+	.  reduce 45
+
+
+state 56
+	sentencia_for : FOR '(' condicion_for . ')' bloque  (43)
+	sentencia_for : FOR '(' condicion_for . bloque  (44)
+
+	IF  shift 4
+	BEGIN  shift 68
+	PRINT  shift 5
+	ID  shift 7
+	FOR  shift 9
+	')'  shift 78
 	.  error
 
+	bloque  goto 79
+	sentencia  goto 70
+	llamado_funcion  goto 16
+	sentencia_if  goto 17
+	sentencia_for  goto 18
+	sentencia_asignacion  goto 19
+	sentencia_print  goto 20
 
-state 50
+
+state 57
 	declaracion_simple : tipo lista_variables ';' .  (9)
 
 	.  reduce 9
 
 
-state 51
+state 58
 	lista_variables : lista_variables ',' . ID  (17)
 
-	ID  shift 69
+	ID  shift 80
 	.  error
-
-
-state 52
-	expresion : expresion . '+' termino  (47)
-	expresion : expresion . '-' termino  (48)
-	factor : '(' expresion . ')'  (56)
-
-	')'  shift 70
-	'+'  shift 54
-	'-'  shift 55
-	.  error
-
-
-state 53
-	comparacion : expresion COMPARADOR . expresion  (45)
-
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
-	.  error
-
-	expresion  goto 71
-	termino  goto 40
-	factor  goto 41
-
-
-state 54
-	expresion : expresion '+' . termino  (47)
-
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
-	.  error
-
-	termino  goto 72
-	factor  goto 41
-
-
-state 55
-	expresion : expresion '-' . termino  (48)
-
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
-	.  error
-
-	termino  goto 73
-	factor  goto 41
-
-
-state 56
-	condicion : '(' comparacion ')' .  (44)
-
-	.  reduce 44
-
-
-state 57
-	termino : termino '*' . factor  (50)
-
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
-	.  error
-
-	factor  goto 74
-
-
-state 58
-	termino : termino '/' . factor  (51)
-
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
-	.  error
-
-	factor  goto 75
 
 
 state 59
-	bloque : '{' . sentencias '}'  (23)
-	bloque : '{' . '}'  (24)
+	sentencias : sentencia declaracion error .  (28)
 
-	IF  shift 4
-	PRINT  shift 5
-	ID  shift 7
-	FOR  shift 10
-	'}'  shift 76
-	.  error
-
-	sentencias  goto 77
-	sentencia  goto 16
-	llamado_funcion  goto 17
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
+	.  reduce 28
 
 
 state 60
-	sentencia_if : IF condicion THEN bloque .  (39)
-	sentencia_if : IF condicion THEN bloque . ELSE bloque  (40)
+	expresion : expresion . '+' termino  (55)
+	expresion : expresion . '-' termino  (56)
+	factor : '(' expresion . ')'  (64)
 
-	ELSE  shift 78
-	IF  reduce 39
-	PRINT  reduce 39
-	RETURN  reduce 39
-	ID  reduce 39
-	FIN  reduce 39
-	FOR  reduce 39
-	'}'  reduce 39
+	')'  shift 81
+	'+'  shift 63
+	'-'  shift 64
+	.  error
 
 
 state 61
+	constante : '-' CTE .  (66)
+
+	.  reduce 66
+
+
+state 62
+	comparacion : expresion COMPARADOR . expresion  (53)
+
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion  goto 82
+	termino  goto 44
+	factor  goto 45
+	constante  goto 46
+
+
+state 63
+	expresion : expresion '+' . termino  (55)
+
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	termino  goto 83
+	factor  goto 45
+	constante  goto 46
+
+
+state 64
+	expresion : expresion '-' . termino  (56)
+
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	termino  goto 84
+	factor  goto 45
+	constante  goto 46
+
+
+state 65
+	condicion : '(' comparacion ')' .  (50)
+
+	.  reduce 50
+
+
+state 66
+	termino : termino '*' . factor  (58)
+
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	factor  goto 85
+	constante  goto 46
+
+
+state 67
+	termino : termino '/' . factor  (59)
+
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	factor  goto 86
+	constante  goto 46
+
+
+state 68
+	bloque : BEGIN . END  (23)
+	bloque : BEGIN . error  (24)
+
+	error  shift 87
+	END  shift 88
+	.  error
+
+
+state 69
+	sentencia_if : IF condicion THEN bloque .  (41)
+	sentencia_if : IF condicion THEN bloque . ELSE bloque  (42)
+
+	ELSE  shift 89
+	error  reduce 41
+	IF  reduce 41
+	END  reduce 41
+	PRINT  reduce 41
+	FUNCTION  reduce 41
+	RETURN  reduce 41
+	ID  reduce 41
+	FIN  reduce 41
+	INT  reduce 41
+	FOR  reduce 41
+
+
+state 70
 	bloque : sentencia .  (22)
 
 	.  reduce 22
 
 
-state 62
-	sentencia_print : PRINT '(' STRING ')' . ';'  (43)
+state 71
+	sentencia_print : PRINT '(' STRING ')' . ';'  (47)
 
-	';'  shift 79
+	';'  shift 90
 	.  error
 
 
-state 63
-	declaracion : FUNCTION ID '(' parametro_formal . ')' '{' declaraciones_funcion ejecutable_funcion '}'  (6)
+state 72
+	sentencia_print : PRINT '(' STRING ';' .  (48)
 
-	')'  shift 80
+	.  reduce 48
+
+
+state 73
+	declaracion : FUNCTION ID '(' parametro_formal . ')' BEGIN declaraciones_funcion ejecutable_funcion END  (5)
+
+	')'  shift 91
 	.  error
 
 
-state 64
+state 74
 	parametro_formal : tipo . ID  (11)
 
-	ID  shift 81
+	ID  shift 92
 	.  error
 
 
-state 65
+state 75
 	llamado_funcion : ID '(' parametro_real ')' . ';'  (25)
 
-	';'  shift 82
+	';'  shift 93
 	.  error
 
 
-state 66
-	sentencia_asignacion : ID '=' expresion ';' .  (46)
+state 76
+	sentencia_asignacion : ID '=' expresion ';' .  (54)
 
-	.  reduce 46
+	.  reduce 54
 
 
-state 67
-	condicion_for : ID '=' . expresion ';' comparacion  (42)
+state 77
+	condicion_for : ID '=' . expresion ';' comparacion  (46)
 
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
 	.  error
 
-	expresion  goto 83
-	termino  goto 40
-	factor  goto 41
+	expresion  goto 94
+	termino  goto 44
+	factor  goto 45
+	constante  goto 46
 
 
-state 68
-	sentencia_for : FOR '(' condicion_for ')' . bloque  (41)
+state 78
+	sentencia_for : FOR '(' condicion_for ')' . bloque  (43)
 
 	IF  shift 4
+	BEGIN  shift 68
 	PRINT  shift 5
 	ID  shift 7
-	FOR  shift 10
-	'{'  shift 59
+	FOR  shift 9
 	.  error
 
-	bloque  goto 84
-	sentencia  goto 61
-	llamado_funcion  goto 17
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
+	bloque  goto 95
+	sentencia  goto 70
+	llamado_funcion  goto 16
+	sentencia_if  goto 17
+	sentencia_for  goto 18
+	sentencia_asignacion  goto 19
+	sentencia_print  goto 20
 
 
-state 69
+state 79
+	sentencia_for : FOR '(' condicion_for bloque .  (44)
+
+	.  reduce 44
+
+
+state 80
 	lista_variables : lista_variables ',' ID .  (17)
 
 	.  reduce 17
 
 
-state 70
-	factor : '(' expresion ')' .  (56)
+state 81
+	factor : '(' expresion ')' .  (64)
 
-	.  reduce 56
-
-
-state 71
-	comparacion : expresion COMPARADOR expresion .  (45)
-	expresion : expresion . '+' termino  (47)
-	expresion : expresion . '-' termino  (48)
-
-	'+'  shift 54
-	'-'  shift 55
-	')'  reduce 45
+	.  reduce 64
 
 
-state 72
-	expresion : expresion '+' termino .  (47)
-	termino : termino . '*' factor  (50)
-	termino : termino . '/' factor  (51)
+state 82
+	comparacion : expresion COMPARADOR expresion .  (53)
+	expresion : expresion . '+' termino  (55)
+	expresion : expresion . '-' termino  (56)
 
-	'*'  shift 57
-	'/'  shift 58
-	COMPARADOR  reduce 47
-	')'  reduce 47
-	';'  reduce 47
-	'+'  reduce 47
-	'-'  reduce 47
-
-
-state 73
-	expresion : expresion '-' termino .  (48)
-	termino : termino . '*' factor  (50)
-	termino : termino . '/' factor  (51)
-
-	'*'  shift 57
-	'/'  shift 58
-	COMPARADOR  reduce 48
-	')'  reduce 48
-	';'  reduce 48
-	'+'  reduce 48
-	'-'  reduce 48
+	'+'  shift 63
+	'-'  shift 64
+	error  reduce 53
+	IF  reduce 53
+	ELSE  reduce 53
+	THEN  reduce 53
+	BEGIN  reduce 53
+	END  reduce 53
+	PRINT  reduce 53
+	FUNCTION  reduce 53
+	RETURN  reduce 53
+	ID  reduce 53
+	FIN  reduce 53
+	INT  reduce 53
+	FOR  reduce 53
+	')'  reduce 53
 
 
-state 74
-	termino : termino '*' factor .  (50)
+state 83
+	expresion : expresion '+' termino .  (55)
+	termino : termino . '*' factor  (58)
+	termino : termino . '/' factor  (59)
 
-	.  reduce 50
+	'*'  shift 66
+	'/'  shift 67
+	error  reduce 55
+	IF  reduce 55
+	ELSE  reduce 55
+	THEN  reduce 55
+	BEGIN  reduce 55
+	END  reduce 55
+	PRINT  reduce 55
+	FUNCTION  reduce 55
+	RETURN  reduce 55
+	ID  reduce 55
+	FIN  reduce 55
+	INT  reduce 55
+	COMPARADOR  reduce 55
+	FOR  reduce 55
+	')'  reduce 55
+	';'  reduce 55
+	'+'  reduce 55
+	'-'  reduce 55
 
 
-state 75
-	termino : termino '/' factor .  (51)
+state 84
+	expresion : expresion '-' termino .  (56)
+	termino : termino . '*' factor  (58)
+	termino : termino . '/' factor  (59)
 
-	.  reduce 51
+	'*'  shift 66
+	'/'  shift 67
+	error  reduce 56
+	IF  reduce 56
+	ELSE  reduce 56
+	THEN  reduce 56
+	BEGIN  reduce 56
+	END  reduce 56
+	PRINT  reduce 56
+	FUNCTION  reduce 56
+	RETURN  reduce 56
+	ID  reduce 56
+	FIN  reduce 56
+	INT  reduce 56
+	COMPARADOR  reduce 56
+	FOR  reduce 56
+	')'  reduce 56
+	';'  reduce 56
+	'+'  reduce 56
+	'-'  reduce 56
 
 
-state 76
-	bloque : '{' '}' .  (24)
+state 85
+	termino : termino '*' factor .  (58)
+
+	.  reduce 58
+
+
+state 86
+	termino : termino '/' factor .  (59)
+
+	.  reduce 59
+
+
+state 87
+	bloque : BEGIN error .  (24)
 
 	.  reduce 24
 
 
-state 77
-	bloque : '{' sentencias . '}'  (23)
-	sentencias : sentencias . sentencia  (27)
+state 88
+	bloque : BEGIN END .  (23)
+
+	.  reduce 23
+
+
+state 89
+	sentencia_if : IF condicion THEN bloque ELSE . bloque  (42)
 
 	IF  shift 4
+	BEGIN  shift 68
 	PRINT  shift 5
 	ID  shift 7
-	FOR  shift 10
-	'}'  shift 85
+	FOR  shift 9
 	.  error
 
-	sentencia  goto 33
-	llamado_funcion  goto 17
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
+	bloque  goto 96
+	sentencia  goto 70
+	llamado_funcion  goto 16
+	sentencia_if  goto 17
+	sentencia_for  goto 18
+	sentencia_asignacion  goto 19
+	sentencia_print  goto 20
 
 
-state 78
-	sentencia_if : IF condicion THEN bloque ELSE . bloque  (40)
+state 90
+	sentencia_print : PRINT '(' STRING ')' ';' .  (47)
 
-	IF  shift 4
-	PRINT  shift 5
-	ID  shift 7
-	FOR  shift 10
-	'{'  shift 59
-	.  error
-
-	bloque  goto 86
-	sentencia  goto 61
-	llamado_funcion  goto 17
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
+	.  reduce 47
 
 
-state 79
-	sentencia_print : PRINT '(' STRING ')' ';' .  (43)
+state 91
+	declaracion : FUNCTION ID '(' parametro_formal ')' . BEGIN declaraciones_funcion ejecutable_funcion END  (5)
 
-	.  reduce 43
-
-
-state 80
-	declaracion : FUNCTION ID '(' parametro_formal ')' . '{' declaraciones_funcion ejecutable_funcion '}'  (6)
-
-	'{'  shift 87
+	BEGIN  shift 97
 	.  error
 
 
-state 81
+state 92
 	parametro_formal : tipo ID .  (11)
 
 	.  reduce 11
 
 
-state 82
+state 93
 	llamado_funcion : ID '(' parametro_real ')' ';' .  (25)
 
 	.  reduce 25
 
 
-state 83
-	condicion_for : ID '=' expresion . ';' comparacion  (42)
-	expresion : expresion . '+' termino  (47)
-	expresion : expresion . '-' termino  (48)
+state 94
+	condicion_for : ID '=' expresion . ';' comparacion  (46)
+	expresion : expresion . '+' termino  (55)
+	expresion : expresion . '-' termino  (56)
 
-	';'  shift 88
-	'+'  shift 54
-	'-'  shift 55
+	';'  shift 98
+	'+'  shift 63
+	'-'  shift 64
 	.  error
 
 
-state 84
-	sentencia_for : FOR '(' condicion_for ')' bloque .  (41)
+state 95
+	sentencia_for : FOR '(' condicion_for ')' bloque .  (43)
 
-	.  reduce 41
-
-
-state 85
-	bloque : '{' sentencias '}' .  (23)
-
-	.  reduce 23
+	.  reduce 43
 
 
-state 86
-	sentencia_if : IF condicion THEN bloque ELSE bloque .  (40)
-
-	.  reduce 40
-
-
-state 87
-	declaracion : FUNCTION ID '(' parametro_formal ')' '{' . declaraciones_funcion ejecutable_funcion '}'  (6)
-	declaraciones_funcion : .  (7)
-
-	.  reduce 7
-
-	declaraciones_funcion  goto 89
-
-
-state 88
-	condicion_for : ID '=' expresion ';' . comparacion  (42)
-
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
-	.  error
-
-	expresion  goto 38
-	comparacion  goto 90
-	termino  goto 40
-	factor  goto 41
-
-
-state 89
-	declaracion : FUNCTION ID '(' parametro_formal ')' '{' declaraciones_funcion . ejecutable_funcion '}'  (6)
-	declaraciones_funcion : declaraciones_funcion . declaracion_simple  (8)
-	ejecutable_funcion : .  (20)
-
-	IF  shift 4
-	PRINT  shift 5
-	RETURN  shift 91
-	ID  shift 7
-	STRING  shift 8
-	INT  shift 9
-	FOR  shift 10
-	'}'  reduce 20
-
-	declaracion_simple  goto 92
-	ejecutable_funcion  goto 93
-	tipo  goto 14
-	sentencias_funcion  goto 94
-	sentencia  goto 95
-	llamado_funcion  goto 17
-	return_funcion  goto 96
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
-
-
-state 90
-	condicion_for : ID '=' expresion ';' comparacion .  (42)
+state 96
+	sentencia_if : IF condicion THEN bloque ELSE bloque .  (42)
 
 	.  reduce 42
 
 
-state 91
-	return_funcion : RETURN . ';'  (32)
-	return_funcion : RETURN . '(' expresion ')' ';'  (33)
-
-	'('  shift 97
-	';'  shift 98
-	.  error
-
-
-state 92
-	declaraciones_funcion : declaraciones_funcion declaracion_simple .  (8)
-
-	.  reduce 8
-
-
-state 93
-	declaracion : FUNCTION ID '(' parametro_formal ')' '{' declaraciones_funcion ejecutable_funcion . '}'  (6)
-
-	'}'  shift 99
-	.  error
-
-
-state 94
-	ejecutable_funcion : sentencias_funcion .  (21)
-	sentencias_funcion : sentencias_funcion . sentencia  (30)
-	sentencias_funcion : sentencias_funcion . return_funcion  (31)
-
-	IF  shift 4
-	PRINT  shift 5
-	RETURN  shift 91
-	ID  shift 7
-	FOR  shift 10
-	'}'  reduce 21
-
-	sentencia  goto 100
-	llamado_funcion  goto 17
-	return_funcion  goto 101
-	sentencia_if  goto 18
-	sentencia_for  goto 19
-	sentencia_asignacion  goto 20
-	sentencia_print  goto 21
-
-
-state 95
-	sentencias_funcion : sentencia .  (28)
-
-	.  reduce 28
-
-
-state 96
-	sentencias_funcion : return_funcion .  (29)
-
-	.  reduce 29
-
-
 state 97
-	return_funcion : RETURN '(' . expresion ')' ';'  (33)
-
-	ID  shift 34
-	CTE  shift 35
-	STRING  shift 36
-	'('  shift 37
-	.  error
-
-	expresion  goto 102
-	termino  goto 40
-	factor  goto 41
-
-
-state 98
-	return_funcion : RETURN ';' .  (32)
-
-	.  reduce 32
-
-
-state 99
-	declaracion : FUNCTION ID '(' parametro_formal ')' '{' declaraciones_funcion ejecutable_funcion '}' .  (6)
+	declaracion : FUNCTION ID '(' parametro_formal ')' BEGIN . declaraciones_funcion ejecutable_funcion END  (5)
+	declaraciones_funcion : .  (6)
 
 	.  reduce 6
 
+	declaraciones_funcion  goto 99
+
+
+state 98
+	condicion_for : ID '=' expresion ';' . comparacion  (46)
+
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion  goto 42
+	comparacion  goto 100
+	termino  goto 44
+	factor  goto 45
+	constante  goto 46
+
+
+state 99
+	declaracion : FUNCTION ID '(' parametro_formal ')' BEGIN declaraciones_funcion . ejecutable_funcion END  (5)
+	declaraciones_funcion : declaraciones_funcion . declaracion_simple  (7)
+	ejecutable_funcion : .  (20)
+
+	error  shift 3
+	IF  shift 4
+	PRINT  shift 5
+	RETURN  shift 101
+	ID  shift 7
+	INT  shift 8
+	FOR  shift 9
+	END  reduce 20
+
+	declaracion_simple  goto 102
+	ejecutable_funcion  goto 103
+	tipo  goto 13
+	sentencias_funcion  goto 104
+	sentencia  goto 105
+	llamado_funcion  goto 16
+	return_funcion  goto 106
+	sentencia_if  goto 17
+	sentencia_for  goto 18
+	sentencia_asignacion  goto 19
+	sentencia_print  goto 20
+
 
 state 100
-	sentencias_funcion : sentencias_funcion sentencia .  (30)
+	condicion_for : ID '=' expresion ';' comparacion .  (46)
 
-	.  reduce 30
+	.  reduce 46
 
 
 state 101
-	sentencias_funcion : sentencias_funcion return_funcion .  (31)
+	return_funcion : RETURN . ';'  (34)
+	return_funcion : RETURN . '(' expresion ')' ';'  (35)
 
-	.  reduce 31
-
-
-state 102
-	return_funcion : RETURN '(' expresion . ')' ';'  (33)
-	expresion : expresion . '+' termino  (47)
-	expresion : expresion . '-' termino  (48)
-
-	')'  shift 103
-	'+'  shift 54
-	'-'  shift 55
+	'('  shift 107
+	';'  shift 108
 	.  error
 
 
-state 103
-	return_funcion : RETURN '(' expresion ')' . ';'  (33)
+state 102
+	declaraciones_funcion : declaraciones_funcion declaracion_simple .  (7)
 
-	';'  shift 104
+	.  reduce 7
+
+
+state 103
+	declaracion : FUNCTION ID '(' parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion . END  (5)
+
+	END  shift 109
 	.  error
 
 
 state 104
-	return_funcion : RETURN '(' expresion ')' ';' .  (33)
+	ejecutable_funcion : sentencias_funcion .  (21)
+	sentencias_funcion : sentencias_funcion . sentencia  (32)
+	sentencias_funcion : sentencias_funcion . return_funcion  (33)
+
+	IF  shift 4
+	PRINT  shift 5
+	RETURN  shift 101
+	ID  shift 7
+	FOR  shift 9
+	END  reduce 21
+
+	sentencia  goto 110
+	llamado_funcion  goto 16
+	return_funcion  goto 111
+	sentencia_if  goto 17
+	sentencia_for  goto 18
+	sentencia_asignacion  goto 19
+	sentencia_print  goto 20
+
+
+state 105
+	sentencias_funcion : sentencia .  (30)
+
+	.  reduce 30
+
+
+state 106
+	sentencias_funcion : return_funcion .  (31)
+
+	.  reduce 31
+
+
+state 107
+	return_funcion : RETURN '(' . expresion ')' ';'  (35)
+
+	ID  shift 37
+	CTE  shift 38
+	STRING  shift 39
+	'('  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion  goto 112
+	termino  goto 44
+	factor  goto 45
+	constante  goto 46
+
+
+state 108
+	return_funcion : RETURN ';' .  (34)
+
+	.  reduce 34
+
+
+state 109
+	declaracion : FUNCTION ID '(' parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion END .  (5)
+
+	.  reduce 5
+
+
+state 110
+	sentencias_funcion : sentencias_funcion sentencia .  (32)
+
+	.  reduce 32
+
+
+state 111
+	sentencias_funcion : sentencias_funcion return_funcion .  (33)
 
 	.  reduce 33
 
 
-29 terminals, 28 nonterminals
-57 grammar rules, 105 states
+state 112
+	return_funcion : RETURN '(' expresion . ')' ';'  (35)
+	expresion : expresion . '+' termino  (55)
+	expresion : expresion . '-' termino  (56)
+
+	')'  shift 113
+	'+'  shift 63
+	'-'  shift 64
+	.  error
+
+
+state 113
+	return_funcion : RETURN '(' expresion ')' . ';'  (35)
+
+	';'  shift 114
+	.  error
+
+
+state 114
+	return_funcion : RETURN '(' expresion ')' ';' .  (35)
+
+	.  reduce 35
+
+
+27 terminals, 29 nonterminals
+67 grammar rules, 115 states

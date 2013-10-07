@@ -43,7 +43,7 @@ public class CompiladorManager {
                 strCont = console.readLine("Desea ingresar otro Path? (Y/N): ");
             } else {
                 analizar(s, console);
-                 strCont = console.readLine("Realizar otro analisis? (Y/N): ");
+                strCont = console.readLine("Realizar otro analisis? (Y/N): ");
             }
             
             if (!strCont.equals("Y") && !strCont.equals("y")) {
@@ -62,16 +62,20 @@ public class CompiladorManager {
     public  void analizar(SourceCode s, Console console) {
         this.prepareParser(s.getAsString());
         this.parser.parse();
-        System.out.println("*************************");
+        System.out.println("\n*************************");
         System.out.println("Resultado del análisis: ");
         if (this.eventoError.hayErrores()) {
             System.out.println("Fallido - Errores");
         } else {
             System.out.println("Exitoso - Sin errores");
         }
-        System.out.println("*************************");
-        this.eventoError.visualizar();
-        System.out.println("*************************");
+        System.out.println("\n*************************");
+        System.out.println("Errores durante la compilacion: ");
+        this.eventoError.visualizar("Error");
+        System.out.println("\n*************************");
+        System.out.println("Construcciones sintacticas: ");
+        this.eventoError.visualizar("Regla");
+        System.out.println("\n*************************");
         this.analizadorLexico.visualizarTablaSimbolos();
     }
 }

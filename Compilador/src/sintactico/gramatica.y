@@ -37,7 +37,7 @@ declaraciones:
 ;
 
 declaracion: declaracion_simple
-| FUNCTION ID '(' parametro_formal ')' '{' declaraciones_funcion ejecutable_funcion '}'
+| FUNCTION ID '(' parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion END
 ;
 
 declaraciones_funcion: 
@@ -53,11 +53,11 @@ parametro_formal:
 ;
 
 parametro_real:
-| ID
+| ID            
 ;
 
 tipo: INT 
-| STRING
+| error         {this.eventoError.add("Declaracion invalida", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 lista_variables: ID
@@ -73,14 +73,16 @@ ejecutable_funcion:
 ;
 
 bloque: sentencia
-	| '{' sentencias '}'
-	| '{' '}'
-	| error '}'
-	;
+| BEGIN sentencias END
+| BEGIN END
+| BEGIN error; { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+;
+
 llamado_funcion: ID '(' parametro_real ')' ';'      { this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 ;
 
 sentencias: sentencia
+| sentencia declaracion error                   { this.eventoError.add("No puede ir declaración en parte ejecutable", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 | sentencias sentencia
 ;
 
@@ -210,6 +212,8 @@ static {
 	Conversor.put("print", PRINT);
         Conversor.put("return", RETURN);
 	Conversor.put( "for", FOR);
+        Conversor.put("begin", BEGIN);
+	Conversor.put( "end", END);
 	Conversor.put( "<=", COMPARADOR);
 	Conversor.put( "==", COMPARADOR);
 	Conversor.put( ">=", COMPARADOR);
