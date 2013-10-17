@@ -38,6 +38,7 @@ declaraciones:
 
 declaracion: declaracion_simple
 | FUNCTION ID '(' parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion END
+| FUNCTION ID '(' parametro_formal ')' '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 declaraciones_funcion: 
@@ -56,8 +57,8 @@ parametro_real:
 | ID            
 ;
 
-tipo: INT 
-| error         {this.eventoError.add("Declaracion invalida", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
+tipo: INT
+| STRING error         {this.eventoError.add("Declaracion invalida", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 lista_variables: ID
@@ -66,6 +67,7 @@ lista_variables: ID
 
 ejecutable: 
 | sentencias
+| sentencias declaracion error    {this.eventoError.add("No puede haber sentencias declarativas fuera de la zona de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 ejecutable_funcion: 
@@ -82,7 +84,6 @@ llamado_funcion: ID '(' parametro_real ')' ';'      { this.eventoError.add("Llam
 ;
 
 sentencias: sentencia
-| sentencia declaracion error                   { this.eventoError.add("No puede ir declaración en parte ejecutable", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 | sentencias sentencia
 ;
 
@@ -143,7 +144,6 @@ termino : termino '*' factor    { this.eventoError.add("Operación de multiplica
 
 factor: ID
 | constante
-| STRING
 | '(' expresion ')'
 ;
 
