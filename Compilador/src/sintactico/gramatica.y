@@ -76,6 +76,7 @@ ejecutable_funcion:
 
 bloque: sentencia
 | BEGIN sentencias END
+| '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 | BEGIN END
 | BEGIN error; { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
