@@ -78,7 +78,7 @@ bloque: sentencia
 | BEGIN sentencias END
 | '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 | BEGIN END
-| BEGIN error; { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+| BEGIN sentencias error { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
 llamado_funcion: ID '(' parametro_real ')' ';'      { this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
