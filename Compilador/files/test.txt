@@ -1,0 +1,9 @@
+// Seccion declaraciones
+int color;
+
+// Seccion Ejecutable
+
+if (color < a) then
+	color = 1;
+valor = 10;
+end

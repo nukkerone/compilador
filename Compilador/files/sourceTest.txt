@@ -1,0 +1,12 @@
+// Seccion declaraciones
+int color;
+
+function getId(int i) {
+	print("This is sparta!!");
+}
+
+// Seccion Ejecutable
+numero = 20;
+if (numero < 10) then {
+	print("String");
+}

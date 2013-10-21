@@ -1,0 +1,28 @@
+// Seccion declaraciones
+int color;
+
+function getId(int i) begin
+	numero = 10;
+	if (numero > i) then begin
+		print("Mas grande");
+	end
+end
+
+// Seccion Ejecutable
+numero = 20;
+
+if (c == 10) then begin
+	for (i = 1; i > n ) begin
+		valor = 10; 
+		if (a == b) then begin 
+			value = 5; 
+		end 
+	end 
+end else begin 
+	getId(color);	// Llamado a funcion
+end
+
+for (z=3; i == 777777) begin	// Una constante larga que será truncada
+	if (identificadorlargo > 0) then	// Un identificador largo que será truncado
+		print("Una salida por pantalla");
+end
