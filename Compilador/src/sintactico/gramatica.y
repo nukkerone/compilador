@@ -67,7 +67,7 @@ lista_variables: ID
 
 ejecutable: 
 | sentencias
-| sentencias error
+| sentencias error  {this.eventoError.add("Sentencia mal formada", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 | sentencias declaracion error    {this.eventoError.add("No puede haber sentencias declarativas fuera de la zona de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
