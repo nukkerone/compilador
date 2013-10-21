@@ -19,7 +19,7 @@ if (c == 10) then begin
 		end 
 	end 
 end else begin 
-	getId(color);	// Llamado a funcion
+	getId(color1);	// Llamado a funcion
 end
 
 for (z=3; i == 777777) begin	// Una constante larga que será truncada
