@@ -4,6 +4,8 @@ package sintactico;
 import lexico.*; 
 import herramientaerror.*;
 import java.util.Hashtable;
+import cod_intermedio.*;
+import interfaces.*;
 
 %}
 
@@ -131,10 +133,16 @@ condicion: '(' comparacion ')'
 comparacion: expresion COMPARADOR expresion
 ;
 
-sentencia_asignacion: ID '=' expresion ';'  { this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+sentencia_asignacion: ID '=' expresion ';'  { 
+    this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    new TercetoAsignacion((Typeable)$1.obj, (Typeable)$3.obj);
+}
 ;
 
-expresion : expresion '+' termino   { this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+expresion : expresion '+' termino   { 
+    this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    $$.obj= new TercetoSuma((Typeable)$1.obj, (Typeable)$3.obj);
+}
 | expresion '-' termino { this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 | termino
 ;

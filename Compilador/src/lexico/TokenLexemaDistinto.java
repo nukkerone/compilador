@@ -8,11 +8,23 @@ package lexico;
  *
  * @author Gabriel
  */
-public class TokenLexemaDistinto extends Token {
+public class TokenLexemaDistinto extends TypeableToken {
+    
+    private String tipo;
     
     TokenLexemaDistinto(String palabraReservada, String lexema) {
         super(palabraReservada);
         this.lexema = lexema;
+        this.tipo = TIPO_RECIEN_DECLARADA;
+    }
+
+    @Override
+    public String getTipo() {
+        return this.tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
     
 }

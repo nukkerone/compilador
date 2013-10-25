@@ -22,8 +22,10 @@ package sintactico;
 import lexico.*; 
 import herramientaerror.*;
 import java.util.Hashtable;
+import cod_intermedio.*;
+import interfaces.*;
 
-//#line 24 "Parser.java"
+//#line 26 "Parser.java"
 
 
 
@@ -419,7 +421,7 @@ final static String yyrule[] = {
 "constante : '-' CTE",
 };
 
-//#line 157 "gramatica.y"
+//#line 165 "gramatica.y"
 
 boolean finished = false;
 
@@ -500,7 +502,7 @@ static {
 	Conversor.put( "*", new Short((short)'*'));
 	Conversor.put( "/", new Short((short)'/'));	
 }
-//#line 432 "Parser.java"
+//#line 434 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -655,106 +657,114 @@ boolean doaction;
       {
 //########## USER-SUPPLIED ACTIONS ##########
 case 6:
-//#line 41 "gramatica.y"
+//#line 43 "gramatica.y"
 {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 9:
-//#line 48 "gramatica.y"
+//#line 50 "gramatica.y"
 {this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 10:
-//#line 49 "gramatica.y"
+//#line 51 "gramatica.y"
 { this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 16:
-//#line 61 "gramatica.y"
+//#line 63 "gramatica.y"
 {this.eventoError.add("Declaracion invalida", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 21:
-//#line 70 "gramatica.y"
+//#line 72 "gramatica.y"
 {this.eventoError.add("Sentencia mal formada", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 22:
-//#line 71 "gramatica.y"
+//#line 73 "gramatica.y"
 {this.eventoError.add("No puede haber sentencias declarativas fuera de la zona de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 27:
-//#line 80 "gramatica.y"
+//#line 82 "gramatica.y"
 {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 29:
-//#line 82 "gramatica.y"
+//#line 84 "gramatica.y"
 { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 30:
-//#line 85 "gramatica.y"
+//#line 87 "gramatica.y"
 { this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 44:
-//#line 109 "gramatica.y"
+//#line 111 "gramatica.y"
 { this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 45:
-//#line 110 "gramatica.y"
+//#line 112 "gramatica.y"
 { this.eventoError.add("Sentencia If completa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 46:
-//#line 113 "gramatica.y"
+//#line 115 "gramatica.y"
 { this.eventoError.add("Sentencia For", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 47:
-//#line 114 "gramatica.y"
+//#line 116 "gramatica.y"
 { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 48:
-//#line 115 "gramatica.y"
+//#line 117 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 50:
-//#line 121 "gramatica.y"
+//#line 123 "gramatica.y"
 { this.eventoError.add("Sentencia Print", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 51:
-//#line 122 "gramatica.y"
+//#line 124 "gramatica.y"
 { this.eventoError.add("Falta cerrar parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 52:
-//#line 123 "gramatica.y"
+//#line 125 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 54:
-//#line 127 "gramatica.y"
+//#line 129 "gramatica.y"
 { this.eventoError.add("Falta cierre parentesis en la condicion", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 55:
-//#line 128 "gramatica.y"
+//#line 130 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis en condición", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 57:
-//#line 134 "gramatica.y"
-{ this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+//#line 136 "gramatica.y"
+{ 
+    this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    new TercetoAsignacion((Typeable)val_peek(3).obj, (Typeable)val_peek(1).obj);
+}
 break;
 case 58:
-//#line 137 "gramatica.y"
-{ this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+//#line 142 "gramatica.y"
+{ 
+    Token t1 = (Token) val_peek(2).obj;
+    Token t2 = (Token) val_peek(0).obj;
+    this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    yyval.obj= new TercetoSuma((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
+}
 break;
 case 59:
-//#line 138 "gramatica.y"
+//#line 146 "gramatica.y"
 { this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 61:
-//#line 142 "gramatica.y"
+//#line 150 "gramatica.y"
 { this.eventoError.add("Operación de multiplicacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 62:
-//#line 143 "gramatica.y"
+//#line 151 "gramatica.y"
 { this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
 case 68:
-//#line 153 "gramatica.y"
+//#line 161 "gramatica.y"
 { this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
-//#line 681 "Parser.java"
+//#line 689 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
