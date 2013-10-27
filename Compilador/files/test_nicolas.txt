@@ -1,0 +1,37 @@
+\\ Seccion declaraciones
+int color;
+
+function getId(int i) begin
+	int numero;
+	numero = 10;
+	if (numero > i) then begin
+		print("Mas grande");
+	end
+	return(2*4+numero);
+end
+
+\\ Seccion Ejecutable
+numero = 20;
+
+if (c == 10) then begin
+	for (i = 1; i > n ) begin
+		valor = 10; 
+		if (a == b) then begin 
+			value = 5; 
+		end 
+	end 
+end else begin 
+	getId(color1);	\\ Llamado a funcion
+end
+
+for (z=3; i == 777777) begin	\\ Una constante larga que será truncada
+	if (identificadorlargo > 0) then	\\ Un identificador largo que será truncado
+		print("Una salida por pantalla +
+			  mas lineas ");
+end
+ a = 32123123123123;
+for (z=3; i == 777777)
+	if (identificadorlargo > 0) then	\\ Un identificador largo que será truncado
+		print("Una salida por pantalla");
+	else
+		a = 2*4;

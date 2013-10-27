@@ -22,7 +22,7 @@ public class AccionAgregar extends AccionSemantica {
         if (caracter == null) { // END OF FILE
             return 0;
         }
-        if (caracter == 10) {   // 10 es el salto de línea => \n
+        if (Character.toString(caracter).equals("\n")) {   // 10 es el salto de línea => \n
             this.analizadorLexico.avanzarLinea();
         }
         this.analizadorLexico.saveTempChar(this.analizadorLexico.getCaracterActual());
