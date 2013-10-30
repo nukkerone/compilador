@@ -56,7 +56,8 @@ parametro_formal:
 ;
 
 parametro_real:
-| ID            
+| ID   
+| constante         
 ;
 
 tipo: INT
@@ -84,7 +85,7 @@ bloque: sentencia
 | BEGIN sentencias error { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
-llamado_funcion: ID '(' parametro_real ')' ';'      { this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+llamado_funcion: ID '(' parametro_real ')'      { this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 ;
 
 sentencias: sentencia
@@ -105,7 +106,7 @@ sentencia: sentencia_if
 | sentencia_for
 | sentencia_asignacion
 | sentencia_print
-| llamado_funcion
+| llamado_funcion ';'
 ;
 
 sentencia_if: IF condicion THEN bloque      %prec LOWER_THAN_ELSE       { this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
@@ -154,6 +155,7 @@ termino : termino '*' factor    { this.eventoError.add("Operación de multiplica
 
 factor: ID
 | constante
+| llamado_funcion
 | '(' expresion ')'
 ;
 

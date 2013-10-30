@@ -52,6 +52,7 @@ public class AnalizadorLexico {
     final static String ET_ABRE_LLAVE = "{";
     final static String ET_CIERRA_LLAVE = "}";
     final static String ET_CADENA = "\"";
+    final static String ET_BARRA_INVERTIDA = "\\";
     final static String ET_EXCLAMACION = "!";
     final static String ET_COMA = ",";
     final static String ET_OTRO = "otro";
@@ -216,12 +217,12 @@ public class AnalizadorLexico {
         
 // Reglas COMENTARIO ADEMAS SE OBTIENE LA BARRA O DIVISION
         
-      this.matrizTransicion.setTransicion(EST_INICIAL, ET_DIVISOR, EST_POSIBLE_COMENTARIO, 
+      this.matrizTransicion.setTransicion(EST_INICIAL, ET_BARRA_INVERTIDA, EST_POSIBLE_COMENTARIO, 
          (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir }));
          this.setTransicionOtros(EST_POSIBLE_COMENTARIO, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
-                (List<String>) Arrays.asList(new String[] { ET_DIVISOR }));
-       this.matrizTransicion.setTransicion(EST_POSIBLE_COMENTARIO, ET_DIVISOR, EST_COMENTARIO, 
+                (List<String>) Arrays.asList(new String[] { ET_BARRA_INVERTIDA }));
+       this.matrizTransicion.setTransicion(EST_POSIBLE_COMENTARIO, ET_BARRA_INVERTIDA, EST_COMENTARIO, 
          (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir}));
         this.setTransicionOtros(EST_COMENTARIO, EST_COMENTARIO, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir}), 
@@ -522,6 +523,9 @@ public class AnalizadorLexico {
 
         case 34: // '"'
             return ET_CADENA;
+            
+        case 92: // '\\'
+            return ET_BARRA_INVERTIDA;
 
         case 61: // '='
             return this.ET_IGUAL;
@@ -550,7 +554,7 @@ public class AnalizadorLexico {
     private void setTransicionOtros(int estadoActual, int estadoSiguiente, List<AccionSemantica> acciones, List<String> etiquetaAEvitar) {
         String[] etiquetas = {ET_LETRAS,ET_DIGITOS,ET_DIVISOR,ET_ANGMENOR,ET_ANGMAYOR,ET_IGUAL,ET_POR,
             ET_ESPACIO, ET_PUNTOCOMA, ET_SALTO_LINEA,ET_ABRE_LLAVE,ET_CIERRA_LLAVE,ET_ABRE_PARENT,ET_CIERRA_PARENT,
-            ET_CADENA,ET_EXCLAMACION,ET_COMA,ET_OTRO, ET_EOF, ET_MAS, ET_MENOS, ET_TAB};
+            ET_CADENA, ET_BARRA_INVERTIDA, ET_EXCLAMACION,ET_COMA,ET_OTRO, ET_EOF, ET_MAS, ET_MENOS, ET_TAB};
         ArrayList<String> etiquetasArray = new ArrayList(Arrays.asList(etiquetas));
         for(int i=0; i<etiquetasArray.size(); i++) {
             String etiqueta = etiquetasArray.get(i);

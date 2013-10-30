@@ -156,7 +156,7 @@ public class ParserTest {
     
     @Test
     public void testErrores() {
-        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\source.txt";
+        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test_nicolas.txt";
         SourceCode s = new SourceCode(filePath);
         s.generateSource();
         
@@ -173,6 +173,9 @@ public class ParserTest {
         System.out.println("\n*************************");
         System.out.println("Errores durante la compilacion: ");
         this.eventoError.visualizar("Error");
+        System.out.println("\n*************************");
+        System.out.println("Warnings durante la compilacion: ");
+        this.eventoError.visualizar("Warning");
         System.out.println("\n*************************");
         System.out.println("Construcciones sintacticas: ");
         this.eventoError.visualizar("Regla");

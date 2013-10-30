@@ -39,6 +39,9 @@ public class AccionFin extends AccionSemantica{
             }
             break;
         case 2: // Identificando Constantes (Digitos)
+            if (cadenaTemporal.length() > 5) {
+                cadenaTemporal = cadenaTemporal.substring(0, 6);
+            }
             if (Integer.parseInt( cadenaTemporal ) > AccionFin.MAX_INT_VAL) {
                 String temp = cadenaTemporal;
                 cadenaTemporal = Integer.toString(AccionFin.MAX_INT_VAL);
