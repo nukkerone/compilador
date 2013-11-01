@@ -10,8 +10,8 @@ import interfaces.Typeable;
  *
  * @author Gabriel
  */
-public class TercetoSuma extends Terceto {
-    public TercetoSuma(Typeable p1, Typeable p2) {
-        super("+", p1, p2);
+public class TercetoPrint extends Terceto {
+    public TercetoPrint(Typeable p1) {
+        super("Print",p1,null);
     }
 }

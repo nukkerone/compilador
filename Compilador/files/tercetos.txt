@@ -1,1 +1,5 @@
 color = 1000 + 999;
+
+if (x == 20) then begin
+	print("Una Palabra");
+end

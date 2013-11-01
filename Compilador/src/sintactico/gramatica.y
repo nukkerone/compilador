@@ -121,17 +121,22 @@ sentencia_for: FOR '(' condicion_for ')' bloque     { this.eventoError.add("Sent
 condicion_for: ID '=' expresion ';' comparacion
 ;
 
-sentencia_print: PRINT '(' STRING ')' ';'              { this.eventoError.add("Sentencia Print", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+sentencia_print: PRINT '(' STRING ')' ';'              { 
+    this.eventoError.add("Sentencia Print", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    $$.obj= new TercetoPrint((Typeable)$3.obj);
+}
 | PRINT '(' STRING ';'    { this.eventoError.add("Falta cerrar parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 | PRINT STRING error        { this.eventoError.add("Falta abrir parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
-condicion: '(' comparacion ')'
+condicion: '(' comparacion ')' 
 | '(' comparacion       { this.eventoError.add("Falta cierre parentesis en la condicion", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 | error                 { this.eventoError.add("Falta abrir parentesis en condición", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
-comparacion: expresion COMPARADOR expresion
+comparacion: expresion COMPARADOR expresion {
+    new TercetoComparacion((Token) $2.obj, (Typeable)$1.obj, (Typeable)$3.obj);
+}
 ;
 
 sentencia_asignacion: ID '=' expresion ';'  { 
@@ -144,19 +149,28 @@ expresion : expresion '+' termino   {
     this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     $$.obj= new TercetoSuma((Typeable)$1.obj, (Typeable)$3.obj);
 }
-| expresion '-' termino { this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| expresion '-' termino { 
+    this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" );
+    $$.obj= new TercetoResta((Typeable)$1.obj, (Typeable)$3.obj);
+}
 | termino
 ;
 
-termino : termino '*' factor    { this.eventoError.add("Operación de multiplicacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
-| termino '/' factor            { this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+termino : termino '*' factor    { 
+    this.eventoError.add("Operación de multiplicacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    $$.obj= new TercetoMultiplicacion((Typeable)$1.obj, (Typeable)$3.obj);
+}
+| termino '/' factor            { 
+    this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    $$.obj= new TercetoDivision((Typeable)$1.obj, (Typeable)$3.obj);
+}
 | factor
 ;
 
 factor: ID
 | constante
 | llamado_funcion
-| '(' expresion ')'
+| '(' expresion ')' { $$ = $2; }
 ;
 
 constante: CTE
