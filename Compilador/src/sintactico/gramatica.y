@@ -120,10 +120,16 @@ sentencia_if: inicio_if THEN bloque      %prec LOWER_THAN_ELSE       { this.even
 inicio_if:  IF condicion  { agregarIfPila(); }
 ;
 
-sentencia_for: FOR '(' condicion_for ')' bloque     { this.eventoError.add("Sentencia For", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+sentencia_for: comienzo_for bloque     {
+ this.eventoError.add("Sentencia For", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+ this.desapilarFor();
+}
+;     
+
+comienzo_for: FOR {apilarCondicionFor();} condicion_for {apilarFor();}
 | FOR '(' condicion_for bloque    { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 | FOR error condicion_for         { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
-;        
+;   
 
 condicion_for: ID '=' expresion ';' comparacion
 ;
@@ -255,7 +261,29 @@ private void empezarElse() {
 }
 
 private void terminarElse() {
-	eliminarIfPila();
+    eliminarIfPila();
+}
+
+private void desapilarFor(){
+    TercetoSalto ts = new TercetoSalto("BI");
+
+    Vector<Terceto> t = Terceto.tercetos;
+    int desapilado = pilaSaltos.remove(pilaSaltos.size() -1);
+    new TercetoLabel();
+    ((TercetoSalto) t.get(desapilado)).setDirSalto(t.size());
+
+    int dirCondicion = pilaCondiciones.remove(pilaCondiciones.size() -1);
+    ts.setDirSalto(dirCondicion);
+}
+
+private void apilarCondicionFor(){
+    new TercetoLabel();
+    pilaCondiciones.add(Terceto.tercetos.size());
+}
+
+private void apilarFor(){
+    pilaSaltos.add(Terceto.tercetos.size());
+    new TercetoSalto("BF");
 }
 
 static Hashtable<String, Short> Conversor;
