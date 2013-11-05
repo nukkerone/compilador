@@ -14,10 +14,10 @@ import java.util.Vector;
  */
 public class Terceto implements Typeable {
     
-    private String tipo;
-    private int posicion;
-    private Typeable parametro1, parametro2;
-    private String operacion;
+    protected String tipo;
+    protected int posicion;
+    protected Typeable parametro1, parametro2;
+    protected String operacion;
     public static Vector<Terceto> tercetos = new Vector<Terceto>();
     
     public Terceto(String op) {

@@ -59,7 +59,7 @@ public class SemanticoTest {
     
     @Test
     public void testErrores() {
-        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\tercetos.txt";
+        String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/tercetos.txt";
         SourceCode s = new SourceCode(filePath);
         s.generateSource();
         

@@ -4,6 +4,7 @@ package sintactico;
 import lexico.*; 
 import herramientaerror.*;
 import java.util.Hashtable;
+import java.util.Vector;
 import cod_intermedio.*;
 import interfaces.*;
 
@@ -109,8 +110,14 @@ sentencia: sentencia_if
 | llamado_funcion ';'
 ;
 
-sentencia_if: IF condicion THEN bloque      %prec LOWER_THAN_ELSE       { this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
-| IF condicion THEN bloque ELSE bloque                                  { this.eventoError.add("Sentencia If completa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+sentencia_if: inicio_if THEN bloque      %prec LOWER_THAN_ELSE       { this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| inicio_if THEN bloque ELSE {empezarElse();} bloque                                  { 
+    this.eventoError.add("Sentencia If completa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    this.terminarElse();
+}
+;
+
+inicio_if:  IF condicion  { agregarIfPila(); }
 ;
 
 sentencia_for: FOR '(' condicion_for ')' bloque     { this.eventoError.add("Sentencia For", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
@@ -222,6 +229,33 @@ public void addEventoError( EventoError e ) {
 
 public int parse() {
     return yyparse();
+}
+
+Vector<Integer> pilaSaltos = new Vector<Integer>();
+Vector<Integer> pilaCondiciones = new Vector<Integer>();
+
+private void agregarIfPila() {
+    pilaSaltos.add(Terceto.tercetos.size());                        // Agregar a la Pila de saltos
+    new TercetoSalto("BF");                                         // Crear el Terceto
+}
+
+private void eliminarIfPila() { //termina IF sin else
+    Vector<Terceto> t = Terceto.tercetos;
+    int indiceDesapilar = pilaSaltos.get(pilaSaltos.size()-1);      // Guardo indice a desapilar (Seria el ultimo)
+    pilaSaltos.remove(pilaSaltos.size() -1);                        // Remuevo el ultimo de la pila
+    new TercetoLabel();                                             // Se crea la etiqueta
+    ((TercetoSalto) t.get(indiceDesapilar)).setDirSalto(t.size());  // 
+}
+
+private void empezarElse() {
+    int posB = Terceto.tercetos.size();
+    new TercetoSalto("BI");
+    eliminarIfPila();
+    pilaSaltos.add(posB);
+}
+
+private void terminarElse() {
+	eliminarIfPila();
 }
 
 static Hashtable<String, Short> Conversor;
