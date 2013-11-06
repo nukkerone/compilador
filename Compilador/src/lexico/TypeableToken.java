@@ -15,4 +15,8 @@ public abstract class TypeableToken extends Token implements Typeable {
     public TypeableToken(String palabraReservada) {
         super(palabraReservada);
     }
+
+    public void setTipo(int tipo) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

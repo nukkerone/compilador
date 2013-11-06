@@ -49,7 +49,11 @@ declaraciones_funcion:
 ;
 
 declaracion_simple: tipo lista_variables {this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
-| tipo lista_variables ';'  { this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| tipo lista_variables ';'  { 
+    this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Vector<ParserVal> v = (Vector<ParserVal>)$2.obj;					 
+    AsignarTipo($1.ival, v);
+}
 ;
 
 parametro_formal: 
@@ -61,12 +65,20 @@ parametro_real:
 | constante         
 ;
 
-tipo: INT
+tipo: INT              { $$.ival = Typeable.TIPO_int; }
 | STRING error         {this.eventoError.add("Declaracion invalida", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
-lista_variables: ID
-| lista_variables ',' ID
+lista_variables: ID         { 
+    Vector<ParserVal> vars = new Vector<ParserVal>();
+    vars.add(clone($1));
+    $$.obj = vars;
+}
+| lista_variables ',' ID    { 
+    Vector<ParserVal> vars = (Vector<ParserVal>) $1.obj;
+    vars.add(clone($3));
+    $$.obj = vars;
+}
 ;
 
 ejecutable: 
@@ -220,6 +232,24 @@ void yyerror(String s)
 {
     if(s.contains("under"))
         System.out.println("Error :"+s);
+}
+
+private ParserVal clone(ParserVal originParserVal){
+    ParserVal newParserVal = new ParserVal();
+    newParserVal.obj = originParserVal.obj;
+    newParserVal.ival = originParserVal.ival;
+    return newParserVal;
+}
+
+private void AsignarTipo(int tipo, Vector vars) {
+	for(int i = 0; i < vars.size(); i++){
+		ParserVal p = (ParserVal) vars.get(i);
+		TypeableToken t= (TypeableToken) p.obj;
+		if(t.getTipo() == Typeable.TIPO_RECIEN_DECLARADA)
+			t.setTipo(tipo);
+		else
+                    this.eventoError.add("Variable redeclarada " + t.getLexema(), p.ival, "Semantico", "Error" );			
+	}
 }
 
 AnalizadorLexico anLexico;

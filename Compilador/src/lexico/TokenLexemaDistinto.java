@@ -10,7 +10,7 @@ package lexico;
  */
 public class TokenLexemaDistinto extends TypeableToken {
     
-    private String tipo;
+    private int tipo;
     
     TokenLexemaDistinto(String palabraReservada, String lexema) {
         super(palabraReservada);
@@ -19,11 +19,12 @@ public class TokenLexemaDistinto extends TypeableToken {
     }
 
     @Override
-    public String getTipo() {
+    public int getTipo() {
         return this.tipo;
     }
 
-    public void setTipo(String tipo) {
+    @Override
+    public void setTipo(int tipo) {
         this.tipo = tipo;
     }
     

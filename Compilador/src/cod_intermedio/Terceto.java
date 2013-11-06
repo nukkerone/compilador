@@ -14,7 +14,7 @@ import java.util.Vector;
  */
 public class Terceto implements Typeable {
     
-    protected String tipo;
+    protected int tipo;
     protected int posicion;
     protected Typeable parametro1, parametro2;
     protected String operacion;
@@ -38,8 +38,8 @@ public class Terceto implements Typeable {
         this.parametro1 = p1;
         this.parametro2 = p2;
 
-        if(p2 != null && !(p1.getTipo().equals(Terceto.TIPO_DESCONOCIDO)) &&
-                !(p2.getTipo().equals(Terceto.TIPO_DESCONOCIDO))) {
+        if(p2 != null && !(p1.getTipo() == (Terceto.TIPO_DESCONOCIDO)) &&
+                !(p2.getTipo() == (Terceto.TIPO_DESCONOCIDO))) {
             this.tipo = p1.getTipo(); //si es una asignacion tambien sirve
         }
         else {
@@ -55,11 +55,11 @@ public class Terceto implements Typeable {
     }
 
     @Override
-    public String getTipo() {
+    public int getTipo() {
         return this.tipo;
     }
     
-    public void setTipo(String tipo) {
+    public void setTipo(int tipo) {
         this.tipo = tipo;
     }
     

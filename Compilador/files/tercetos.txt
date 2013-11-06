@@ -1,5 +1,3 @@
-color = 1000 + 999;
+int color;
 
-if (x == 20) then begin
-	print("Una Palabra");
-end
+color = 10;

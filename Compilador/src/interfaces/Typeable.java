@@ -9,10 +9,10 @@ package interfaces;
  * @author Gabriel
  */
 public interface Typeable {
-    public static String TIPO_int = "t_int";
-    public static String TIPO_DESCONOCIDO = "t_unknown";
-    public static String TIPO_RECIEN_DECLARADA = "t_recien_declarada";
-    public static String TIPO_STRING = "t_string";
-    
-    public String getTipo();
+    public static int TIPO_DESCONOCIDO = 1000;
+    public static int TIPO_RECIEN_DECLARADA = 1001;
+    public static int TIPO_int = 1002;
+      
+    public int getTipo();
+    public void setTipo(int tipo);
 }
