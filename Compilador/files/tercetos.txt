@@ -4,3 +4,5 @@ function getId(int i) begin
 end
 
 getId(color);
+
+verde = 10;

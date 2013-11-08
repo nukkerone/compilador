@@ -14,7 +14,9 @@ public class TercetoLabel extends Terceto {
     }
     
     public String toString() {
-        return "( Label "+ this.posicion +", -, -)";
+        String s = "Terceto Label - Posicion: " + this.posicion;
+        
+        return s;
     }
     
 }

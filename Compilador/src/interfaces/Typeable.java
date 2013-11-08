@@ -15,4 +15,6 @@ public interface Typeable {
       
     public int getTipo();
     public void setTipo(int tipo);
+    
+    public String getTipoAmigable();
 }

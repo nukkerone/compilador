@@ -24,8 +24,12 @@ public class TercetoSalto extends Terceto {
             this.dirSalto = dirSalto;
     }
     
+    @Override
     public String toString() {
-        return "(" + this.operacion + ", [" + this.dirSalto + "], - )";
+        String s = "Terceto Salto - Posicion: " + this.posicion + " - Operacion: " + this.operacion + " - Posicion Salto: "
+                + this.dirSalto;
+
+        return s;
     }
     
 }

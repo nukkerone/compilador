@@ -14,17 +14,6 @@ public class TercetoAsignacion extends Terceto {
     public TercetoAsignacion(Typeable p1, Typeable p2) {
         super("=", p1, p2);
         
-        /* Me parece que esto por ahora no lo necesitamos, es un chekeo de tipos, pero tenemos siempre integers?
-        if(p1.getTipo() != p2.getTipo()){
-            Terceto aux = quitarUltimo();
-            //agrego conversion implicita
-            Terceto t = new TercetoConversion(p1.getTipo(), p2);
-            //se tiene que agregar antes que el ultimo, que es This
-            aux.setNumero(tercetos.size()+1);
-            aux.setParam2(t);
-            tercetos.add(aux);
-        }
-        */
         this.setTipo(p1.getTipo());
     }
     
@@ -32,5 +21,21 @@ public class TercetoAsignacion extends Terceto {
         Terceto salida;
         salida = Terceto.tercetos.remove(tercetos.size()-1);
         return salida;
+    }
+    
+    public String toString() {
+        String s = "Terceto Asignacion - Posicion: " + this.posicion + " - Operacion: " + this.operacion;
+        String param1Str = " - Null";
+        String param2Str = " - Null";
+        
+        if (this.parametro1 != null) {
+            param1Str =  " - Tipo Parametro 1: " + this.parametro1.getTipoAmigable();
+        }
+        
+        if (this.parametro2 != null) {
+            param2Str = " - Tipo Parametro 2: " + this.parametro2.getTipoAmigable();
+        }
+        
+        return s + param1Str + param2Str;
     }
 }

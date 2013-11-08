@@ -78,7 +78,8 @@ public class SemanticoTest {
         System.out.println("\n*************************");
         this.al.visualizarTablaSimbolos();
         System.out.println("\n*************************");
-        Terceto.tercetos.toString();
+        System.out.println("Tercetos generados: ");
+        Terceto.printTercetos();
         assertTrue("Ultimos tests", resultadoParse == 0);
         
     }

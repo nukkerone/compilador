@@ -4,6 +4,7 @@
  */
 package compilador;
 
+import cod_intermedio.Terceto;
 import filereader.SourceCode;
 import herramientaerror.EventoError;
 import java.io.Console;
@@ -77,5 +78,9 @@ public class CompiladorManager {
         this.eventoError.visualizar("Regla");
         System.out.println("\n*************************");
         this.analizadorLexico.visualizarTablaSimbolos();
+        System.out.println("\n*************************");
+        System.out.println("Tercetos generados: ");
+        Terceto.printTercetos();
+        System.out.println("\n*************************");
     }
 }

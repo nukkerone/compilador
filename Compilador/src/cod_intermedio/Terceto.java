@@ -13,6 +13,8 @@ import java.util.Vector;
  * @author Gabriel
  */
 public class Terceto implements Typeable {
+
+    
     
     protected int tipo;
     protected int posicion;
@@ -25,7 +27,7 @@ public class Terceto implements Typeable {
         this.parametro1 = null;
         this.parametro2 = null;
         operacion = op;
-        this.setPosicion(Terceto.tercetos.size()+1);
+        this.setPosicion(Terceto.tercetos.size());
         Terceto.tercetos.add(this); //agrega tercetos a la lista de tercetos
     }
     
@@ -46,7 +48,7 @@ public class Terceto implements Typeable {
             this.tipo = Terceto.TIPO_DESCONOCIDO;
         }
         
-        this.setPosicion(Terceto.tercetos.size()+1);
+        this.setPosicion(Terceto.tercetos.size());
         Terceto.tercetos.add(this); //agrega tercetos a la lista de tercetos	
     }
     
@@ -59,6 +61,7 @@ public class Terceto implements Typeable {
         return this.tipo;
     }
     
+    @Override
     public void setTipo(int tipo) {
         this.tipo = tipo;
     }
@@ -84,18 +87,44 @@ public class Terceto implements Typeable {
             this.parametro2 = parametro;
     }
     
-    public static String stringify() {
-        Iterator it = Terceto.tercetos.iterator();
-        
-        while(it.hasNext()) {
-            Terceto t = (Terceto) it.next();
-            System.out.println(t.toString());   
-        }
-        return null;   
-    }
-    
     public String toString() {
-        return null;
+        String s = "Terceto: " + this.posicion + " - Operacion: " + this.operacion;
+        String param1Str = " - Null";
+        String param2Str = " - Null";
+        
+        if (this.parametro1 != null) {
+            param1Str =  " - Parametro 1: " + this.parametro1.toString();
+        }
+        
+        if (this.parametro2 != null) {
+            param2Str = " - Parametro 2: " + this.parametro2.toString();
+        }
+        
+        return s + param1Str + param2Str;
     }
     
+    public static void printTercetos() {
+        Iterator it = Terceto.tercetos.iterator();
+        while (it.hasNext()) {
+           Terceto t = (Terceto) it.next();
+            System.out.println(t.toString());
+        }
+    }
+    
+    public String getTipoAmigable() {
+        String tipoAmigable = "";
+        int tipo = this.getTipo();
+        switch (tipo) {
+            case Typeable.TIPO_DESCONOCIDO:  tipoAmigable = "Desconocido";
+                break;
+            case Typeable.TIPO_RECIEN_DECLARADA:  tipoAmigable = "Recien Declarada";
+                break;
+            case Typeable.TIPO_int:  tipoAmigable = "Int";
+                break;
+        }
+                
+        return tipoAmigable;
+    }
+    
+        
 }
