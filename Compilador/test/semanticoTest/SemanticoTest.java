@@ -38,10 +38,6 @@ public class SemanticoTest {
     public static void setUpClass() {
     }
 
-    @Test
-    public void testParser() {
-        
-    }
     
     /**
      * Prepara un nuevo parser con la cadena especificada

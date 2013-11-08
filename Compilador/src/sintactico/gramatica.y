@@ -40,8 +40,13 @@ declaraciones:
 ;
 
 declaracion: declaracion_simple
-| FUNCTION ID '(' parametro_formal ')' BEGIN declaraciones_funcion ejecutable_funcion END
+| cabecera_funcion BEGIN declaraciones_funcion ejecutable_funcion END  { this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 | FUNCTION ID '(' parametro_formal ')' '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
+;
+
+cabecera_funcion: FUNCTION ID '(' parametro_formal ')' { 
+    this.inicioFuncion($2.obj);
+}
 ;
 
 declaraciones_funcion: 
@@ -111,8 +116,8 @@ sentencias_funcion: sentencia
 | sentencias_funcion return_funcion
 ;
 
-return_funcion: RETURN ';'
-| RETURN '(' expresion ')' ';'
+return_funcion: RETURN ';' { this.retornoFuncion(); }
+| RETURN '(' expresion ')' ';' { this.retornoFuncion(); }
 ;
 
 sentencia: sentencia_if
@@ -122,7 +127,10 @@ sentencia: sentencia_if
 | llamado_funcion ';'
 ;
 
-sentencia_if: inicio_if THEN bloque      %prec LOWER_THAN_ELSE       { this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+sentencia_if: inicio_if THEN bloque      %prec LOWER_THAN_ELSE       { 
+    this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    this.eliminarIfPila();
+}
 | inicio_if THEN bloque ELSE {empezarElse();} bloque                                  { 
     this.eventoError.add("Sentencia If completa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     this.terminarElse();
@@ -138,12 +146,12 @@ sentencia_for: comienzo_for bloque     {
 }
 ;     
 
-comienzo_for: FOR {apilarCondicionFor();} condicion_for {apilarFor();}
-| FOR '(' condicion_for bloque    { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
-| FOR error condicion_for         { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+comienzo_for: FOR {apilarCondicionFor();}  condicion_for  {apilarFor();}
 ;   
 
-condicion_for: ID '=' expresion ';' comparacion
+condicion_for: '(' ID '=' expresion ';' comparacion ')'
+| '(' ID '=' expresion ';' comparacion  { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+| error condicion_for         { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
 sentencia_print: PRINT '(' STRING ')' ';'              { 
@@ -269,6 +277,7 @@ public int parse() {
 
 Vector<Integer> pilaSaltos = new Vector<Integer>();
 Vector<Integer> pilaCondiciones = new Vector<Integer>();
+Hashtable<String, Integer> funcionesMapping = new Hashtable<String, Integer>();
 
 private void agregarIfPila() {
     pilaSaltos.add(Terceto.tercetos.size());                        // Agregar a la Pila de saltos
@@ -314,6 +323,28 @@ private void apilarCondicionFor(){
 private void apilarFor(){
     pilaSaltos.add(Terceto.tercetos.size());
     new TercetoSalto("BF");
+}
+
+private void instanciarTercetosFuncion(Integer dirRetorno) {
+
+    int dirEtFuncion = this.Tercetos.tercetos.size();
+    new TercetoLabel();
+    return dirEtFuncion;
+}
+
+private void retornoFuncion() {
+    
+}
+
+private void llamadoFuncion(String nombreFuncion) {
+    
+    
+    new TercetoSalto("BF");
+
+    Integer indexEtiquetaFuncion = this.instanciarTercetosFuncion();
+    
+    new TercetoLabel();
+    //pilaRetornos.add(Terceto.tercetos.size());
 }
 
 static Hashtable<String, Short> Conversor;

@@ -1,3 +1,6 @@
-int color;
+function getId(int i) begin
+	
+	return;
+end
 
-color = 10;
+getId(color);
