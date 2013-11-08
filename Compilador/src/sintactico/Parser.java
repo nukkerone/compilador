@@ -429,7 +429,7 @@ final static String yyrule[] = {
 "constante : '-' CTE",
 };
 
-//#line 214 "gramatica.y"
+//#line 219 "gramatica.y"
 
 boolean finished = false;
 
@@ -496,7 +496,9 @@ public int parse() {
 
 Vector<Integer> pilaSaltos = new Vector<Integer>();
 Vector<Integer> pilaCondiciones = new Vector<Integer>();
-Vector<Integer> pilaRetornos = new Vector<Integer>();
+Hashtable<String, Integer> etFuncionesMapping = new Hashtable<String, Integer>();
+Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>();
+String ultimoNombreFuncion;
 
 private void agregarIfPila() {
     pilaSaltos.add(Terceto.tercetos.size());                        // Agregar a la Pila de saltos
@@ -544,16 +546,45 @@ private void apilarFor(){
     new TercetoSalto("BF");
 }
 
-private void inicioFuncion(Object t) {
-    
+private void iniciarFuncion(Token identificador) {
+    String nombreFuncion = identificador.getLexema();
+    int dirEtFuncion = Terceto.tercetos.size();
+    new TercetoLabel();
+
+    this.etFuncionesMapping.put(nombreFuncion, dirEtFuncion);
+    this.ultimoNombreFuncion = nombreFuncion;
 }
 
-private void retornoFuncion() {
-
+private void finalizarFuncion() {
+    int dirRetFuncion = Terceto.tercetos.size();
+    new TercetoSalto("BF");
+    this.retFuncionesMapping.put(this.ultimoNombreFuncion, dirRetFuncion);
 }
 
-private void llamadoFuncion() {
+private int instanciarTercetosFuncion() {
+
+    int dirEtFuncion = Terceto.tercetos.size();
+    new TercetoLabel();
+    return dirEtFuncion;
+}
+
+private void llamadoFuncion(Token identificador) {
     
+    String nombreFuncion = identificador.getLexema();
+    TercetoSalto saltoAFuncion = new TercetoSalto("BF");
+
+    int indexEtiquetaFuncion = this.etFuncionesMapping.get(nombreFuncion);
+
+    saltoAFuncion.setDirSalto(indexEtiquetaFuncion);
+    
+    int retIndex = Terceto.tercetos.size();
+    new TercetoLabel();     // Creo una etiqueta para volver a este punto
+
+    int saltoARetornoIndex = this.retFuncionesMapping.get(nombreFuncion).intValue();
+    TercetoSalto saltoARetorno = (TercetoSalto) Terceto.tercetos.get(saltoARetornoIndex);
+    saltoARetorno.setDirSalto(retIndex);    // Seteo la direccion de salto del retorno de la funcion para volver a este punto
+
+
 }
 
 static Hashtable<String, Short> Conversor;
@@ -590,7 +621,7 @@ static {
 	Conversor.put( "*", new Short((short)'*'));
 	Conversor.put( "/", new Short((short)'/'));	
 }
-//#line 522 "Parser.java"
+//#line 553 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -746,24 +777,26 @@ boolean doaction;
 //########## USER-SUPPLIED ACTIONS ##########
 case 5:
 //#line 43 "gramatica.y"
-{ this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+{ 
+    this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+}
 break;
 case 6:
-//#line 44 "gramatica.y"
+//#line 46 "gramatica.y"
 {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 7:
-//#line 47 "gramatica.y"
+//#line 49 "gramatica.y"
 { 
-    this.inicioFuncion(val_peek(3).obj);
+    this.iniciarFuncion((Token)val_peek(3).obj);
 }
 break;
 case 10:
-//#line 56 "gramatica.y"
+//#line 58 "gramatica.y"
 {this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 11:
-//#line 57 "gramatica.y"
+//#line 59 "gramatica.y"
 { 
     this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     Vector<ParserVal> v = (Vector<ParserVal>)val_peek(1).obj;					 
@@ -771,15 +804,15 @@ case 11:
 }
 break;
 case 17:
-//#line 73 "gramatica.y"
+//#line 75 "gramatica.y"
 { yyval.ival = Typeable.TIPO_int; }
 break;
 case 18:
-//#line 74 "gramatica.y"
+//#line 76 "gramatica.y"
 {this.eventoError.add("Declaracion invalida", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 19:
-//#line 77 "gramatica.y"
+//#line 79 "gramatica.y"
 { 
     Vector<ParserVal> vars = new Vector<ParserVal>();
     vars.add(clone(val_peek(0)));
@@ -787,7 +820,7 @@ case 19:
 }
 break;
 case 20:
-//#line 82 "gramatica.y"
+//#line 84 "gramatica.y"
 { 
     Vector<ParserVal> vars = (Vector<ParserVal>) val_peek(2).obj;
     vars.add(clone(val_peek(0)));
@@ -795,151 +828,154 @@ case 20:
 }
 break;
 case 23:
-//#line 91 "gramatica.y"
+//#line 93 "gramatica.y"
 {this.eventoError.add("Sentencia mal formada", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 24:
-//#line 92 "gramatica.y"
+//#line 94 "gramatica.y"
 {this.eventoError.add("No puede haber sentencias declarativas fuera de la zona de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 29:
-//#line 101 "gramatica.y"
+//#line 103 "gramatica.y"
 {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 31:
-//#line 103 "gramatica.y"
+//#line 105 "gramatica.y"
 { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 32:
-//#line 106 "gramatica.y"
-{ this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+//#line 108 "gramatica.y"
+{ 
+    this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    this.llamadoFuncion((Token) val_peek(3).obj);
+}
 break;
 case 39:
-//#line 119 "gramatica.y"
-{ this.retornoFuncion(); }
+//#line 124 "gramatica.y"
+{ this.finalizarFuncion(); }
 break;
 case 40:
-//#line 120 "gramatica.y"
-{ this.retornoFuncion(); }
+//#line 125 "gramatica.y"
+{ this.finalizarFuncion(); }
 break;
 case 46:
-//#line 130 "gramatica.y"
+//#line 135 "gramatica.y"
 { 
     this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     this.eliminarIfPila();
 }
 break;
 case 47:
-//#line 134 "gramatica.y"
+//#line 139 "gramatica.y"
 {empezarElse();}
 break;
 case 48:
-//#line 134 "gramatica.y"
+//#line 139 "gramatica.y"
 { 
     this.eventoError.add("Sentencia If completa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     this.terminarElse();
 }
 break;
 case 49:
-//#line 140 "gramatica.y"
+//#line 145 "gramatica.y"
 { agregarIfPila(); }
 break;
 case 50:
-//#line 143 "gramatica.y"
+//#line 148 "gramatica.y"
 {
  this.eventoError.add("Sentencia For", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
  this.desapilarFor();
 }
 break;
 case 51:
-//#line 149 "gramatica.y"
+//#line 154 "gramatica.y"
 {apilarCondicionFor();}
 break;
 case 52:
-//#line 149 "gramatica.y"
+//#line 154 "gramatica.y"
 {apilarFor();}
 break;
 case 54:
-//#line 153 "gramatica.y"
+//#line 158 "gramatica.y"
 { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 55:
-//#line 154 "gramatica.y"
+//#line 159 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 56:
-//#line 157 "gramatica.y"
+//#line 162 "gramatica.y"
 { 
     this.eventoError.add("Sentencia Print", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoPrint((Typeable)val_peek(2).obj);
 }
 break;
 case 57:
-//#line 161 "gramatica.y"
+//#line 166 "gramatica.y"
 { this.eventoError.add("Falta cerrar parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 58:
-//#line 162 "gramatica.y"
+//#line 167 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 60:
-//#line 166 "gramatica.y"
+//#line 171 "gramatica.y"
 { this.eventoError.add("Falta cierre parentesis en la condicion", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 61:
-//#line 167 "gramatica.y"
+//#line 172 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis en condición", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 62:
-//#line 170 "gramatica.y"
+//#line 175 "gramatica.y"
 {
     new TercetoComparacion((Token) val_peek(1).obj, (Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 63:
-//#line 175 "gramatica.y"
+//#line 180 "gramatica.y"
 { 
     this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     new TercetoAsignacion((Typeable)val_peek(3).obj, (Typeable)val_peek(1).obj);
 }
 break;
 case 64:
-//#line 181 "gramatica.y"
+//#line 186 "gramatica.y"
 { 
     this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoSuma((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 65:
-//#line 185 "gramatica.y"
+//#line 190 "gramatica.y"
 { 
     this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" );
     yyval.obj= new TercetoResta((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 67:
-//#line 192 "gramatica.y"
+//#line 197 "gramatica.y"
 { 
     this.eventoError.add("Operación de multiplicacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoMultiplicacion((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 68:
-//#line 196 "gramatica.y"
+//#line 201 "gramatica.y"
 { 
     this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoDivision((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 73:
-//#line 206 "gramatica.y"
+//#line 211 "gramatica.y"
 { yyval = val_peek(1); }
 break;
 case 75:
-//#line 210 "gramatica.y"
+//#line 215 "gramatica.y"
 { this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
 break;
-//#line 866 "Parser.java"
+//#line 902 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

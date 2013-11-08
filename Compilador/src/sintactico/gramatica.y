@@ -40,12 +40,14 @@ declaraciones:
 ;
 
 declaracion: declaracion_simple
-| cabecera_funcion BEGIN declaraciones_funcion ejecutable_funcion END  { this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+| cabecera_funcion BEGIN declaraciones_funcion ejecutable_funcion END  { 
+    this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+}
 | FUNCTION ID '(' parametro_formal ')' '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 cabecera_funcion: FUNCTION ID '(' parametro_formal ')' { 
-    this.inicioFuncion($2.obj);
+    this.iniciarFuncion((Token)$2.obj);
 }
 ;
 
@@ -103,7 +105,10 @@ bloque: sentencia
 | BEGIN sentencias error { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
-llamado_funcion: ID '(' parametro_real ')'      { this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+llamado_funcion: ID '(' parametro_real ')'      { 
+    this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    this.llamadoFuncion((Token) $1.obj);
+}
 ;
 
 sentencias: sentencia
@@ -116,8 +121,8 @@ sentencias_funcion: sentencia
 | sentencias_funcion return_funcion
 ;
 
-return_funcion: RETURN ';' { this.retornoFuncion(); }
-| RETURN '(' expresion ')' ';' { this.retornoFuncion(); }
+return_funcion: RETURN ';' { this.finalizarFuncion(); }
+| RETURN '(' expresion ')' ';' { this.finalizarFuncion(); }
 ;
 
 sentencia: sentencia_if
@@ -277,7 +282,9 @@ public int parse() {
 
 Vector<Integer> pilaSaltos = new Vector<Integer>();
 Vector<Integer> pilaCondiciones = new Vector<Integer>();
-Hashtable<String, Integer> funcionesMapping = new Hashtable<String, Integer>();
+Hashtable<String, Integer> etFuncionesMapping = new Hashtable<String, Integer>();
+Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>();
+String ultimoNombreFuncion;
 
 private void agregarIfPila() {
     pilaSaltos.add(Terceto.tercetos.size());                        // Agregar a la Pila de saltos
@@ -325,26 +332,45 @@ private void apilarFor(){
     new TercetoSalto("BF");
 }
 
-private void instanciarTercetosFuncion(Integer dirRetorno) {
+private void iniciarFuncion(Token identificador) {
+    String nombreFuncion = identificador.getLexema();
+    int dirEtFuncion = Terceto.tercetos.size();
+    new TercetoLabel();
 
-    int dirEtFuncion = this.Tercetos.tercetos.size();
+    this.etFuncionesMapping.put(nombreFuncion, dirEtFuncion);
+    this.ultimoNombreFuncion = nombreFuncion;
+}
+
+private void finalizarFuncion() {
+    int dirRetFuncion = Terceto.tercetos.size();
+    new TercetoSalto("BF");
+    this.retFuncionesMapping.put(this.ultimoNombreFuncion, dirRetFuncion);
+}
+
+private int instanciarTercetosFuncion() {
+
+    int dirEtFuncion = Terceto.tercetos.size();
     new TercetoLabel();
     return dirEtFuncion;
 }
 
-private void retornoFuncion() {
+private void llamadoFuncion(Token identificador) {
     
-}
+    String nombreFuncion = identificador.getLexema();
+    TercetoSalto saltoAFuncion = new TercetoSalto("BF");
 
-private void llamadoFuncion(String nombreFuncion) {
-    
-    
-    new TercetoSalto("BF");
+    int indexEtiquetaFuncion = this.etFuncionesMapping.get(nombreFuncion);
 
-    Integer indexEtiquetaFuncion = this.instanciarTercetosFuncion();
+    saltoAFuncion.setDirSalto(indexEtiquetaFuncion);
     
-    new TercetoLabel();
-    //pilaRetornos.add(Terceto.tercetos.size());
+    int retIndex = Terceto.tercetos.size();
+    new TercetoLabel();     // Creo una etiqueta para volver a este punto
+
+    int saltoARetornoIndex = this.retFuncionesMapping.get(nombreFuncion).intValue();
+    TercetoSalto saltoARetorno = (TercetoSalto) Terceto.tercetos.get(saltoARetornoIndex);
+    saltoARetorno.setDirSalto(retIndex);    // Seteo la direccion de salto del retorno de la funcion para volver a este punto
+
+
 }
 
 static Hashtable<String, Short> Conversor;
