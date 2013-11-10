@@ -5,6 +5,7 @@
 package cod_intermedio;
 
 import GenerarAssembler.SeguidorEstReg;
+import assembler.DireccionRepreVarAssembler;
 import interfaces.Typeable;
 import java.util.Vector;
 
@@ -29,18 +30,25 @@ public class TercetoPrint extends Terceto {
     }
     
     @Override
-    public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String getEtiqueta() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Vector<String> generarAssembler(SeguidorEstReg mr) {
+        Vector<String> v;
+        mr.desocuparD();
+        DireccionRepreVarAssembler d2 = mr.ubicarEnMemoria(this.parametro1);
+        v = mr.getCodigoAsm();
+        v.add("MOV dx,OFFSET " + d2.getNombre());
+        v.add("mov	ah,9");
+        v.add("int	21h");
+        return v;
     }
 
     @Override
     public String getMessageData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "";
+    }
+
+    @Override
+    public String getEtiqueta() {
+        return null;
     }
 
 }

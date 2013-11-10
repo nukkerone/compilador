@@ -5,6 +5,8 @@
 package cod_intermedio;
 
 import GenerarAssembler.SeguidorEstReg;
+import assembler.DireccionRepreVarAssembler;
+import assembler.Registro;
 import interfaces.Typeable;
 import java.util.Vector;
 
@@ -15,6 +17,7 @@ import java.util.Vector;
 public class TercetoMultiplicacion extends Terceto {
     public TercetoMultiplicacion(Typeable p1, Typeable p2) {
         super("*", p1, p2);
+        throwsError = true;
     }
     
     public String toString() {
@@ -35,17 +38,39 @@ public class TercetoMultiplicacion extends Terceto {
     }
     
     @Override
-    public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	public Vector<String> generarAssembler(SeguidorEstReg ser) {
+		Vector<String> v;
+		Registro d1;
+		DireccionRepreVarAssembler d2;
+		
+		ser.desocuparD();
+		
+		if(!ser.estaEnRegistroA(this.parametro2)) {
+                    d1 = ser.ubicarEnRegistroA(this.parametro1); //es A
+                    d2 = ser.ubicarEnRegistroOMemoria(this.parametro2);
+		} else {
+                    d2 = ser.ubicarEnRegistroOMemoria(this.parametro1);
+                    d1 = ser.ubicarEnRegistroA(this.parametro2); //ya esta en A
+		}
+		v = ser.getCodigoAsm();
+		//v.add("MUL " + d1.getNombre() + ", " + d2.getNombre());
+		v.add("MUL " + d2.getNombre());
+		
+		v.add("JC " + getEtiqueta());
+		//TODO:: agregar codigo de verificacion fuera de rango
+		if(this.parametro2 != this.parametro1)
+                    d2.liberate();
+		d1.actualizarT(this);
+		return v;
+	}
+
+    @Override
+    public String getMessageData() {
+            return getEtiqueta()+"_MESSAGE DB \"Fuera de rango en Multiplicación$\"";
     }
 
     @Override
     public String getEtiqueta() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String getMessageData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return "OVERFLOW_MULTI";
     }
 }

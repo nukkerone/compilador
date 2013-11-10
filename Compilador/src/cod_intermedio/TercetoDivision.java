@@ -5,6 +5,8 @@
 package cod_intermedio;
 
 import GenerarAssembler.SeguidorEstReg;
+import assembler.DireccionRepreVarAssembler;
+import assembler.Registro;
 import interfaces.Typeable;
 import java.util.Vector;
 
@@ -15,7 +17,7 @@ import java.util.Vector;
 public class TercetoDivision extends Terceto {
     public TercetoDivision(Typeable p1, Typeable p2) {
         super("/", p1, p2);
-        
+        throwsError = true;
     }
     
     public String toString() {
@@ -34,18 +36,34 @@ public class TercetoDivision extends Terceto {
         return s + param1Str + param2Str;
     }
 
-    @Override
-    public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    public Vector<String> generarAssembler(SeguidorEstReg ser) {
+        Vector<String> v = null;
+        Registro d1 = null;
+        DireccionRepreVarAssembler d2;
 
-    @Override
-    public String getEtiqueta() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        d1 = ser.ubicarEnRegistroA(this.parametro1); //es A
+        ser.desocuparD();
+        d2 = ser.ubicarEnRegistroOMemoria(this.parametro2);
+        //si esta en registro da reg, sino da la memoria, asique nunca ocupa D
+
+        v = ser.getCodigoAsm();
+        v.add("CMP " + d2.getNombre() + ", 0");
+        v.add("JE " +getEtiqueta());
+        v.add("MOV EDX, 0"); //seteo a 0 la parte alta del dividendo
+        v.add("DIV " + d2.getNombre());
+        if(this.parametro2 != this.parametro1)
+            d2.liberate();
+        d1.actualizarT(this);
+        return v;
     }
 
     @Override
     public String getMessageData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getEtiqueta()+"_MESSAGE DB \"División por cero$\"";
+    }
+
+    @Override
+    public String getEtiqueta() {
+        return "DIVISION_POR_CERO";
     }
 }
