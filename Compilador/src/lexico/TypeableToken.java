@@ -18,6 +18,15 @@ public abstract class TypeableToken extends Token implements Typeable {
         this.tipo = Typeable.TIPO_DESCONOCIDO;
     }
     
+    public String getInitialValue() {
+        if (this.getTipo() == Typeable.TIPO_CADENA) {
+            String aux = lexema.substring(1, lexema.length()-1);
+            return "'"+aux+"$'";
+        }
+        
+        return this.getLexema();
+    }
+    
     @Override
     public int getTipo() {
         return this.tipo;
@@ -37,6 +46,10 @@ public abstract class TypeableToken extends Token implements Typeable {
             case Typeable.TIPO_RECIEN_DECLARADA:  tipoAmigable = "Recien Declarada";
                 break;
             case Typeable.TIPO_INT:  tipoAmigable = "Int";
+                break;
+            case Typeable.TIPO_CADENA:  tipoAmigable = "Cadena";
+                break;
+            case Typeable.TIPO_CTE_ENTERA:  tipoAmigable = "Cte Entera";
                 break;
         }
                 

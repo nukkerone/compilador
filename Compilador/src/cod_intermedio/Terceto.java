@@ -19,12 +19,14 @@ public abstract class Terceto implements Typeable {
     protected int posicion;
     protected Typeable parametro1, parametro2;
     protected String operacion;
+    protected boolean throwsError;
     public static Vector<Terceto> tercetos = new Vector<Terceto>();
     
     public Terceto(String op) {
         this.tipo = Terceto.TIPO_DESCONOCIDO;
         this.parametro1 = null;
         this.parametro2 = null;
+        this.throwsError = false;
         operacion = op;
         this.setPosicion(Terceto.tercetos.size());
         Terceto.tercetos.add(this); //agrega tercetos a la lista de tercetos
@@ -38,6 +40,8 @@ public abstract class Terceto implements Typeable {
         
         this.parametro1 = p1;
         this.parametro2 = p2;
+        
+        this.throwsError = false;
 
         if(p2 != null && !(p1.getTipo() == (Terceto.TIPO_DESCONOCIDO)) &&
                 !(p2.getTipo() == (Terceto.TIPO_DESCONOCIDO))) {
@@ -120,12 +124,27 @@ public abstract class Terceto implements Typeable {
                 break;
             case Typeable.TIPO_INT:  tipoAmigable = "Int";
                 break;
+            case Typeable.TIPO_CADENA:  tipoAmigable = "Cadena";
+                break;
+            case Typeable.TIPO_CTE_ENTERA:  tipoAmigable = "Cte Entera";
+                break;
         }
                 
         return tipoAmigable;
     }
     
-        
+    public String getErrorCode(){
+        return "MOV dx, OFFSET "+getEtiqueta()+"_MESSAGE\n" +
+        "MOV ah, 9\n" +
+        "int 21h\n" +
+        "JMP SALIR";
+    }
+    
+    public boolean throwsError() {
+        return this.throwsError;
+    }
+    
     public abstract String getEtiqueta();
+    public abstract String getMessageData();
     public abstract Vector<String> generarAssembler(SeguidorEstReg seguidor);
 }
