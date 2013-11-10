@@ -1,4 +1,4 @@
 \\ Seccion declaraciones
 int color;
 
-print("Casa");
+color = a - 10;

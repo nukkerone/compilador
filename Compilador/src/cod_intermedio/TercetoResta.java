@@ -5,6 +5,8 @@
 package cod_intermedio;
 
 import GenerarAssembler.SeguidorEstReg;
+import assembler.DireccionRepreVarAssembler;
+import assembler.Registro;
 import interfaces.Typeable;
 import java.util.Vector;
 
@@ -15,6 +17,7 @@ import java.util.Vector;
 public class TercetoResta extends Terceto {
     public TercetoResta(Typeable p1, Typeable p2) {
         super("-", p1, p2);
+        throwsError = true;
     }
     
     public String toString() {
@@ -32,22 +35,33 @@ public class TercetoResta extends Terceto {
         
         return s + param1Str + param2Str;
 
-
     }
     
     @Override
-    public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    public Vector<String> generarAssembler(SeguidorEstReg ser) {
+        Vector<String> v;
+        Registro d1;
+        DireccionRepreVarAssembler d2;
 
-    @Override
-    public String getEtiqueta() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        d1 = ser.ubicarEnRegistro(this.parametro1);
+        d2 = ser.ubicar(this.parametro2);
 
+        v = ser.getCodigoAsm();
+        v.add("SUB " + d1.getNombre() + ", " + d2.getNombre());
+        v.add("JC "+getEtiqueta());
+        if(this.parametro2 != this.parametro1)
+            d2.liberate();
+        d1.actualizarT(this);
+        return v;
     }
 
     @Override
     public String getMessageData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getEtiqueta()+"_MESSAGE DB \"Fuera de rango en Resta$\"";
+    }
+
+    @Override
+    public String getEtiqueta() {
+        return "OVERFLOW_RESTA";
     }
 }
