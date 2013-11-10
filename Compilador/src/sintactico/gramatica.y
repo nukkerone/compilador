@@ -5,6 +5,7 @@ import lexico.*;
 import herramientaerror.*;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.Stack;
 import cod_intermedio.*;
 import interfaces.*;
 
@@ -72,7 +73,7 @@ parametro_real:
 | constante         
 ;
 
-tipo: INT              { $$.ival = Typeable.TIPO_int; }
+tipo: INT              { $$.ival = Typeable.TIPO_INT; }
 | STRING error         {this.eventoError.add("Declaracion invalida", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
@@ -255,14 +256,18 @@ private ParserVal clone(ParserVal originParserVal){
 }
 
 private void AsignarTipo(int tipo, Vector vars) {
-	for(int i = 0; i < vars.size(); i++){
-		ParserVal p = (ParserVal) vars.get(i);
-		TypeableToken t= (TypeableToken) p.obj;
-		if(t.getTipo() == Typeable.TIPO_RECIEN_DECLARADA)
-			t.setTipo(tipo);
-		else
-                    this.eventoError.add("Variable redeclarada " + t.getLexema(), p.ival, "Semantico", "Error" );			
-	}
+    for(int i = 0; i < vars.size(); i++){
+        ParserVal p = (ParserVal) vars.get(i);
+        TypeableToken t = (TypeableToken) p.obj;
+        if(t.getTipo() == Typeable.TIPO_RECIEN_DECLARADA) {
+            t.setTipo(tipo);
+            boolean sobreescribir = true;
+            this.anLexico.getTablaSimbolos().addSimbolo(t, sobreescribir);
+        }
+        else {
+            this.eventoError.add("Variable redeclarada " + t.getLexema(), p.ival, "Semantico", "Error" );			
+        }
+    }
 }
 
 AnalizadorLexico anLexico;
@@ -282,6 +287,8 @@ public int parse() {
 
 Vector<Integer> pilaSaltos = new Vector<Integer>();
 Vector<Integer> pilaCondiciones = new Vector<Integer>();
+Stack<Token> pilaParametros = new Stack<Token>(); 
+
 Hashtable<String, Integer> etFuncionesMapping = new Hashtable<String, Integer>();
 Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>();
 String ultimoNombreFuncion;
@@ -370,6 +377,10 @@ private void llamadoFuncion(Token identificador) {
     TercetoSalto saltoARetorno = (TercetoSalto) Terceto.tercetos.get(saltoARetornoIndex);
     saltoARetorno.setDirSalto(retIndex);    // Seteo la direccion de salto del retorno de la funcion para volver a este punto
 
+
+}
+
+private void apilarParametro(Token identificador) {
 
 }
 

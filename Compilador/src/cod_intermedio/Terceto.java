@@ -119,7 +119,7 @@ public class Terceto implements Typeable {
                 break;
             case Typeable.TIPO_RECIEN_DECLARADA:  tipoAmigable = "Recien Declarada";
                 break;
-            case Typeable.TIPO_int:  tipoAmigable = "Int";
+            case Typeable.TIPO_INT:  tipoAmigable = "Int";
                 break;
         }
                 

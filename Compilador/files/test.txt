@@ -1,9 +1,10 @@
-// Seccion declaraciones
+\\ Seccion declaraciones
 int color;
 
-// Seccion Ejecutable
+function f(int casa) begin
+	int casa;
 
-if (color < a) then {
-	color = 1;
-valor = 10;
+	casa = 10;
 end
+
+color = 10;

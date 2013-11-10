@@ -11,7 +11,7 @@ package interfaces;
 public interface Typeable {
     public static int TIPO_DESCONOCIDO = 1000;
     public static int TIPO_RECIEN_DECLARADA = 1001;
-    public static int TIPO_int = 1002;
+    public static int TIPO_INT = 1002;
       
     public int getTipo();
     public void setTipo(int tipo);

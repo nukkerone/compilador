@@ -597,6 +597,10 @@ public class AnalizadorLexico {
            System.out.println("Token: " + t);
        }
    }
+   
+   public TablaSimbolos getTablaSimbolos() {
+       return this.tablaSimbolos;
+   }
 
 
 }

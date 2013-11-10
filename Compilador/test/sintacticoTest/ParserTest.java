@@ -156,7 +156,8 @@ public class ParserTest {
     
     @Test
     public void testErrores() {
-        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test_nicolas.txt";
+        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
         SourceCode s = new SourceCode(filePath);
         s.generateSource();
         

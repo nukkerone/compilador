@@ -17,6 +17,11 @@ import java.util.Iterator;
 public class TablaSimbolos {
     private Hashtable<String, Token> simbolos;
     
+    public static final int USO_FUNCION = 1;
+    public static final int USO_VARIABLE = 2;
+    public static final int USO_CONSTANTE = 3;
+    
+    
     TablaSimbolos() {
         this.simbolos = new Hashtable();
         this.cargarSimbolosIniciales();
@@ -24,11 +29,20 @@ public class TablaSimbolos {
     
     public void addSimbolo(Token token) {
         String storeKey = token.getLexema();
-        if(!simbolos.contains(storeKey)) {
+        if(!simbolos.containsKey(storeKey)) {
             simbolos.put(storeKey, token);
         }
     }
     
+    public void addSimbolo(Token token, boolean force) {
+        if (!force) { 
+            this.addSimbolo(token);
+            return;
+        }
+        
+        String storeKey = token.getLexema();
+        simbolos.put(storeKey, token);
+    }    
     public Token getSimbolo(String key) {
         if(!simbolos.contains(key)) {
             return simbolos.get(key);
