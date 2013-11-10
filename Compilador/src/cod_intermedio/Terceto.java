@@ -4,6 +4,7 @@
  */
 package cod_intermedio;
 
+import GenerarAssembler.SeguidorEstReg;
 import interfaces.Typeable;
 import java.util.Iterator;
 import java.util.Vector;
@@ -12,10 +13,8 @@ import java.util.Vector;
  *
  * @author Gabriel
  */
-public class Terceto implements Typeable {
+public abstract class Terceto implements Typeable {
 
-    
-    
     protected int tipo;
     protected int posicion;
     protected Typeable parametro1, parametro2;
@@ -95,7 +94,7 @@ public class Terceto implements Typeable {
         if (this.parametro1 != null) {
             param1Str =  " - Parametro 1: " + this.parametro1.toString();
         }
-        
+   
         if (this.parametro2 != null) {
             param2Str = " - Parametro 2: " + this.parametro2.toString();
         }
@@ -127,4 +126,6 @@ public class Terceto implements Typeable {
     }
     
         
+    public abstract String getEtiqueta();
+    public abstract Vector<String> generarAssembler(SeguidorEstReg seguidor);
 }

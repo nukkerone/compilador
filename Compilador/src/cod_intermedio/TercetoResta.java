@@ -4,7 +4,9 @@
  */
 package cod_intermedio;
 
+import GenerarAssembler.SeguidorEstReg;
 import interfaces.Typeable;
+import java.util.Vector;
 
 /**
  *
@@ -29,5 +31,18 @@ public class TercetoResta extends Terceto {
         }
         
         return s + param1Str + param2Str;
+
+
+    }
+    
+    @Override
+    public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getEtiqueta() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 }
