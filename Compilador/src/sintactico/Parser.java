@@ -430,7 +430,7 @@ final static String yyrule[] = {
 "constante : '-' CTE",
 };
 
-//#line 220 "gramatica.y"
+//#line 232 "gramatica.y"
 
 boolean finished = false;
 
@@ -469,7 +469,7 @@ private ParserVal clone(ParserVal originParserVal){
     return newParserVal;
 }
 
-private void AsignarTipo(int tipo, Vector vars) {
+private void asignarTipo(int tipo, Vector vars) {
     for(int i = 0; i < vars.size(); i++){
         ParserVal p = (ParserVal) vars.get(i);
         TypeableToken t = (TypeableToken) p.obj;
@@ -811,7 +811,7 @@ case 11:
 { 
     this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     Vector<ParserVal> v = (Vector<ParserVal>)val_peek(1).obj;					 
-    AsignarTipo(val_peek(2).ival, v);
+    asignarTipo(val_peek(2).ival, v);
 }
 break;
 case 17:
@@ -918,75 +918,91 @@ case 56:
 //#line 163 "gramatica.y"
 { 
     this.eventoError.add("Sentencia Print", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Vector<ParserVal> vars = new Vector<ParserVal>();
+    vars.add(val_peek(2));
+    this.asignarTipo(Typeable.TIPO_CADENA, vars); 
     yyval.obj= new TercetoPrint((Typeable)val_peek(2).obj);
 }
 break;
 case 57:
-//#line 167 "gramatica.y"
+//#line 170 "gramatica.y"
 { this.eventoError.add("Falta cerrar parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 58:
-//#line 168 "gramatica.y"
+//#line 171 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 60:
-//#line 172 "gramatica.y"
+//#line 175 "gramatica.y"
 { this.eventoError.add("Falta cierre parentesis en la condicion", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 61:
-//#line 173 "gramatica.y"
+//#line 176 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis en condición", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 62:
-//#line 176 "gramatica.y"
+//#line 179 "gramatica.y"
 {
     new TercetoComparacion((Token) val_peek(1).obj, (Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 63:
-//#line 181 "gramatica.y"
+//#line 184 "gramatica.y"
 { 
     this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     new TercetoAsignacion((Typeable)val_peek(3).obj, (Typeable)val_peek(1).obj);
 }
 break;
 case 64:
-//#line 187 "gramatica.y"
+//#line 190 "gramatica.y"
 { 
     this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoSuma((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 65:
-//#line 191 "gramatica.y"
+//#line 194 "gramatica.y"
 { 
     this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" );
     yyval.obj= new TercetoResta((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 67:
-//#line 198 "gramatica.y"
+//#line 201 "gramatica.y"
 { 
     this.eventoError.add("Operación de multiplicacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoMultiplicacion((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 68:
-//#line 202 "gramatica.y"
+//#line 205 "gramatica.y"
 { 
     this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoDivision((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 73:
-//#line 212 "gramatica.y"
+//#line 215 "gramatica.y"
 { yyval = val_peek(1); }
 break;
-case 75:
-//#line 216 "gramatica.y"
-{ this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+case 74:
+//#line 218 "gramatica.y"
+{ 
+    Vector<ParserVal> vars = new Vector<ParserVal>();
+    vars.add(val_peek(0));
+    this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 
+}
 break;
-//#line 913 "Parser.java"
+case 75:
+//#line 223 "gramatica.y"
+{ 
+    this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Vector<ParserVal> vars = new Vector<ParserVal>();
+    vars.add(val_peek(0));
+    this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 
+}
+break;
+//#line 929 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

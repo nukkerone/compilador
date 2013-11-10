@@ -1,10 +1,4 @@
 \\ Seccion declaraciones
 int color;
 
-function f(int casa) begin
-	int casa;
-
-	casa = 10;
-end
-
-color = 10;
+print("Casa");

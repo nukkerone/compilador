@@ -60,7 +60,7 @@ declaracion_simple: tipo lista_variables {this.eventoError.add("Falta ';' al fin
 | tipo lista_variables ';'  { 
     this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     Vector<ParserVal> v = (Vector<ParserVal>)$2.obj;					 
-    AsignarTipo($1.ival, v);
+    asignarTipo($1.ival, v);
 }
 ;
 
@@ -162,6 +162,9 @@ condicion_for: '(' ID '=' expresion ';' comparacion ')'
 
 sentencia_print: PRINT '(' STRING ')' ';'              { 
     this.eventoError.add("Sentencia Print", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Vector<ParserVal> vars = new Vector<ParserVal>();
+    vars.add($3);
+    this.asignarTipo(Typeable.TIPO_CADENA, vars); 
     $$.obj= new TercetoPrint((Typeable)$3.obj);
 }
 | PRINT '(' STRING ';'    { this.eventoError.add("Falta cerrar parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
@@ -212,8 +215,17 @@ factor: ID
 | '(' expresion ')' { $$ = $2; }
 ;
 
-constante: CTE
-| '-' CTE                       { this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); }
+constante: CTE          { 
+    Vector<ParserVal> vars = new Vector<ParserVal>();
+    vars.add($1);
+    this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 
+}
+| '-' CTE                       { 
+    this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Vector<ParserVal> vars = new Vector<ParserVal>();
+    vars.add($2);
+    this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 
+}
 ;
 
 %%
@@ -255,7 +267,7 @@ private ParserVal clone(ParserVal originParserVal){
     return newParserVal;
 }
 
-private void AsignarTipo(int tipo, Vector vars) {
+private void asignarTipo(int tipo, Vector vars) {
     for(int i = 0; i < vars.size(); i++){
         ParserVal p = (ParserVal) vars.get(i);
         TypeableToken t = (TypeableToken) p.obj;
