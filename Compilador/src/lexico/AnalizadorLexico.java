@@ -237,8 +237,9 @@ public class AnalizadorLexico {
         
         
         
-      /*  this.matrizTransicion.setTransicion(EST_INICIAL, ET_DIVISOR, EST_POSIBLE_COMENTARIO, 
-         (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir }));
+       this.matrizTransicion.setTransicion(EST_INICIAL, ET_DIVISOR, EST_FINAL, 
+         (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionAgregar, accionConsumir, accionFin }));
+       /*
          this.setTransicionOtros(EST_POSIBLE_COMENTARIO, EST_FINAL, 
                 (List<AccionSemantica>) Arrays.asList(new AccionSemantica[] { accionNoAgregar, accionNoConsumir, accionFin }), 
                 (List<String>) Arrays.asList(new String[] { ET_POR }));

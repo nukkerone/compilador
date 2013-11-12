@@ -1,4 +1,4 @@
 \\ Seccion declaraciones
 int color;
 
-color = a - 10;
+color = a / 10;

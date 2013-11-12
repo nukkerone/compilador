@@ -34,20 +34,26 @@ public class TercetoSalto extends Terceto {
 
         return s;
     }
+    
+    public String getNombreEtiq() {
+        return "_etiq" + this.posicion;
+    }
 
     @Override
-    public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Vector<String> generarAssembler(SeguidorEstReg ser) {
+        Vector<String> v = new Vector<String>();
+        v.add(getNombreEtiq() + ": ");
+        return v;
     }
 
     @Override
     public String getEtiqueta() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
     public String getMessageData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
     
 }
