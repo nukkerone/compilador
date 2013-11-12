@@ -5,6 +5,8 @@
 package cod_intermedio;
 
 import GenerarAssembler.SeguidorEstReg;
+import assembler.DireccionRepreVarAssembler;
+import assembler.Registro;
 import interfaces.Typeable;
 import java.util.Vector;
 import lexico.Token;
@@ -16,6 +18,7 @@ import lexico.Token;
 public class TercetoComparacion extends Terceto {
     public TercetoComparacion(Token t, Typeable p1, Typeable p2) {
         super(t.getLexema(), p1, p2);
+        
     }
     
     public String toString() {
@@ -35,17 +38,31 @@ public class TercetoComparacion extends Terceto {
     }
 
     @Override
-    public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	public Vector<String> generarAssembler(SeguidorEstReg ser) {
+            Vector<String> v;
+            Registro d1;
+            DireccionRepreVarAssembler d2;
+
+            d1 = ser.ubicarEnRegistro(this.parametro1);
+            d2 = ser.ubicar(this.parametro2);
+
+            v = ser.getCodigoAsm();
+            v.add("CMP " + d1.getNombre() + ", " + d2.getNombre());
+            if(this.parametro2 != this.parametro1)
+                    d2.liberate();
+            d1.liberate();
+
+            //TODO:: agregar codigo de verificacion fuera de rango
+            return v;
+	}
 
     @Override
-    public String getEtiqueta() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	public String getMessageData() {
+            return null;
+	}
 
-    @Override
-    public String getMessageData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	@Override
+	public String getEtiqueta() {
+            return null;
+	}
 }

@@ -155,7 +155,7 @@ sentencia_for: comienzo_for bloque     {
 comienzo_for: FOR {apilarCondicionFor();}  condicion_for  {apilarFor();}
 ;   
 
-condicion_for: '(' ID '=' expresion ';' comparacion ')'
+condicion_for: '(' sentencia_asignacion comparacion ')'
 | '(' ID '=' expresion ';' comparacion  { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 | error condicion_for         { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
@@ -330,14 +330,14 @@ private void terminarElse() {
 }
 
 private void desapilarFor(){
-    TercetoSalto ts = new TercetoSalto("BI");
+    TercetoSalto ts = new TercetoSalto("BI");       // Crea un salto incondicional al que se debe apuntar a la condicion del for
 
     Vector<Terceto> t = Terceto.tercetos;
-    int desapilado = pilaSaltos.remove(pilaSaltos.size() -1);
-    new TercetoLabel();
-    ((TercetoSalto) t.get(desapilado)).setDirSalto(t.size());
+    int desapilado = pilaSaltos.remove(pilaSaltos.size() -1);       // Desapila el salto por falsedad de este FOR que se encuentra en la condicion
+    new TercetoLabel();                                             // Crea una etiqueta para apuntar el salto por falsedad anterior
+    ((TercetoSalto) t.get(desapilado)).setDirSalto(t.size());       // Apunta el salto por falsedad a la etiqueta recien creada
 
-    int dirCondicion = pilaCondiciones.remove(pilaCondiciones.size() -1);
+    int dirCondicion = pilaCondiciones.remove(pilaCondiciones.size() -1);       // 
     ts.setDirSalto(dirCondicion);
 }
 

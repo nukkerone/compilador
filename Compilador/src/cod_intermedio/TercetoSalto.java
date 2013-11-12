@@ -42,8 +42,36 @@ public class TercetoSalto extends Terceto {
     @Override
     public Vector<String> generarAssembler(SeguidorEstReg ser) {
         Vector<String> v = new Vector<String>();
-        v.add(getNombreEtiq() + ": ");
+        if(this.operacion == "BI") {
+            TercetoLabel label = (TercetoLabel) tercetos.get(dirSalto-1);   // @TODO checkiar si no debiera ser dirSalto - 0
+            v.add("JMP " + label.getNombreEtiq());
+        } else { //es BF
+            String tipoSalto;
+            //posicion - 1 soy yo, posicion - 2 es el anterior, la comparacion
+            String s = tercetos.get(this.posicion - 1).getOperacion();  /// Recupera la operacion del terceto comparacion
+            tipoSalto = obtenerTipoSalto(s);	
+            v.add(tipoSalto + " _etiq" + (dirSalto - 1));
+        }
         return v;
+    }
+    
+    private String obtenerTipoSalto(String s) {         
+        switch (s) {
+            case ">":  
+                return "JNA";
+            case ">=":  
+                return "JNAE";
+            case "<":  
+                return "JNB";
+            case "<=":  
+                return "JNBE";
+            case "==":  
+                return "JNE";
+            case "!=":  
+                return "JE";
+            default: 
+                return "";
+        }
     }
 
     @Override

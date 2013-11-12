@@ -1,4 +1,8 @@
 \\ Seccion declaraciones
-int color;
+int color, i;
 
-color = a / 10;
+for (i=0; i<10) begin
+	color = i;
+end
+
+color = 3;

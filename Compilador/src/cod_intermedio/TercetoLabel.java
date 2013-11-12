@@ -21,20 +21,29 @@ public class TercetoLabel extends Terceto {
         
         return s;
     }
+    
+    public String getNombreEtiq() {
+        return "_etiq" + this.posicion;
+    }
 
     @Override
-    public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Vector<String> generarAssembler(SeguidorEstReg ser) {
+        Vector<String> v = new Vector<String>();
+        v.add(getNombreEtiq() + ": ");
+        return v;
+    }
+    
+
+    @Override
+    public String getMessageData() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public String getEtiqueta() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String getMessageData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // TODO Auto-generated method stub
+        return null;
     }
     
 }

@@ -58,6 +58,10 @@ public abstract class Terceto implements Typeable {
     public String getName() {
         return "["+this.posicion+"]";
     }
+    
+    public String getOperacion() {
+        return this.operacion;
+    }
 
     @Override
     public int getTipo() {
