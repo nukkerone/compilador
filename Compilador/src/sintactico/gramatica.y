@@ -41,14 +41,45 @@ declaraciones:
 ;
 
 declaracion: declaracion_simple
-| cabecera_funcion BEGIN declaraciones_funcion ejecutable_funcion END  { 
+| cabecera_funcion BEGIN cuerpo_funcion END  { 
+    //Terceto t = new Terceto(new Elemento("ret"),new Elemento("-"),new Elemento("0"),new GenerarRet(admin)); 
+    //Typeable tokenCte = new TokenLexemaDistinto("CTE", "0");    // Devuelvo 0 por defecto
+    //Terceto t = new TercetoRetorno(null);
+    finalizarFuncion(null);
+
+    String nombreFuncion = ((TypeableToken) $1.obj).getLexema();
+    functionLabels.put(nombreFuncion, labelFuncion);
+
     this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+
+    int indexLabel = Terceto.tercetos.size();
+    new TercetoLabel();
+    // Actualizar direccion de salto incondicional del inicio de la funcion
+    TercetoSalto saltoIncondicionalInicio = (TercetoSalto) Terceto.tercetos.get(saltoFuncion);
+    saltoIncondicionalInicio.setDirSalto(indexLabel + 1);   // Uso mas + 1 porque sino dentro del generar assembler de un salto BI se rompe, ya que siempre espera una posicion adelante y por lo tanto le resta 1, asi qe este + 1 se cancela
+
 }
 | FUNCTION ID '(' parametro_formal ')' '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 cabecera_funcion: FUNCTION ID '(' parametro_formal ')' { 
     this.iniciarFuncion((Token)$2.obj);
+    $$ = $2;
+}
+;
+
+cuerpo_funcion: declaraciones_funcion ejecutable_funcion {
+    dentroDeFuncion = true;
+
+    // @TODO implementar un terceto salto BI, que no se para que es
+    saltoFuncion = Terceto.tercetos.size();
+    new TercetoSalto("BI");
+
+    // Creacion del label de la funcion
+    Terceto t = new TercetoLabel(); 
+    labelFuncion = t.getPosicion();
+    // Creacion del terceto push de la funcion
+    new TercetoPush();
 }
 ;
 
@@ -122,8 +153,12 @@ sentencias_funcion: sentencia
 | sentencias_funcion return_funcion
 ;
 
-return_funcion: RETURN ';' { this.finalizarFuncion(); }
-| RETURN '(' expresion ')' ';' { this.finalizarFuncion(); }
+return_funcion: RETURN ';' { 
+    this.finalizarFuncion(null); 
+}
+| RETURN '(' expresion ')' ';' {
+    this.finalizarFuncion((TypeableToken) $2.obj);
+}
 ;
 
 sentencia: sentencia_if
@@ -152,11 +187,14 @@ sentencia_for: comienzo_for bloque     {
 }
 ;     
 
-comienzo_for: FOR {apilarCondicionFor();}  condicion_for  {apilarFor();}
+comienzo_for: FOR  condicion_for  {apilarFor();}
 ;   
 
-condicion_for: '(' sentencia_asignacion comparacion ')'
-| '(' ID '=' expresion ';' comparacion  { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
+condicion_for: '(' sentencia_asignacion comparacion_for ')' { 
+    ParserVal sentAsig = $2; 
+    apilarIndiceFor((Terceto) sentAsig.obj);
+}
+| '(' sentencia_asignacion comparacion_for  { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 | error condicion_for         { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
@@ -176,6 +214,9 @@ condicion: '(' comparacion ')'
 | error                 { this.eventoError.add("Falta abrir parentesis en condición", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 ;
 
+comparacion_for: { apilarCondicionFor(); } comparacion
+;
+
 comparacion: expresion COMPARADOR expresion {
     new TercetoComparacion((Token) $2.obj, (Typeable)$1.obj, (Typeable)$3.obj);
 }
@@ -183,7 +224,7 @@ comparacion: expresion COMPARADOR expresion {
 
 sentencia_asignacion: ID '=' expresion ';'  { 
     this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
-    new TercetoAsignacion((Typeable)$1.obj, (Typeable)$3.obj);
+    $$.obj = new TercetoAsignacion((Typeable)$1.obj, (Typeable)$3.obj);
 }
 ;
 
@@ -299,11 +340,18 @@ public int parse() {
 
 Vector<Integer> pilaSaltos = new Vector<Integer>();
 Vector<Integer> pilaCondiciones = new Vector<Integer>();
+Vector<Typeable> pilaIndicesFor = new Vector<Typeable>();
 Stack<Token> pilaParametros = new Stack<Token>(); 
 
 Hashtable<String, Integer> etFuncionesMapping = new Hashtable<String, Integer>();
 Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>();
-String ultimoNombreFuncion;
+
+Hashtable<String, Integer> functionLabels = new Hashtable<String, Integer>();
+
+boolean dentroDeFuncion = false;
+int labelFuncion;
+int saltoFuncion;
+
 
 private void agregarIfPila() {
     pilaSaltos.add(Terceto.tercetos.size());                        // Agregar a la Pila de saltos
@@ -330,6 +378,11 @@ private void terminarElse() {
 }
 
 private void desapilarFor(){
+    Typeable indice = pilaIndicesFor.remove(pilaIndicesFor.size() - 1);
+    Typeable tokenCte = new TokenLexemaDistinto("CTE", "1");
+    Typeable tSuma = new TercetoSuma(indice, tokenCte);
+    new TercetoAsignacion(indice, tSuma);
+    
     TercetoSalto ts = new TercetoSalto("BI");       // Crea un salto incondicional al que se debe apuntar a la condicion del for
 
     Vector<Terceto> t = Terceto.tercetos;
@@ -351,19 +404,30 @@ private void apilarFor(){
     new TercetoSalto("BF");
 }
 
+private void apilarIndiceFor(Terceto t) {
+    Typeable indice = t.getParametro1();
+    pilaIndicesFor.add(indice);
+}
+
 private void iniciarFuncion(Token identificador) {
     String nombreFuncion = identificador.getLexema();
     int dirEtFuncion = Terceto.tercetos.size();
     new TercetoLabel();
 
     this.etFuncionesMapping.put(nombreFuncion, dirEtFuncion);
-    this.ultimoNombreFuncion = nombreFuncion;
+    //this.ultimoNombreFuncion = nombreFuncion;
 }
 
-private void finalizarFuncion() {
-    int dirRetFuncion = Terceto.tercetos.size();
-    new TercetoSalto("BF");
-    this.retFuncionesMapping.put(this.ultimoNombreFuncion, dirRetFuncion);
+private void finalizarFuncion(TypeableToken tt) {
+    Typeable tokenCte;
+
+    if (tt == null) {
+        tokenCte = new TokenLexemaDistinto("CTE", "0");    // Devuelvo 0 por defecto
+    } else {
+        tokenCte = new TokenLexemaDistinto("CTE", tt.getLexema());    // Devuelvo 0 por defecto
+    }
+
+    Terceto t = new TercetoRetorno(tokenCte);
 }
 
 private int instanciarTercetosFuncion() {
@@ -375,6 +439,18 @@ private int instanciarTercetosFuncion() {
 
 private void llamadoFuncion(Token identificador) {
     
+    Integer labelIndex = functionLabels.get(identificador.getLexema());
+
+    if (labelIndex != null) {
+        TercetoLabel functionLabel = (TercetoLabel)Terceto.tercetos.get(labelIndex);
+        new TercetoCall(functionLabel);
+
+    } else {
+        // @TODO No tendria que pasar esto, logear error mas adelante
+    }
+
+    
+    /*
     String nombreFuncion = identificador.getLexema();
     TercetoSalto saltoAFuncion = new TercetoSalto("BF");
 
@@ -388,7 +464,7 @@ private void llamadoFuncion(Token identificador) {
     int saltoARetornoIndex = this.retFuncionesMapping.get(nombreFuncion).intValue();
     TercetoSalto saltoARetorno = (TercetoSalto) Terceto.tercetos.get(saltoARetornoIndex);
     saltoARetorno.setDirSalto(retIndex);    // Seteo la direccion de salto del retorno de la funcion para volver a este punto
-
+    */
 
 }
 

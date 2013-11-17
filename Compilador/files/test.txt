@@ -1,8 +1,9 @@
 \\ Seccion declaraciones
-int color, i;
+int color, i, e;
 
-for (i=0; i<10) begin
-	color = i;
+function func1(int param) begin
+	int a;
+	a = 10;
 end
 
 color = 3;

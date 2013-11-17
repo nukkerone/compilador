@@ -96,6 +96,24 @@ static int CANTREG = 4;
             ubicarEnRegNum(lugar, t);
             return reg[lugar];	
 	}
+        
+        
+        /**
+         * Devuelve un registro libre
+         * 
+         * @return 
+         */
+	public Registro generarRegistroLibre() {
+           
+            int lugar = buscarRegLibre();
+            if(lugar == -1)
+                if(ultimoReg == 1)
+                    lugar = 2;
+                else
+                    lugar = 1;
+            desocupar(lugar);
+            return reg[lugar];	
+	}
 
 	
 

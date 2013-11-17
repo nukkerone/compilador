@@ -12,7 +12,7 @@ public class TokenLexemaDistinto extends TypeableToken {
     
     private int tipo;
     
-    TokenLexemaDistinto(String palabraReservada, String lexema) {
+    public TokenLexemaDistinto(String palabraReservada, String lexema) {
         super(palabraReservada);
         this.lexema = lexema;
         this.tipo = TIPO_RECIEN_DECLARADA;
