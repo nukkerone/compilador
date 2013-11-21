@@ -48,6 +48,8 @@ declaracion: declaracion_simple
     finalizarFuncion(null);
 
     String nombreFuncion = ((TypeableToken) $1.obj).getLexema();
+    nombresDuplicadosCheck(nombreFuncion);
+    crearAmbito(nombreFuncion);
     functionLabels.put(nombreFuncion, labelFuncion);
 
     this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
@@ -55,9 +57,8 @@ declaracion: declaracion_simple
     int indexLabel = Terceto.tercetos.size();
     new TercetoLabel();
     // Actualizar direccion de salto incondicional del inicio de la funcion
-    TercetoSalto saltoIncondicionalInicio = (TercetoSalto) Terceto.tercetos.get(saltoFuncion);
-    saltoIncondicionalInicio.setDirSalto(indexLabel + 1);   // Uso mas + 1 porque sino dentro del generar assembler de un salto BI se rompe, ya que siempre espera una posicion adelante y por lo tanto le resta 1, asi qe este + 1 se cancela
-
+    TercetoSalto saltoIncondicionalFinFuncion = (TercetoSalto) Terceto.tercetos.get(saltoFuncion);
+    saltoIncondicionalFinFuncion.setDirSalto(indexLabel + 1);   // Uso mas + 1 porque sino dentro del generar assembler de un salto BI se rompe, ya que siempre espera una posicion adelante y por lo tanto le resta 1, asi qe este + 1 se cancela
 }
 | FUNCTION ID '(' parametro_formal ')' '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
@@ -68,7 +69,7 @@ cabecera_funcion: FUNCTION ID '(' parametro_formal ')' {
 }
 ;
 
-cuerpo_funcion: declaraciones_funcion ejecutable_funcion {
+cuerpo_funcion: { 
     dentroDeFuncion = true;
 
     // @TODO implementar un terceto salto BI, que no se para que es
@@ -80,7 +81,7 @@ cuerpo_funcion: declaraciones_funcion ejecutable_funcion {
     labelFuncion = t.getPosicion();
     // Creacion del terceto push de la funcion
     new TercetoPush();
-}
+} declaraciones_funcion ejecutable_funcion
 ;
 
 declaraciones_funcion: 
@@ -466,6 +467,15 @@ private void llamadoFuncion(Token identificador) {
     saltoARetorno.setDirSalto(retIndex);    // Seteo la direccion de salto del retorno de la funcion para volver a este punto
     */
 
+}
+
+private void nombresDuplicadosCheck(String nombreFuncion) {
+    // @TODO hacer checkeo por nombre de funcion duplicados
+}
+
+private void crearAmbito(String nombreFuncion) {
+    // @TODO para cada variable declarada en la seccion declaracion de la funcion, asignar ambito!!
+    // Y asignarle USO_VARIABLE
 }
 
 private void apilarParametro(Token identificador) {

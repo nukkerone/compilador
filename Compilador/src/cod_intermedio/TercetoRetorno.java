@@ -46,7 +46,7 @@ public class TercetoRetorno extends Terceto {
         DireccionRepreVarAssembler valRet = seguidor.ubicarEnRegistro(this.parametro1);
         Registro r = seguidor.generarRegistroLibre();
         
-        v.add("MOV " + r.getNombre() + "," +  valRet.getNombre());
+        v.add("MOV " + r.getNombre() + ", " +  valRet.getNombre());
         v.add("POP DX");
         v.add("POP CX");
         v.add("POP BX");
