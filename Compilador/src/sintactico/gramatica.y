@@ -42,28 +42,31 @@ declaraciones:
 
 declaracion: declaracion_simple
 | cabecera_funcion BEGIN cuerpo_funcion END  { 
-    //Terceto t = new Terceto(new Elemento("ret"),new Elemento("-"),new Elemento("0"),new GenerarRet(admin)); 
-    //Typeable tokenCte = new TokenLexemaDistinto("CTE", "0");    // Devuelvo 0 por defecto
-    //Terceto t = new TercetoRetorno(null);
     finalizarFuncion(null);
+    this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" );
 
     String nombreFuncion = ((TypeableToken) $1.obj).getLexema();
-    nombresDuplicadosCheck(nombreFuncion);
+
     crearAmbito(nombreFuncion);
     functionLabels.put(nombreFuncion, labelFuncion);
-
-    this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    //checkearVisibilidad(nombreFuncion);
+    //dentro_de_funcion = false;
+    //setAmbitoTercetos(nombreFuncion, false);
 
     int indexLabel = Terceto.tercetos.size();
     new TercetoLabel();
     // Actualizar direccion de salto incondicional del inicio de la funcion
     TercetoSalto saltoIncondicionalFinFuncion = (TercetoSalto) Terceto.tercetos.get(saltoFuncion);
     saltoIncondicionalFinFuncion.setDirSalto(indexLabel + 1);   // Uso mas + 1 porque sino dentro del generar assembler de un salto BI se rompe, ya que siempre espera una posicion adelante y por lo tanto le resta 1, asi qe este + 1 se cancela
+    nombresDuplicadosCheck((TypeableToken)$1.obj);
+
 }
 | FUNCTION ID '(' parametro_formal ')' '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
 
 cabecera_funcion: FUNCTION ID '(' parametro_formal ')' { 
+    nombresDuplicadosCheck((TypeableToken)$2.obj);
+
     this.iniciarFuncion((Token)$2.obj);
     $$ = $2;
 }
@@ -81,6 +84,9 @@ cuerpo_funcion: {
     labelFuncion = t.getPosicion();
     // Creacion del terceto push de la funcion
     new TercetoPush();
+    // Eliminar RET basura de la tabla de simbolos, sino se empiezan a acumular
+    //this.anLexico.getTablaSimbolos().removeSimbolo("_RET", false);
+    
 } declaraciones_funcion ejecutable_funcion
 ;
 
@@ -88,11 +94,14 @@ declaraciones_funcion:
 | declaraciones_funcion declaracion_simple
 ;
 
-declaracion_simple: tipo lista_variables {this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
+declaracion_simple: tipo lista_variables {
+    this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error");
+}
 | tipo lista_variables ';'  { 
     this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
-    Vector<ParserVal> v = (Vector<ParserVal>)$2.obj;					 
+    Vector<ParserVal> v = (Vector<ParserVal>)$2.obj;                     
     asignarTipo($1.ival, v);
+    this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error");
 }
 ;
 
@@ -141,6 +150,9 @@ bloque: sentencia
 llamado_funcion: ID '(' parametro_real ')'      { 
     this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     this.llamadoFuncion((Token) $1.obj);
+    
+    Token tt = this.anLexico.getTablaSimbolos().getSimbolo(new IdTS("_RET", Uso.USO_VARIABLE));
+    $$ = new ParserVal(tt);
 }
 ;
 
@@ -252,8 +264,8 @@ termino : termino '*' factor    {
 ;
 
 factor: ID
-| constante
 | llamado_funcion
+| constante
 | '(' expresion ')' { $$ = $2; }
 ;
 
@@ -319,7 +331,7 @@ private void asignarTipo(int tipo, Vector vars) {
             this.anLexico.getTablaSimbolos().addSimbolo(t, sobreescribir);
         }
         else {
-            this.eventoError.add("Variable redeclarada " + t.getLexema(), p.ival, "Semantico", "Error" );			
+            this.eventoError.add("Variable redeclarada " + t.getLexema(), p.ival, "Semantico", "Error" );
         }
     }
 }
@@ -350,6 +362,7 @@ Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>(
 Hashtable<String, Integer> functionLabels = new Hashtable<String, Integer>();
 
 boolean dentroDeFuncion = false;
+//int indiceUltimaFuncion;
 int labelFuncion;
 int saltoFuncion;
 
@@ -411,16 +424,22 @@ private void apilarIndiceFor(Terceto t) {
 }
 
 private void iniciarFuncion(Token identificador) {
+    // @TODO chekear si esta etiqueta que se crea no está antes del salto incondicion para evitar la ejecucion inicial de la funcion sin ser llamada
+    //identificador.setUso(Uso.USO_FUNCION);
     String nombreFuncion = identificador.getLexema();
+
     int dirEtFuncion = Terceto.tercetos.size();
     new TercetoLabel();
+    //indiceUltimaFuncion = dirEtFuncion;
 
     this.etFuncionesMapping.put(nombreFuncion, dirEtFuncion);
     //this.ultimoNombreFuncion = nombreFuncion;
 }
 
 private void finalizarFuncion(TypeableToken tt) {
-    Typeable tokenCte;
+    Token tokenRet, tokenCte;
+    tokenRet = new TokenLexemaDistinto("ID", "_RET");
+    ((TypeableToken)tokenRet).setTipo(Typeable.TIPO_INT);
 
     if (tt == null) {
         tokenCte = new TokenLexemaDistinto("CTE", "0");    // Devuelvo 0 por defecto
@@ -428,7 +447,18 @@ private void finalizarFuncion(TypeableToken tt) {
         tokenCte = new TokenLexemaDistinto("CTE", tt.getLexema());    // Devuelvo 0 por defecto
     }
 
-    Terceto t = new TercetoRetorno(tokenCte);
+    ((TypeableToken)tokenCte).setTipo(Typeable.TIPO_CTE_ENTERA);
+    tokenCte.setUso(Uso.USO_CONSTANTE);
+    this.anLexico.getTablaSimbolos().addSimbolo(tokenRet, true);
+    this.anLexico.getTablaSimbolos().addSimbolo(tokenCte, true);
+    new TercetoAsignacion((Typeable)tokenRet, (Typeable)tokenCte);
+
+    //TypeableToken tokenRetAux = new TokenLexemaDistinto("RET", "0");
+    //((TypeableToken)tokenCte).setTipo(Typeable.TIPO_INT);
+    //tokenCte.setUso(Uso.USO_RET);
+    boolean sobreescribir = true;
+    this.anLexico.getTablaSimbolos().addSimbolo((Token)tokenCte, sobreescribir);
+    Terceto t = new TercetoRetorno((Typeable)tokenCte);
 }
 
 private int instanciarTercetosFuncion() {
@@ -445,11 +475,9 @@ private void llamadoFuncion(Token identificador) {
     if (labelIndex != null) {
         TercetoLabel functionLabel = (TercetoLabel)Terceto.tercetos.get(labelIndex);
         new TercetoCall(functionLabel);
-
     } else {
         // @TODO No tendria que pasar esto, logear error mas adelante
     }
-
     
     /*
     String nombreFuncion = identificador.getLexema();
@@ -469,9 +497,23 @@ private void llamadoFuncion(Token identificador) {
 
 }
 
-private void nombresDuplicadosCheck(String nombreFuncion) {
+private void nombresDuplicadosCheck(TypeableToken tokenNombreFuncion) {
     // @TODO hacer checkeo por nombre de funcion duplicados
+    String nombreFuncion = tokenNombreFuncion.getLexema();
+    if (!this.anLexico.getTablaSimbolos().contains(new IdTS(nombreFuncion, Uso.USO_FUNCION))) {
+        tokenNombreFuncion.setUso(Uso.USO_FUNCION);
+        this.anLexico.getTablaSimbolos().addSimbolo(tokenNombreFuncion, true);
+    } else {
+        this.eventoError.add("Funcion con nombre " + nombreFuncion + " ya se encuentra declarada", 99, "Semantico", "Error" );
+    }
 }
+
+private void limpiarVector(int desde, int hasta) {
+    int cantidad = hasta - desde;
+    for (int i = 1; i <= cantidad ; i++ ) {
+        Terceto.tercetos.removeElementAt(Terceto.tercetos.size()-1);
+    }
+ }
 
 private void crearAmbito(String nombreFuncion) {
     // @TODO para cada variable declarada en la seccion declaracion de la funcion, asignar ambito!!

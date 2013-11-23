@@ -4,20 +4,24 @@
  */
 package lexico;
 
+import interfaces.Uso;
+
 /**
  *
  * @author Gabriel
  */
-public class Token {
+public class Token implements Uso{
     
     protected String palabraReservada;
     protected String lexema;
+    protected int uso;
     protected int id;
     protected int nroLinea;
     
     Token(String palabraReservada) {
         this.palabraReservada = palabraReservada;
         this.lexema = palabraReservada;
+        this.uso = Token.USO_VARIABLE;
     }
     
     public String getPalabraReservada() {
@@ -34,6 +38,14 @@ public class Token {
     
     public int getId() {
         return this.id;
+    }
+    
+    public int getUso() {
+        return this.uso;
+    }
+    
+    public void setUso(int uso) {
+        this.uso = uso;
     }
     
     @Override

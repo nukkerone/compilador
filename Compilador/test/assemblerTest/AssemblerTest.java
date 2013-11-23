@@ -69,6 +69,7 @@ public class AssemblerTest {
         this.prepareParser(s.getAsString());
         int resultadoParse = this.p.parse();
         
+        Vector<String> asm = trad.traducir(Terceto.tercetos, this.al.getTablaSimbolos());
         
         System.out.println("\n*************************");
         System.out.println("Resultado del análisis: ");
@@ -89,13 +90,13 @@ public class AssemblerTest {
         System.out.println("Tercetos generados: ");
         Terceto.printTercetos();
         System.out.println("\n*************************");
-        Vector<String> asm = trad.traducir(Terceto.tercetos, this.al.getTablaSimbolos());
         
         Iterator it = asm.iterator();
         while (it.hasNext()) {
            String assemblerLine = (String) it.next();
             System.out.println(assemblerLine);
         }
+        
         assertTrue("Ultimos tests", resultadoParse == 0);
         
     }

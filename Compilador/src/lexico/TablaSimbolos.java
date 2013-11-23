@@ -4,6 +4,7 @@
  */
 package lexico;
 
+import interfaces.Uso;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -14,40 +15,44 @@ import java.util.Iterator;
  *
  * @author Gabriel
  */
-public class TablaSimbolos {
-    private Hashtable<String, Token> simbolos;
-    
-    public static final int USO_FUNCION = 1;
-    public static final int USO_VARIABLE = 2;
-    public static final int USO_CONSTANTE = 3;
-    
+public class TablaSimbolos implements Uso{
+    private Hashtable<IdTS, Token> simbolos;
     
     TablaSimbolos() {
         this.simbolos = new Hashtable();
         this.cargarSimbolosIniciales();
     }
     
-    public void addSimbolo(Token token) {
-        String storeKey = token.getLexema();
-        if(!simbolos.containsKey(storeKey)) {
+    public void addSimbolo(Token token, boolean force) {
+        String lexema = token.getLexema();
+        int uso = token.getUso();
+        IdTS storeKey = new IdTS(lexema, uso);
+        if(force || !simbolos.containsKey(storeKey)) {
             simbolos.put(storeKey, token);
         }
+    }  
+    
+    public boolean contains(IdTS searchKey) {
+        if(simbolos.containsKey(searchKey)) {
+            return true;
+        }
+        return false;
     }
     
-    public void addSimbolo(Token token, boolean force) {
-        if (!force) { 
-            this.addSimbolo(token);
-            return;
-        }
-        
-        String storeKey = token.getLexema();
-        simbolos.put(storeKey, token);
-    }    
-    public Token getSimbolo(String key) {
-        if(!simbolos.contains(key)) {
-            return simbolos.get(key);
+    public Token getSimbolo(IdTS id) {
+        if(!simbolos.contains(id)) {
+            return simbolos.get(id);
         }
         return null;
+    }
+    
+    /**
+     * Remueve la key de la tabla de simbolos
+     * 
+     * @param searchKey 
+     */
+    public void removeSimbolo(String searchKey) {
+        this.simbolos.remove(searchKey);
     }
     
     /**
@@ -60,29 +65,29 @@ public class TablaSimbolos {
     }
     
     public void cargarSimbolosIniciales() {
-        this.addSimbolo(new Token("if"));
-        this.addSimbolo(new Token("then"));
-        this.addSimbolo(new Token("else"));
-        this.addSimbolo(new Token("begin"));
-        this.addSimbolo(new Token("end"));
-        this.addSimbolo(new Token("print"));
-        this.addSimbolo(new Token("function"));
-        this.addSimbolo(new Token("return"));
-        this.addSimbolo(new Token("+"));
-        this.addSimbolo(new Token("-"));
-        this.addSimbolo(new Token("*"));
-        this.addSimbolo(new Token("/"));
-        this.addSimbolo(new Token("="));
-        this.addSimbolo(new Token("=="));
-        this.addSimbolo(new Token("<="));
-        this.addSimbolo(new Token(">="));
-        this.addSimbolo(new Token("<"));
-        this.addSimbolo(new Token(">"));
-        this.addSimbolo(new Token("!="));
-        this.addSimbolo(new Token("("));
-        this.addSimbolo(new Token(")"));
-        this.addSimbolo(new Token(","));
-        this.addSimbolo(new Token(";"));
+        this.addSimbolo(new Token("if"), false);
+        this.addSimbolo(new Token("then"), false);
+        this.addSimbolo(new Token("else"), false);
+        this.addSimbolo(new Token("begin"), false);
+        this.addSimbolo(new Token("end"), false);
+        this.addSimbolo(new Token("print"), false);
+        this.addSimbolo(new Token("function"), false);
+        this.addSimbolo(new Token("return"), false);
+        this.addSimbolo(new Token("+"), false);
+        this.addSimbolo(new Token("-"), false);
+        this.addSimbolo(new Token("*"), false);
+        this.addSimbolo(new Token("/"), false);
+        this.addSimbolo(new Token("="), false);
+        this.addSimbolo(new Token("=="), false);
+        this.addSimbolo(new Token("<="), false);
+        this.addSimbolo(new Token(">="), false);
+        this.addSimbolo(new Token("<"), false);
+        this.addSimbolo(new Token(">"), false);
+        this.addSimbolo(new Token("!="), false);
+        this.addSimbolo(new Token("("), false);
+        this.addSimbolo(new Token(")"), false);
+        this.addSimbolo(new Token(","), false);
+        this.addSimbolo(new Token(";"), false);
     }
     
     public void reset() {

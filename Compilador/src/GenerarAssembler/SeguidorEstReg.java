@@ -60,7 +60,7 @@ static int CANTREG = 4;
 	
         // Intenta ubicar en inmediato si es posible (Constante entera)
 	public DireccionRepreVarAssembler ubicarEnInmed(Typeable t) {
-            if(t.getTipo() == Typeable.TIPO_CTE_ENTERA)
+            if(t.getTipo() == Typeable.TIPO_CTE_ENTERA && t instanceof TypeableToken)
                 return new Inmediato((TypeableToken) t);
             else
                 return null;
@@ -186,10 +186,10 @@ static int CANTREG = 4;
                 if(rnew == -1 || rnew == 0 /* ||rnew == 3*/){
                     //no hay otro registro, lo paso a memoria
                     Typeable t = reg[pos].getT();
-                    VariableAuxiliar v = new VariableAuxiliar(t);
+                    VariableAuxiliar v = new VariableAuxiliar(t, null);
                     PosMemoria pm =new PosMemoria(v); 
                     memoria.put(v, pm);
-                    this.codigoAux.add("MOV " + pm.getNombre() + ", "+reg[pos].getNombre());
+                    this.codigoAux.add("MOV " + pm.getNombre() + ", "+ reg[pos].getNombre());
                     registros.remove(t);
                     reg[pos].liberar();
                 }
@@ -204,6 +204,13 @@ static int CANTREG = 4;
                 }
             }
 	}
+        
+        public DireccionRepreVarAssembler ubicarAuxiliarEnMemoria(TypeableToken t, String nombre) {
+            VariableAuxiliar v = new VariableAuxiliar(t, nombre);
+            PosMemoria pm =new PosMemoria(v); 
+            memoria.put(v, pm);
+            return pm;
+        }
 	
 	/**
 	 * Devuelve la posición del registro que esté libre. En caso de que no haya ninguno, devuelve -1.

@@ -3,7 +3,11 @@ int color, i, e;
 
 function func1(int param) begin
 	int a;
-	a = 10;
+	a = 10 * a;
 end
 
-color = 3;
+function func1(int i) begin
+	print("CACA");
+end
+
+color = func1(i);

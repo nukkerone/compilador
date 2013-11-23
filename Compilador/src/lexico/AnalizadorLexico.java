@@ -451,7 +451,7 @@ public class AnalizadorLexico {
         if (token.getLexema().equals(token.getPalabraReservada())) {    // En este caso el toke no va a la tabla de simbolos
             return;
         }
-        this.tablaSimbolos.addSimbolo(token);
+        this.tablaSimbolos.addSimbolo(token, false);
     }
     
     public void reset() {

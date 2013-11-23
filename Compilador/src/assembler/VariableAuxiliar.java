@@ -16,8 +16,11 @@ public class VariableAuxiliar extends TypeableToken {
 	static int cant = 0;
 	private Typeable tipable;
 	
-	public VariableAuxiliar(Typeable t){
+	public VariableAuxiliar(Typeable t, String nombre){
             super("__aux" + cant);
+            if (nombre != null) {
+                this.lexema = nombre;
+            }
             cant++;
             this.tipable = t;
 	}

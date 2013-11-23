@@ -9,6 +9,8 @@ import assembler.DireccionRepreVarAssembler;
 import assembler.Registro;
 import interfaces.Typeable;
 import java.util.Vector;
+import lexico.TokenLexemaDistinto;
+import lexico.TypeableToken;
 
 /**
  *
@@ -17,11 +19,13 @@ import java.util.Vector;
 public class TercetoRetorno extends Terceto {
     
     private int valor;
+    private TypeableToken retToken;
     
     public TercetoRetorno(Typeable param1) {
         super("Retorno");
         this.valor = 0;
         this.parametro1 = param1;
+        this.retToken = retToken;
     }
 
     @Override
@@ -43,10 +47,13 @@ public class TercetoRetorno extends Terceto {
     @Override
     public Vector<String> generarAssembler(SeguidorEstReg seguidor) {
         Vector<String> v = new Vector<String>();
-        DireccionRepreVarAssembler valRet = seguidor.ubicarEnRegistro(this.parametro1);
-        Registro r = seguidor.generarRegistroLibre();
+        // Ubico memoria auxiliar
+
+        DireccionRepreVarAssembler valRet = seguidor.ubicarAuxiliarEnMemoria((TypeableToken)this.parametro1, "RET");
         
-        v.add("MOV " + r.getNombre() + ", " +  valRet.getNombre());
+        String lexemaRet = ((TypeableToken) this.parametro1).getLexema();
+        
+        //v.add("MOV " + valRet.getNombre() + ", " + lexemaRet);
         v.add("POP DX");
         v.add("POP CX");
         v.add("POP BX");
