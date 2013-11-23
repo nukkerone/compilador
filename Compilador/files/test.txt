@@ -1,13 +1,9 @@
 \\ Seccion declaraciones
-int color, i, e;
-
-function func1(int param) begin
-	int a;
-	a = 10 * a;
-end
+int color, i, e, a;
 
 function func1(int i) begin
-	print("CACA");
+	int a;
+	print("caca");
 end
 
 color = func1(i);

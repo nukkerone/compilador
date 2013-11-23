@@ -433,7 +433,7 @@ final static String yyrule[] = {
 "constante : '-' CTE",
 };
 
-//#line 299 "gramatica.y"
+//#line 294 "gramatica.y"
 
 boolean finished = false;
 
@@ -473,13 +473,18 @@ private ParserVal clone(ParserVal originParserVal){
 }
 
 private void asignarTipo(int tipo, Vector vars) {
+    TablaSimbolos tablaSimbolos = this.anLexico.getTablaSimbolos();
     for(int i = 0; i < vars.size(); i++){
         ParserVal p = (ParserVal) vars.get(i);
         TypeableToken t = (TypeableToken) p.obj;
         if(t.getTipo() == Typeable.TIPO_RECIEN_DECLARADA) {
+            String ambito = getNombreAmbitoActual();            // Obtengo el ambito actual para asignarle a un token recien declarada
             t.setTipo(tipo);
             boolean sobreescribir = true;
-            this.anLexico.getTablaSimbolos().addSimbolo(t, sobreescribir);
+            IdTS oldId = new IdTS(t.getLexema(), t.getUso());   // Identificador del token antes de modificarle la key
+            t.setLexema(t.getLexema() + ambito);                // Seteo nuevo lexema incluyendo el ambito
+            tablaSimbolos.removeSimbolo(oldId);                 // Remuevo el viejo identificador de la tabla de simbolos
+            tablaSimbolos.addSimbolo(t, sobreescribir);         // Agrego usando el nuevo identificador
         }
         else {
             this.eventoError.add("Variable redeclarada " + t.getLexema(), p.ival, "Semantico", "Error" );
@@ -513,8 +518,10 @@ Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>(
 Hashtable<String, Integer> functionLabels = new Hashtable<String, Integer>();
 
 boolean dentroDeFuncion = false;
+String nombreFuncionActual = "none";
 //int indiceUltimaFuncion;
-boolean saltarFuncion = false;
+Vector<String> declaradasFuncion = new Vector<String>();
+Vector<String> visibles = new Vector<String>();
 int labelFuncion;
 int saltoFuncion;
 
@@ -651,13 +658,12 @@ private void llamadoFuncion(Token identificador) {
 
 private void nombresDuplicadosCheck(TypeableToken tokenNombreFuncion) {
     // @TODO hacer checkeo por nombre de funcion duplicados
-    String nombreFuncion = tokenNombreFuncion.getLexema();
-    if (!this.anLexico.getTablaSimbolos().contains(new IdTS(nombreFuncion, Uso.USO_FUNCION))) {
+    nombreFuncionActual = tokenNombreFuncion.getLexema();
+    if (!this.anLexico.getTablaSimbolos().contains(new IdTS(nombreFuncionActual, Uso.USO_FUNCION))) {
         tokenNombreFuncion.setUso(Uso.USO_FUNCION);
         this.anLexico.getTablaSimbolos().addSimbolo(tokenNombreFuncion, true);
     } else {
-        this.eventoError.add("Funcion con nombre " + nombreFuncion + " ya se encuentra declarada", 99, "Semantico", "Error" );
-        saltarFuncion = true;
+        this.eventoError.add("Funcion con nombre " + nombreFuncionActual + " ya se encuentra declarada", 99, "Semantico", "Error" );
     }
 }
 
@@ -668,9 +674,35 @@ private void limpiarVector(int desde, int hasta) {
     }
  }
 
+private void checkearVisibilidad(String nombreFuncion) {
+
+}
+
 private void crearAmbito(String nombreFuncion) {
     // @TODO para cada variable declarada en la seccion declaracion de la funcion, asignar ambito!!
     // Y asignarle USO_VARIABLE
+    TablaSimbolos tablaSimbolos = this.anLexico.getTablaSimbolos();
+
+    for (int i=0; i<declaradasFuncion.size(); i++) {
+        String nombreVar = (String) declaradasFuncion.elementAt(i);
+        Token t = tablaSimbolos.getSimbolo(new IdTS(nombreVar, Uso.USO_VARIABLE));
+
+        if (t != null) {    // Name mangling: actualizar el nombre de las variables con el respectivo ambito
+            t.setLexema(t.getLexema() + '_' + nombreFuncion);
+            tablaSimbolos.removeSimbolo(new IdTS(nombreVar, Uso.USO_VARIABLE));
+            tablaSimbolos.addSimbolo(t, true);
+        }
+    }
+
+}
+
+private String getNombreAmbitoActual() {
+    String ambito = "_main"; 
+    if (dentroDeFuncion) {
+        ambito = "_" + nombreFuncionActual;
+    }
+
+    return ambito;
 }
 
 private void apilarParametro(Token identificador) {
@@ -711,7 +743,7 @@ static {
 	Conversor.put( "*", new Short((short)'*'));
 	Conversor.put( "/", new Short((short)'/'));	
 }
-//#line 643 "Parser.java"
+//#line 675 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -868,96 +900,91 @@ boolean doaction;
 case 5:
 //#line 44 "gramatica.y"
 { 
-    if (!saltarFuncion) {
-        finalizarFuncion(null);
-        this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" );
+    finalizarFuncion(null);
+    this.eventoError.add("Declaración de Funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" );
 
-        String nombreFuncion = ((TypeableToken) val_peek(3).obj).getLexema();
+    String nombreFuncion = ((TypeableToken) val_peek(3).obj).getLexema();
 
-        crearAmbito(nombreFuncion);
-        functionLabels.put(nombreFuncion, labelFuncion);
-        /*checkearVisibilidad(nombreFuncion);*/
-        /*dentro_de_funcion = false;*/
-        /*setAmbitoTercetos(nombreFuncion, false);*/
+    /*crearAmbito(nombreFuncion);*/
+    functionLabels.put(nombreFuncion, labelFuncion);
+    checkearVisibilidad(nombreFuncion);
+    /*dentro_de_funcion = false;*/
+    /*setAmbitoTercetos(nombreFuncion, false);*/
 
-         
+    int indexLabel = Terceto.tercetos.size();
+    new TercetoLabel();
+    /* Actualizar direccion de salto incondicional del inicio de la funcion*/
+    TercetoSalto saltoIncondicionalFinFuncion = (TercetoSalto) Terceto.tercetos.get(saltoFuncion);
+    saltoIncondicionalFinFuncion.setDirSalto(indexLabel + 1);   /* Uso mas + 1 porque sino dentro del generar assembler de un salto BI se rompe, ya que siempre espera una posicion adelante y por lo tanto le resta 1, asi qe este + 1 se cancela*/
 
-        int indexLabel = Terceto.tercetos.size();
-        new TercetoLabel();
-        /* Actualizar direccion de salto incondicional del inicio de la funcion*/
-        TercetoSalto saltoIncondicionalFinFuncion = (TercetoSalto) Terceto.tercetos.get(saltoFuncion);
-        saltoIncondicionalFinFuncion.setDirSalto(indexLabel + 1);   /* Uso mas + 1 porque sino dentro del generar assembler de un salto BI se rompe, ya que siempre espera una posicion adelante y por lo tanto le resta 1, asi qe este + 1 se cancela*/
-        nombresDuplicadosCheck((TypeableToken)val_peek(3).obj);
-    }
-
-    
 }
 break;
 case 6:
-//#line 69 "gramatica.y"
+//#line 63 "gramatica.y"
 {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 7:
-//#line 72 "gramatica.y"
+//#line 66 "gramatica.y"
 { 
     nombresDuplicadosCheck((TypeableToken)val_peek(3).obj);
 
-    if (!saltarFuncion) {
-        this.iniciarFuncion((Token)val_peek(3).obj);
-        yyval = val_peek(3);
-    }
+    this.iniciarFuncion((Token)val_peek(3).obj);
+    yyval = val_peek(3);
 }
 break;
 case 8:
-//#line 82 "gramatica.y"
+//#line 74 "gramatica.y"
 { 
-    if (!saltarFuncion) {
-        dentroDeFuncion = true;
+    dentroDeFuncion = true;
+    declaradasFuncion.clear();
 
-        /* @TODO implementar un terceto salto BI, que no se para que es*/
-        saltoFuncion = Terceto.tercetos.size();
-        new TercetoSalto("BI");
+    /* @TODO implementar un terceto salto BI, que no se para que es*/
+    saltoFuncion = Terceto.tercetos.size();
+    new TercetoSalto("BI");
 
-        /* Creacion del label de la funcion*/
-        Terceto t = new TercetoLabel(); 
-        labelFuncion = t.getPosicion();
-        /* Creacion del terceto push de la funcion*/
-        new TercetoPush();
-        /* Eliminar RET basura de la tabla de simbolos, sino se empiezan a acumular*/
-        /*this.anLexico.getTablaSimbolos().removeSimbolo("_RET", false);*/
-    }
+    /* Creacion del label de la funcion*/
+    Terceto t = new TercetoLabel(); 
+    labelFuncion = t.getPosicion();
+    /* Creacion del terceto push de la funcion*/
+    new TercetoPush();
+    /* Eliminar RET basura de la tabla de simbolos, sino se empiezan a acumular*/
+    /*this.anLexico.getTablaSimbolos().removeSimbolo("_RET", false);*/
     
 }
 break;
 case 12:
-//#line 106 "gramatica.y"
+//#line 97 "gramatica.y"
 {
-    if (!saltarFuncion) {
-        this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error");
-    }
+    this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error");
 }
 break;
 case 13:
-//#line 111 "gramatica.y"
+//#line 100 "gramatica.y"
 { 
-    if (!saltarFuncion) {
-        this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
-        Vector<ParserVal> v = (Vector<ParserVal>)val_peek(1).obj;                     
-        asignarTipo(val_peek(2).ival, v);
-        this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error");
-    }
+    this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Vector<ParserVal> v = (Vector<ParserVal>)val_peek(1).obj;                    
+
+    asignarTipo(val_peek(2).ival, v);
+    /*if (dentroDeFuncion) {
+        for (int i=0; i<v.size(); i++) {
+            ParserVal p= (ParserVal) ((Vector) v).elementAt(i);
+            String nombreVar = ((Token) p.obj).getLexema();
+            declaradasFuncion.add(nombreVar);
+        }
+    }*/
+    
 }
 break;
 case 19:
-//#line 130 "gramatica.y"
+//#line 125 "gramatica.y"
 { yyval.ival = Typeable.TIPO_INT; }
 break;
 case 20:
-//#line 131 "gramatica.y"
+//#line 126 "gramatica.y"
 {this.eventoError.add("Declaracion invalida", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 21:
-//#line 134 "gramatica.y"
+//#line 129 "gramatica.y"
 { 
     Vector<ParserVal> vars = new Vector<ParserVal>();
     vars.add(clone(val_peek(0)));
@@ -965,7 +992,7 @@ case 21:
 }
 break;
 case 22:
-//#line 139 "gramatica.y"
+//#line 134 "gramatica.y"
 { 
     Vector<ParserVal> vars = (Vector<ParserVal>) val_peek(2).obj;
     vars.add(clone(val_peek(0)));
@@ -973,23 +1000,23 @@ case 22:
 }
 break;
 case 25:
-//#line 148 "gramatica.y"
+//#line 143 "gramatica.y"
 {this.eventoError.add("Sentencia mal formada", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 26:
-//#line 149 "gramatica.y"
+//#line 144 "gramatica.y"
 {this.eventoError.add("No puede haber sentencias declarativas fuera de la zona de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 31:
-//#line 158 "gramatica.y"
+//#line 153 "gramatica.y"
 {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 break;
 case 33:
-//#line 160 "gramatica.y"
+//#line 155 "gramatica.y"
 { this.eventoError.add("Bloque sin token de cerrado 'end'", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 34:
-//#line 163 "gramatica.y"
+//#line 158 "gramatica.y"
 { 
     this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     this.llamadoFuncion((Token) val_peek(3).obj);
@@ -999,67 +1026,67 @@ case 34:
 }
 break;
 case 41:
-//#line 182 "gramatica.y"
+//#line 177 "gramatica.y"
 { 
     this.finalizarFuncion(null); 
 }
 break;
 case 42:
-//#line 185 "gramatica.y"
+//#line 180 "gramatica.y"
 {
     this.finalizarFuncion((TypeableToken) val_peek(3).obj);
 }
 break;
 case 48:
-//#line 197 "gramatica.y"
+//#line 192 "gramatica.y"
 { 
     this.eventoError.add("Sentencia If Incompleta", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     this.eliminarIfPila();
 }
 break;
 case 49:
-//#line 201 "gramatica.y"
+//#line 196 "gramatica.y"
 {empezarElse();}
 break;
 case 50:
-//#line 201 "gramatica.y"
+//#line 196 "gramatica.y"
 { 
     this.eventoError.add("Sentencia If completa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     this.terminarElse();
 }
 break;
 case 51:
-//#line 207 "gramatica.y"
+//#line 202 "gramatica.y"
 { agregarIfPila(); }
 break;
 case 52:
-//#line 210 "gramatica.y"
+//#line 205 "gramatica.y"
 {
  this.eventoError.add("Sentencia For", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
  this.desapilarFor();
 }
 break;
 case 53:
-//#line 216 "gramatica.y"
+//#line 211 "gramatica.y"
 {apilarFor();}
 break;
 case 54:
-//#line 219 "gramatica.y"
+//#line 214 "gramatica.y"
 { 
     ParserVal sentAsig = val_peek(2); 
     apilarIndiceFor((Terceto) sentAsig.obj);
 }
 break;
 case 55:
-//#line 223 "gramatica.y"
+//#line 218 "gramatica.y"
 { this.eventoError.add("Falta cerrar parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 56:
-//#line 224 "gramatica.y"
+//#line 219 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis a sentencia FOR", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 57:
-//#line 227 "gramatica.y"
+//#line 222 "gramatica.y"
 { 
     this.eventoError.add("Sentencia Print", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     Vector<ParserVal> vars = new Vector<ParserVal>();
@@ -1069,72 +1096,72 @@ case 57:
 }
 break;
 case 58:
-//#line 234 "gramatica.y"
+//#line 229 "gramatica.y"
 { this.eventoError.add("Falta cerrar parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 59:
-//#line 235 "gramatica.y"
+//#line 230 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 61:
-//#line 239 "gramatica.y"
+//#line 234 "gramatica.y"
 { this.eventoError.add("Falta cierre parentesis en la condicion", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 62:
-//#line 240 "gramatica.y"
+//#line 235 "gramatica.y"
 { this.eventoError.add("Falta abrir parentesis en condición", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 break;
 case 63:
-//#line 243 "gramatica.y"
+//#line 238 "gramatica.y"
 { apilarCondicionFor(); }
 break;
 case 65:
-//#line 246 "gramatica.y"
+//#line 241 "gramatica.y"
 {
     new TercetoComparacion((Token) val_peek(1).obj, (Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 66:
-//#line 251 "gramatica.y"
+//#line 246 "gramatica.y"
 { 
     this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj = new TercetoAsignacion((Typeable)val_peek(3).obj, (Typeable)val_peek(1).obj);
 }
 break;
 case 67:
-//#line 257 "gramatica.y"
+//#line 252 "gramatica.y"
 { 
     this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoSuma((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 68:
-//#line 261 "gramatica.y"
+//#line 256 "gramatica.y"
 { 
     this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" );
     yyval.obj= new TercetoResta((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 70:
-//#line 268 "gramatica.y"
+//#line 263 "gramatica.y"
 { 
     this.eventoError.add("Operación de multiplicacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoMultiplicacion((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 71:
-//#line 272 "gramatica.y"
+//#line 267 "gramatica.y"
 { 
     this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     yyval.obj= new TercetoDivision((Typeable)val_peek(2).obj, (Typeable)val_peek(0).obj);
 }
 break;
 case 76:
-//#line 282 "gramatica.y"
+//#line 277 "gramatica.y"
 { yyval = val_peek(1); }
 break;
 case 77:
-//#line 285 "gramatica.y"
+//#line 280 "gramatica.y"
 { 
     Vector<ParserVal> vars = new Vector<ParserVal>();
     vars.add(val_peek(0));
@@ -1142,7 +1169,7 @@ case 77:
 }
 break;
 case 78:
-//#line 290 "gramatica.y"
+//#line 285 "gramatica.y"
 { 
     this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     Vector<ParserVal> vars = new Vector<ParserVal>();
@@ -1150,7 +1177,7 @@ case 78:
     this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 
 }
 break;
-//#line 1077 "Parser.java"
+//#line 1104 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

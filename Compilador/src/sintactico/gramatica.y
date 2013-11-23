@@ -47,9 +47,9 @@ declaracion: declaracion_simple
 
     String nombreFuncion = ((TypeableToken) $1.obj).getLexema();
 
-    crearAmbito(nombreFuncion);
+    //crearAmbito(nombreFuncion);
     functionLabels.put(nombreFuncion, labelFuncion);
-    //checkearVisibilidad(nombreFuncion);
+    checkearVisibilidad(nombreFuncion);
     //dentro_de_funcion = false;
     //setAmbitoTercetos(nombreFuncion, false);
 
@@ -58,7 +58,6 @@ declaracion: declaracion_simple
     // Actualizar direccion de salto incondicional del inicio de la funcion
     TercetoSalto saltoIncondicionalFinFuncion = (TercetoSalto) Terceto.tercetos.get(saltoFuncion);
     saltoIncondicionalFinFuncion.setDirSalto(indexLabel + 1);   // Uso mas + 1 porque sino dentro del generar assembler de un salto BI se rompe, ya que siempre espera una posicion adelante y por lo tanto le resta 1, asi qe este + 1 se cancela
-    nombresDuplicadosCheck((TypeableToken)$1.obj);
 
 }
 | FUNCTION ID '(' parametro_formal ')' '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
@@ -74,6 +73,7 @@ cabecera_funcion: FUNCTION ID '(' parametro_formal ')' {
 
 cuerpo_funcion: { 
     dentroDeFuncion = true;
+    declaradasFuncion.clear();
 
     // @TODO implementar un terceto salto BI, que no se para que es
     saltoFuncion = Terceto.tercetos.size();
@@ -99,9 +99,17 @@ declaracion_simple: tipo lista_variables {
 }
 | tipo lista_variables ';'  { 
     this.eventoError.add("Declaración de variables", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
-    Vector<ParserVal> v = (Vector<ParserVal>)$2.obj;                     
+    Vector<ParserVal> v = (Vector<ParserVal>)$2.obj;                    
+
     asignarTipo($1.ival, v);
-    this.eventoError.add("Falta ';' al final de declaracion", this.anLexico.getNroLinea() , "Sintactico", "Error");
+    /*if (dentroDeFuncion) {
+        for (int i=0; i<v.size(); i++) {
+            ParserVal p= (ParserVal) ((Vector) v).elementAt(i);
+            String nombreVar = ((Token) p.obj).getLexema();
+            declaradasFuncion.add(nombreVar);
+        }
+    }*/
+    
 }
 ;
 
@@ -322,13 +330,18 @@ private ParserVal clone(ParserVal originParserVal){
 }
 
 private void asignarTipo(int tipo, Vector vars) {
+    TablaSimbolos tablaSimbolos = this.anLexico.getTablaSimbolos();
     for(int i = 0; i < vars.size(); i++){
         ParserVal p = (ParserVal) vars.get(i);
         TypeableToken t = (TypeableToken) p.obj;
         if(t.getTipo() == Typeable.TIPO_RECIEN_DECLARADA) {
+            String ambito = getNombreAmbitoActual();            // Obtengo el ambito actual para asignarle a un token recien declarada
             t.setTipo(tipo);
             boolean sobreescribir = true;
-            this.anLexico.getTablaSimbolos().addSimbolo(t, sobreescribir);
+            IdTS oldId = new IdTS(t.getLexema(), t.getUso());   // Identificador del token antes de modificarle la key
+            t.setLexema(t.getLexema() + ambito);                // Seteo nuevo lexema incluyendo el ambito
+            tablaSimbolos.removeSimbolo(oldId);                 // Remuevo el viejo identificador de la tabla de simbolos
+            tablaSimbolos.addSimbolo(t, sobreescribir);         // Agrego usando el nuevo identificador
         }
         else {
             this.eventoError.add("Variable redeclarada " + t.getLexema(), p.ival, "Semantico", "Error" );
@@ -362,7 +375,10 @@ Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>(
 Hashtable<String, Integer> functionLabels = new Hashtable<String, Integer>();
 
 boolean dentroDeFuncion = false;
+String nombreFuncionActual = "none";
 //int indiceUltimaFuncion;
+Vector<String> declaradasFuncion = new Vector<String>();
+Vector<String> visibles = new Vector<String>();
 int labelFuncion;
 int saltoFuncion;
 
@@ -499,12 +515,12 @@ private void llamadoFuncion(Token identificador) {
 
 private void nombresDuplicadosCheck(TypeableToken tokenNombreFuncion) {
     // @TODO hacer checkeo por nombre de funcion duplicados
-    String nombreFuncion = tokenNombreFuncion.getLexema();
-    if (!this.anLexico.getTablaSimbolos().contains(new IdTS(nombreFuncion, Uso.USO_FUNCION))) {
+    nombreFuncionActual = tokenNombreFuncion.getLexema();
+    if (!this.anLexico.getTablaSimbolos().contains(new IdTS(nombreFuncionActual, Uso.USO_FUNCION))) {
         tokenNombreFuncion.setUso(Uso.USO_FUNCION);
         this.anLexico.getTablaSimbolos().addSimbolo(tokenNombreFuncion, true);
     } else {
-        this.eventoError.add("Funcion con nombre " + nombreFuncion + " ya se encuentra declarada", 99, "Semantico", "Error" );
+        this.eventoError.add("Funcion con nombre " + nombreFuncionActual + " ya se encuentra declarada", 99, "Semantico", "Error" );
     }
 }
 
@@ -515,9 +531,35 @@ private void limpiarVector(int desde, int hasta) {
     }
  }
 
+private void checkearVisibilidad(String nombreFuncion) {
+
+}
+
 private void crearAmbito(String nombreFuncion) {
     // @TODO para cada variable declarada en la seccion declaracion de la funcion, asignar ambito!!
     // Y asignarle USO_VARIABLE
+    TablaSimbolos tablaSimbolos = this.anLexico.getTablaSimbolos();
+
+    for (int i=0; i<declaradasFuncion.size(); i++) {
+        String nombreVar = (String) declaradasFuncion.elementAt(i);
+        Token t = tablaSimbolos.getSimbolo(new IdTS(nombreVar, Uso.USO_VARIABLE));
+
+        if (t != null) {    // Name mangling: actualizar el nombre de las variables con el respectivo ambito
+            t.setLexema(t.getLexema() + '_' + nombreFuncion);
+            tablaSimbolos.removeSimbolo(new IdTS(nombreVar, Uso.USO_VARIABLE));
+            tablaSimbolos.addSimbolo(t, true);
+        }
+    }
+
+}
+
+private String getNombreAmbitoActual() {
+    String ambito = "_main"; 
+    if (dentroDeFuncion) {
+        ambito = "_" + nombreFuncionActual;
+    }
+
+    return ambito;
 }
 
 private void apilarParametro(Token identificador) {

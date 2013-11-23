@@ -28,6 +28,7 @@ public class TablaSimbolos implements Uso{
         int uso = token.getUso();
         IdTS storeKey = new IdTS(lexema, uso);
         if(force || !simbolos.containsKey(storeKey)) {
+            this.removeSimbolo(storeKey);
             simbolos.put(storeKey, token);
         }
     }  
@@ -51,8 +52,8 @@ public class TablaSimbolos implements Uso{
      * 
      * @param searchKey 
      */
-    public void removeSimbolo(String searchKey) {
-        this.simbolos.remove(searchKey);
+    public void removeSimbolo(IdTS id) {
+        this.simbolos.remove(id);
     }
     
     /**

@@ -32,6 +32,10 @@ public class Token implements Uso{
         return this.lexema;
     }
     
+    public void setLexema(String lexema) {
+        this.lexema = lexema;
+    }
+    
     public void setId(int id) {
         this.id = id;
     }

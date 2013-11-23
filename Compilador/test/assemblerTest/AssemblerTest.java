@@ -59,8 +59,9 @@ public class AssemblerTest {
     
     @Test
     public void testErrores() {
-        //String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
-        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
+        boolean hayErrores = false;
+        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
         SourceCode s = new SourceCode(filePath);
         s.generateSource();
         
@@ -69,18 +70,21 @@ public class AssemblerTest {
         this.prepareParser(s.getAsString());
         int resultadoParse = this.p.parse();
         
+        hayErrores = this.eventoError.hayErrores();
+        
         Vector<String> asm = trad.traducir(Terceto.tercetos, this.al.getTablaSimbolos());
         
         System.out.println("\n*************************");
         System.out.println("Resultado del análisis: ");
-        if (this.eventoError.hayErrores()) {
+        if (hayErrores) {
             System.out.println("Fallido - Errores");
+            System.out.println("\n*************************");
+            System.out.println("Errores durante la compilacion: ");
+            this.eventoError.visualizar("Error");
         } else {
             System.out.println("Exitoso - Sin errores");
         }
-        System.out.println("\n*************************");
-        System.out.println("Errores durante la compilacion: ");
-        this.eventoError.visualizar("Error");
+        
         System.out.println("\n*************************");
         System.out.println("Construcciones sintacticas: ");
         this.eventoError.visualizar("Regla");
@@ -91,11 +95,14 @@ public class AssemblerTest {
         Terceto.printTercetos();
         System.out.println("\n*************************");
         
-        Iterator it = asm.iterator();
-        while (it.hasNext()) {
-           String assemblerLine = (String) it.next();
-            System.out.println(assemblerLine);
+        if (!hayErrores) {
+            Iterator it = asm.iterator();
+            while (it.hasNext()) {
+               String assemblerLine = (String) it.next();
+                System.out.println(assemblerLine);
+            }
         }
+        
         
         assertTrue("Ultimos tests", resultadoParse == 0);
         
