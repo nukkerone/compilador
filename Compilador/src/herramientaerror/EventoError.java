@@ -6,6 +6,7 @@ package herramientaerror;
 import lexico.TablaSimbolos;
 import lexico.Token;
 import compilador.Error;
+import filereader.OutputCode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -106,12 +107,17 @@ public ArrayList<String> devolverMensaje(String Merror){
          }
     }
     
-    public void visualizar(String type) {
+    public void visualizar(String type, OutputCode o) {
         Iterator it = this.CadenaError.iterator();
         while (it.hasNext()) {
            Error log = (Error) it.next();
            if (log.gettipoError() == type) {
-               System.out.println(log);
+               if (o != null) {
+                   o.addLine(log.toString());
+               } else {
+                   System.out.println(log);
+               }
+               
            }
         }
     }

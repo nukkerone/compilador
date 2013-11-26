@@ -13,6 +13,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import sintactico.*;
 import compilador.*;
+import filereader.OutputCode;
 import filereader.SourceCode;
 import herramientaerror.EventoError;
 import java.util.Iterator;
@@ -59,10 +60,13 @@ public class AssemblerTest {
     
     @Test
     public void testErrores() {
-        String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
         boolean hayErrores = false;
-        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        //String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
+        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
         SourceCode s = new SourceCode(filePath);
+        String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        OutputCode output = new OutputCode(fileOutput);
+        
         s.generateSource();
         
         PasarTercetoToAssembler trad = new PasarTercetoToAssembler();
@@ -75,35 +79,48 @@ public class AssemblerTest {
         Vector<String> asm = trad.traducir(Terceto.tercetos, this.al.getTablaSimbolos());
         
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Resultado del análisis: ");
+        output.addLine("Resultado del análisis: ");
         if (hayErrores) {
             System.out.println("Fallido - Errores");
+            output.addLine("Fallido - Errores");
             System.out.println("\n*************************");
+            output.addLine("\n*************************");
             System.out.println("Errores durante la compilacion: ");
-            this.eventoError.visualizar("Error");
+            output.addLine("Errores durante la compilacion: ");
+            this.eventoError.visualizar("Error", output);
         } else {
             System.out.println("Exitoso - Sin errores");
+            output.addLine("Exitoso - Sin errores");
         }
         
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Construcciones sintacticas: ");
-        this.eventoError.visualizar("Regla");
+        output.addLine("Construcciones sintacticas: ");
+        this.eventoError.visualizar("Regla", output);
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         this.al.visualizarTablaSimbolos();
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Tercetos generados: ");
+        output.addLine("Tercetos generados: ");
         Terceto.printTercetos();
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         
         if (!hayErrores) {
             Iterator it = asm.iterator();
             while (it.hasNext()) {
                String assemblerLine = (String) it.next();
                 System.out.println(assemblerLine);
+                output.addLine(assemblerLine);
             }
         }
         
-        
+        output.output();
         assertTrue("Ultimos tests", resultadoParse == 0);
         
     }

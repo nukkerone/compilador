@@ -9,6 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import sintactico.*;
 import compilador.*;
+import filereader.OutputCode;
 import filereader.SourceCode;
 import herramientaerror.EventoError;
 import lexico.*;
@@ -159,6 +160,8 @@ public class ParserTest {
         //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
         String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
         SourceCode s = new SourceCode(filePath);
+        String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        OutputCode output = new OutputCode(fileOutput);
         s.generateSource();
         
         this.prepareParser(s.getAsString());
@@ -173,13 +176,13 @@ public class ParserTest {
         }
         System.out.println("\n*************************");
         System.out.println("Errores durante la compilacion: ");
-        this.eventoError.visualizar("Error");
+        this.eventoError.visualizar("Error", output);
         System.out.println("\n*************************");
         System.out.println("Warnings durante la compilacion: ");
-        this.eventoError.visualizar("Warning");
+        this.eventoError.visualizar("Warning", output);
         System.out.println("\n*************************");
         System.out.println("Construcciones sintacticas: ");
-        this.eventoError.visualizar("Regla");
+        this.eventoError.visualizar("Regla", output);
         System.out.println("\n*************************");
         this.al.visualizarTablaSimbolos();
         assertTrue("Ultimos tests", resultadoParse == 0);

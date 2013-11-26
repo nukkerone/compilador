@@ -24,6 +24,7 @@ public class OutputCode {
     
     public OutputCode(String filePath) {
         this.filePath = filePath;
+        this.source = new ArrayList<String>();
     }
     
     public void addLine(String newLine) {
@@ -45,6 +46,7 @@ public class OutputCode {
         BufferedWriter output = new BufferedWriter(new FileWriter(this.filePath));
             for (int i = 0; i < this.source.size(); i++) {
                 output.write(this.source.get(i));
+                output.newLine();
             }
             output.close();
             return false;
