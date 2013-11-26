@@ -8,6 +8,8 @@ import GenerarAssembler.SeguidorEstReg;
 import interfaces.Typeable;
 import java.util.Iterator;
 import java.util.Vector;
+import lexico.Token;
+import lexico.TypeableToken;
 
 /**
  *
@@ -17,6 +19,7 @@ public abstract class Terceto implements Typeable {
 
     protected int tipo;
     protected int posicion;
+    protected String ambito = "_main";
     protected Typeable parametro1, parametro2;
     protected String operacion;
     protected boolean throwsError;
@@ -30,6 +33,7 @@ public abstract class Terceto implements Typeable {
         operacion = op;
         this.setPosicion(Terceto.tercetos.size());
         Terceto.tercetos.add(this); //agrega tercetos a la lista de tercetos
+        //this.setAmbito("_main");
     }
     
     public Terceto(String op, Typeable p1, Typeable p2) {
@@ -53,6 +57,7 @@ public abstract class Terceto implements Typeable {
         
         this.setPosicion(Terceto.tercetos.size());
         Terceto.tercetos.add(this); //agrega tercetos a la lista de tercetos	
+       
     }
     
     public String getName() {
@@ -79,6 +84,30 @@ public abstract class Terceto implements Typeable {
     
     public void setPosicion(int pos) {
         this.posicion = pos;
+    }
+    
+    public String getAmbito() {
+        return this.ambito;
+    }
+    
+    /**
+     * Setea el ambito del terceto, para lo cual se fija si los parametros son Tokens, entonces
+     * actualiza el lexema de los mismo para incluir el prefijo del ambito
+     * 
+     * 
+     * @param ambito El prefijo del ambito ya tiene que venir de la forma "_nombreAmbito"
+     */
+    public void setAmbito(String ambito) {
+        this.ambito = ambito;
+        if (this.parametro1 != null && this.parametro1 instanceof TypeableToken) {
+            Token tokenParam1 = (Token) this.parametro1;
+            tokenParam1.setAmbito(ambito);
+        }
+        
+        if (this.parametro2 != null && this.parametro2 instanceof TypeableToken) {
+            Token tokenParam2 = (Token) this.parametro2;
+            tokenParam2.setAmbito(ambito);
+        }
     }
     
     public Typeable getParametro1() {

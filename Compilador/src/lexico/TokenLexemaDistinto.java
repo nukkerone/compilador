@@ -4,6 +4,8 @@
  */
 package lexico;
 
+import interfaces.Typeable;
+
 /**
  *
  * @author Gabriel
@@ -26,6 +28,20 @@ public class TokenLexemaDistinto extends TypeableToken {
     @Override
     public void setTipo(int tipo) {
         this.tipo = tipo;
+    }
+    
+    @Override
+    public void setAmbito(String ambito) {
+        if (this.getTipo() == Typeable.TIPO_CTE_ENTERA ||
+                this.lexema.equals("_RET") ||
+                this.lexema.equals("_PARAM")) {
+            return;
+        }
+        
+        if (this.lexema.contains("_main")) {
+            this.lexema = this.lexema.replace("_main", "");
+        }
+        this.lexema = this.lexema + ambito;
     }
     
 }

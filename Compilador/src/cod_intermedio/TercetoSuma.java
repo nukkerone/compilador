@@ -69,5 +69,5 @@ public class TercetoSuma extends Terceto {
     public String getMessageData() {
         return getEtiqueta()+"_MESSAGE DB \"Fuera de rango en Suma$\"";
     }
-    
+        
 }

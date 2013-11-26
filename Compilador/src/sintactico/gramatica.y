@@ -8,6 +8,7 @@ import java.util.Vector;
 import java.util.Stack;
 import cod_intermedio.*;
 import interfaces.*;
+import java.util.Iterator;
 
 %}
 
@@ -33,7 +34,14 @@ import interfaces.*;
 
 %%
 
-programa: declaraciones ejecutable FIN
+programa: {
+    TypeableToken tokenParamReal;
+    tokenParamReal = new TokenLexemaDistinto("ID", "_PARAM");
+    ((TypeableToken)tokenParamReal).setTipo(Typeable.TIPO_INT);
+    this.anLexico.getTablaSimbolos().addSimbolo(tokenParamReal, true);
+
+} declaraciones ejecutable
+FIN
 ;
 
 declaraciones:
@@ -48,17 +56,22 @@ declaracion: declaracion_simple
     String nombreFuncion = ((TypeableToken) $1.obj).getLexema();
 
     //crearAmbito(nombreFuncion);
+
     functionLabels.put(nombreFuncion, labelFuncion);
     checkearVisibilidad(nombreFuncion);
-    //dentro_de_funcion = false;
-    //setAmbitoTercetos(nombreFuncion, false);
+    
+    Vector<Integer> tercetosAmbitoAux = tercetosAmbito;
+    tercetosAmbito = tercetosFuncion;
+    setAmbitoTercetos(nombreFuncion, false);
+    tercetosAmbito = tercetosAmbito;
 
     int indexLabel = Terceto.tercetos.size();
     new TercetoLabel();
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     // Actualizar direccion de salto incondicional del inicio de la funcion
     TercetoSalto saltoIncondicionalFinFuncion = (TercetoSalto) Terceto.tercetos.get(saltoFuncion);
     saltoIncondicionalFinFuncion.setDirSalto(indexLabel + 1);   // Uso mas + 1 porque sino dentro del generar assembler de un salto BI se rompe, ya que siempre espera una posicion adelante y por lo tanto le resta 1, asi qe este + 1 se cancela
-
+    dentroDeFuncion = false;
 }
 | FUNCTION ID '(' parametro_formal ')' '{' error '}' {this.eventoError.add("No se puede iniciar bloque con llave", this.anLexico.getNroLinea() , "Sintactico", "Error"); }
 ;
@@ -67,25 +80,54 @@ cabecera_funcion: FUNCTION ID '(' parametro_formal ')' {
     nombresDuplicadosCheck((TypeableToken)$2.obj);
 
     this.iniciarFuncion((Token)$2.obj);
+    dentroDeFuncion = true;
+    declaradasFuncion.clear();
+
+    // Crear copia del parametro
+    TypeableToken paramFormal = (TypeableToken)$4.obj;
+    if (paramFormal != null) {
+        nombreParametroFormalActual = ((Token)$4.obj).getLexema();
+    }
+    
     $$ = $2;
 }
 ;
 
 cuerpo_funcion: { 
-    dentroDeFuncion = true;
-    declaradasFuncion.clear();
 
     // @TODO implementar un terceto salto BI, que no se para que es
     saltoFuncion = Terceto.tercetos.size();
     new TercetoSalto("BI");
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
+
 
     // Creacion del label de la funcion
     Terceto t = new TercetoLabel(); 
     labelFuncion = t.getPosicion();
     // Creacion del terceto push de la funcion
     new TercetoPush();
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     // Eliminar RET basura de la tabla de simbolos, sino se empiezan a acumular
     //this.anLexico.getTablaSimbolos().removeSimbolo("_RET", false);
+
+    TablaSimbolos tablaSimbolos = this.anLexico.getTablaSimbolos();
+    if (nombreParametroFormalActual != null) {
+        TypeableToken paramFormal = (TypeableToken) tablaSimbolos.getSimbolo(new IdTS(nombreParametroFormalActual, Uso.USO_VARIABLE));
+        //if (paramFormal != null) {
+            TypeableToken paramReal = (TypeableToken) this.anLexico.getTablaSimbolos().getSimbolo(new IdTS("_PARAM", Uso.USO_VARIABLE));
+            //if (paramReal != null) {
+                Vector<ParserVal> v = new Vector<ParserVal>();      // Solo para asignarTipo a este parametro, tambien se setea ambito dentro, es una replicacion de las declaraciones de variables, pero para el parametro de una funcion
+                ParserVal p1 = new ParserVal(paramFormal);
+                v.add(clone(p1));
+                asignarTipo(Typeable.TIPO_INT, v);      // Como siempre son variables tipo INT
+                new TercetoAsignacion(paramFormal, paramReal);
+                agregarTercetoAAmbito(Terceto.tercetos.size()-1);
+                declaradasFuncion.add(paramFormal.getLexema());
+            //}
+        //}
+    }
+    nombreParametroFormalActual = null;
+    
     
 } declaraciones_funcion ejecutable_funcion
 ;
@@ -102,19 +144,21 @@ declaracion_simple: tipo lista_variables {
     Vector<ParserVal> v = (Vector<ParserVal>)$2.obj;                    
 
     asignarTipo($1.ival, v);
-    /*if (dentroDeFuncion) {
+    if (dentroDeFuncion) {
         for (int i=0; i<v.size(); i++) {
             ParserVal p= (ParserVal) ((Vector) v).elementAt(i);
             String nombreVar = ((Token) p.obj).getLexema();
             declaradasFuncion.add(nombreVar);
         }
-    }*/
+    }
     
 }
 ;
 
 parametro_formal: 
-| tipo ID
+| tipo ID {
+    $$ = $2;
+}
 ;
 
 parametro_real:
@@ -157,6 +201,14 @@ bloque: sentencia
 
 llamado_funcion: ID '(' parametro_real ')'      { 
     this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    if ($3.obj != null) {
+        TypeableToken tokenAux = ((TypeableToken)$3.obj);
+        
+        TypeableToken tokenParamReal = (TypeableToken) this.anLexico.getTablaSimbolos().getSimbolo(new IdTS("_PARAM", Uso.USO_VARIABLE));
+        new TercetoAsignacion((Typeable)tokenParamReal, (Typeable)tokenAux);
+        agregarTercetoAAmbito(Terceto.tercetos.size()-1);
+
+    }
     this.llamadoFuncion((Token) $1.obj);
     
     Token tt = this.anLexico.getTablaSimbolos().getSimbolo(new IdTS("_RET", Uso.USO_VARIABLE));
@@ -225,6 +277,7 @@ sentencia_print: PRINT '(' STRING ')' ';'              {
     vars.add($3);
     this.asignarTipo(Typeable.TIPO_CADENA, vars); 
     $$.obj= new TercetoPrint((Typeable)$3.obj);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 | PRINT '(' STRING ';'    { this.eventoError.add("Falta cerrar parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
 | PRINT STRING error        { this.eventoError.add("Falta abrir parentesis a sentencia PRINT", this.anLexico.getNroLinea(), "Sintactico", "Error" ); }
@@ -240,22 +293,26 @@ comparacion_for: { apilarCondicionFor(); } comparacion
 
 comparacion: expresion COMPARADOR expresion {
     new TercetoComparacion((Token) $2.obj, (Typeable)$1.obj, (Typeable)$3.obj);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 ;
 
 sentencia_asignacion: ID '=' expresion ';'  { 
     this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     $$.obj = new TercetoAsignacion((Typeable)$1.obj, (Typeable)$3.obj);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 ;
 
 expresion : expresion '+' termino   { 
     this.eventoError.add("Operación de suma", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     $$.obj= new TercetoSuma((Typeable)$1.obj, (Typeable)$3.obj);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 | expresion '-' termino { 
     this.eventoError.add("Operación de resta", this.anLexico.getNroLinea(), "Sintactico", "Regla" );
     $$.obj= new TercetoResta((Typeable)$1.obj, (Typeable)$3.obj);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 | termino
 ;
@@ -263,10 +320,12 @@ expresion : expresion '+' termino   {
 termino : termino '*' factor    { 
     this.eventoError.add("Operación de multiplicacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     $$.obj= new TercetoMultiplicacion((Typeable)$1.obj, (Typeable)$3.obj);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 | termino '/' factor            { 
     this.eventoError.add("Operación de division", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     $$.obj= new TercetoDivision((Typeable)$1.obj, (Typeable)$3.obj);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 | factor
 ;
@@ -339,7 +398,7 @@ private void asignarTipo(int tipo, Vector vars) {
             t.setTipo(tipo);
             boolean sobreescribir = true;
             IdTS oldId = new IdTS(t.getLexema(), t.getUso());   // Identificador del token antes de modificarle la key
-            t.setLexema(t.getLexema() + ambito);                // Seteo nuevo lexema incluyendo el ambito
+            t.setAmbito(ambito);                                // Seteo nuevo ambito
             tablaSimbolos.removeSimbolo(oldId);                 // Remuevo el viejo identificador de la tabla de simbolos
             tablaSimbolos.addSimbolo(t, sobreescribir);         // Agrego usando el nuevo identificador
         }
@@ -368,6 +427,7 @@ Vector<Integer> pilaSaltos = new Vector<Integer>();
 Vector<Integer> pilaCondiciones = new Vector<Integer>();
 Vector<Typeable> pilaIndicesFor = new Vector<Typeable>();
 Stack<Token> pilaParametros = new Stack<Token>(); 
+Vector<Integer> tercetosAmbito = new Vector<Integer>();
 
 Hashtable<String, Integer> etFuncionesMapping = new Hashtable<String, Integer>();
 Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>();
@@ -376,9 +436,10 @@ Hashtable<String, Integer> functionLabels = new Hashtable<String, Integer>();
 
 boolean dentroDeFuncion = false;
 String nombreFuncionActual = "none";
-//int indiceUltimaFuncion;
+String nombreParametroFormalActual = null;
 Vector<String> declaradasFuncion = new Vector<String>();
 Vector<String> visibles = new Vector<String>();
+Vector<Integer> tercetosFuncion = new Vector<Integer>();
 int labelFuncion;
 int saltoFuncion;
 
@@ -386,6 +447,7 @@ int saltoFuncion;
 private void agregarIfPila() {
     pilaSaltos.add(Terceto.tercetos.size());                        // Agregar a la Pila de saltos
     new TercetoSalto("BF");                                         // Crear el Terceto
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 
 private void eliminarIfPila() { //termina IF sin else
@@ -393,12 +455,14 @@ private void eliminarIfPila() { //termina IF sin else
     int indiceDesapilar = pilaSaltos.get(pilaSaltos.size()-1);      // Guardo indice a desapilar (Seria el ultimo)
     pilaSaltos.remove(pilaSaltos.size() -1);                        // Remuevo el ultimo de la pila
     new TercetoLabel();                                             // Se crea la etiqueta
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     ((TercetoSalto) t.get(indiceDesapilar)).setDirSalto(t.size());  // 
 }
 
 private void empezarElse() {
     int posB = Terceto.tercetos.size();
     new TercetoSalto("BI");
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     eliminarIfPila();
     pilaSaltos.add(posB);
 }
@@ -412,12 +476,15 @@ private void desapilarFor(){
     Typeable tokenCte = new TokenLexemaDistinto("CTE", "1");
     Typeable tSuma = new TercetoSuma(indice, tokenCte);
     new TercetoAsignacion(indice, tSuma);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     
     TercetoSalto ts = new TercetoSalto("BI");       // Crea un salto incondicional al que se debe apuntar a la condicion del for
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 
     Vector<Terceto> t = Terceto.tercetos;
     int desapilado = pilaSaltos.remove(pilaSaltos.size() -1);       // Desapila el salto por falsedad de este FOR que se encuentra en la condicion
     new TercetoLabel();                                             // Crea una etiqueta para apuntar el salto por falsedad anterior
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     ((TercetoSalto) t.get(desapilado)).setDirSalto(t.size());       // Apunta el salto por falsedad a la etiqueta recien creada
 
     int dirCondicion = pilaCondiciones.remove(pilaCondiciones.size() -1);       // 
@@ -426,12 +493,14 @@ private void desapilarFor(){
 
 private void apilarCondicionFor(){
     new TercetoLabel();
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     pilaCondiciones.add(Terceto.tercetos.size());
 }
 
 private void apilarFor(){
     pilaSaltos.add(Terceto.tercetos.size());
     new TercetoSalto("BF");
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 
 private void apilarIndiceFor(Terceto t) {
@@ -446,6 +515,7 @@ private void iniciarFuncion(Token identificador) {
 
     int dirEtFuncion = Terceto.tercetos.size();
     new TercetoLabel();
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     //indiceUltimaFuncion = dirEtFuncion;
 
     this.etFuncionesMapping.put(nombreFuncion, dirEtFuncion);
@@ -460,7 +530,7 @@ private void finalizarFuncion(TypeableToken tt) {
     if (tt == null) {
         tokenCte = new TokenLexemaDistinto("CTE", "0");    // Devuelvo 0 por defecto
     } else {
-        tokenCte = new TokenLexemaDistinto("CTE", tt.getLexema());    // Devuelvo 0 por defecto
+        tokenCte = new TokenLexemaDistinto("CTE", tt.getLexema());    // Devuelvo otra cosa
     }
 
     ((TypeableToken)tokenCte).setTipo(Typeable.TIPO_CTE_ENTERA);
@@ -468,6 +538,7 @@ private void finalizarFuncion(TypeableToken tt) {
     this.anLexico.getTablaSimbolos().addSimbolo(tokenRet, true);
     this.anLexico.getTablaSimbolos().addSimbolo(tokenCte, true);
     new TercetoAsignacion((Typeable)tokenRet, (Typeable)tokenCte);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 
     //TypeableToken tokenRetAux = new TokenLexemaDistinto("RET", "0");
     //((TypeableToken)tokenCte).setTipo(Typeable.TIPO_INT);
@@ -475,12 +546,14 @@ private void finalizarFuncion(TypeableToken tt) {
     boolean sobreescribir = true;
     this.anLexico.getTablaSimbolos().addSimbolo((Token)tokenCte, sobreescribir);
     Terceto t = new TercetoRetorno((Typeable)tokenCte);
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 
 private int instanciarTercetosFuncion() {
 
     int dirEtFuncion = Terceto.tercetos.size();
     new TercetoLabel();
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     return dirEtFuncion;
 }
 
@@ -488,28 +561,14 @@ private void llamadoFuncion(Token identificador) {
     
     Integer labelIndex = functionLabels.get(identificador.getLexema());
 
+
     if (labelIndex != null) {
         TercetoLabel functionLabel = (TercetoLabel)Terceto.tercetos.get(labelIndex);
         new TercetoCall(functionLabel);
+        agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     } else {
         // @TODO No tendria que pasar esto, logear error mas adelante
     }
-    
-    /*
-    String nombreFuncion = identificador.getLexema();
-    TercetoSalto saltoAFuncion = new TercetoSalto("BF");
-
-    int indexEtiquetaFuncion = this.etFuncionesMapping.get(nombreFuncion);
-
-    saltoAFuncion.setDirSalto(indexEtiquetaFuncion);
-    
-    int retIndex = Terceto.tercetos.size();
-    new TercetoLabel();     // Creo una etiqueta para volver a este punto
-
-    int saltoARetornoIndex = this.retFuncionesMapping.get(nombreFuncion).intValue();
-    TercetoSalto saltoARetorno = (TercetoSalto) Terceto.tercetos.get(saltoARetornoIndex);
-    saltoARetorno.setDirSalto(retIndex);    // Seteo la direccion de salto del retorno de la funcion para volver a este punto
-    */
 
 }
 
@@ -536,7 +595,7 @@ private void checkearVisibilidad(String nombreFuncion) {
 }
 
 private void crearAmbito(String nombreFuncion) {
-    // @TODO para cada variable declarada en la seccion declaracion de la funcion, asignar ambito!!
+    // @TODO para cada variable declarada en la seccion declaracion de la funcion, asignar ambito en TABLA DE SIMBOLOS
     // Y asignarle USO_VARIABLE
     TablaSimbolos tablaSimbolos = this.anLexico.getTablaSimbolos();
 
@@ -545,12 +604,53 @@ private void crearAmbito(String nombreFuncion) {
         Token t = tablaSimbolos.getSimbolo(new IdTS(nombreVar, Uso.USO_VARIABLE));
 
         if (t != null) {    // Name mangling: actualizar el nombre de las variables con el respectivo ambito
-            t.setLexema(t.getLexema() + '_' + nombreFuncion);
+            t.setAmbito('_' + nombreFuncion);
             tablaSimbolos.removeSimbolo(new IdTS(nombreVar, Uso.USO_VARIABLE));
             tablaSimbolos.addSimbolo(t, true);
         }
     }
 
+}
+
+private void setAmbitoTercetos(String ambito, boolean main) {
+    Iterator it = tercetosAmbito.iterator();
+    while (it.hasNext()) {
+        Integer index = (Integer)it.next();
+        Terceto t = Terceto.tercetos.elementAt(index.intValue());
+        Typeable param1 = t.getParametro1();
+        Typeable param2 = t.getParametro2();
+
+        if (param1 != null && param1 instanceof TypeableToken) {
+            Token tokenParam1 = (Token) param1;
+            String posibleDeclarada = tokenParam1.getLexema();
+            if (!main && declaradasFuncion.contains(posibleDeclarada.replace("_main", "_" + ambito)) && 
+                    !posibleDeclarada.contains("_" + ambito)) {
+                //if (!posibleDeclarada.contains("_")) {
+                    tokenParam1.setAmbito("_" + ambito);
+                //}
+            }
+
+            if (main && !posibleDeclarada.contains("_")) {
+                tokenParam1.setAmbito("_main");
+            }
+        }
+        
+        if (param2 != null && param2 instanceof TypeableToken) {
+            Token tokenParam2 = (Token) param2;
+            String posibleDeclarada = tokenParam2.getLexema();
+            if (!main && declaradasFuncion.contains(posibleDeclarada.replace("_main", "_" + ambito)) && 
+                    !posibleDeclarada.contains("_" + ambito)) {
+                //if (!posibleDeclarada.contains("_")) {
+                    tokenParam2.setAmbito("_" + ambito);
+                //}
+            }
+
+            if (main && !posibleDeclarada.contains("_")) {
+                tokenParam2.setAmbito("_main");
+            }
+        }
+
+    }
 }
 
 private String getNombreAmbitoActual() {
@@ -560,6 +660,14 @@ private String getNombreAmbitoActual() {
     }
 
     return ambito;
+}
+
+private void agregarTercetoAAmbito(int indexTerceto) {
+    if (dentroDeFuncion) {
+        tercetosFuncion.add(indexTerceto);
+    } else {
+        tercetosAmbito.add(indexTerceto);
+    }
 }
 
 private void apilarParametro(Token identificador) {

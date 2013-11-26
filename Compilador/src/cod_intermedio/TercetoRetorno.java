@@ -6,10 +6,8 @@ package cod_intermedio;
 
 import GenerarAssembler.SeguidorEstReg;
 import assembler.DireccionRepreVarAssembler;
-import assembler.Registro;
 import interfaces.Typeable;
 import java.util.Vector;
-import lexico.TokenLexemaDistinto;
 import lexico.TypeableToken;
 
 /**
@@ -70,13 +68,9 @@ public class TercetoRetorno extends Terceto {
         this.valor = val;
     }
     
-    /*
-    String r = this.getAdminReg().getLibre();
-		code+="MOV " + r + "," + getTipoElemento(t.getDer().getValor()) + "\n";
-		code+="MOV _" + t.getOperador().getValor() + ","+ r + "\n";
-		code+="POP DX"+"\n"+"POP CX"+"\n"+"POP BX"+"\n"+"POP AX"+"\n";
-		code+="ret"+"\n" ;
-		this.getAdminReg().liberar(r);
-                */
+    @Override
+    public void setAmbito(String ambito) {
+        // Retorno no modifica el nombre de su parametro _RET ya que este es igual en cualquier ambito
+    }
     
 }
