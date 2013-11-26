@@ -16,11 +16,12 @@ public class TercetoLabel extends Terceto {
         super("Label");
     }
     
-    public String toString() {
+    
+    /*public String toString() {
         String s = "Terceto Label - Posicion: " + this.posicion;
         
         return s;
-    }
+    }*/
     
     public String getNombreEtiq() {
         return "_etiq" + this.posicion;

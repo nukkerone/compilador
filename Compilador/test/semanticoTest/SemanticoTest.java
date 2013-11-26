@@ -14,6 +14,7 @@ import compilador.*;
 import filereader.OutputCode;
 import filereader.SourceCode;
 import herramientaerror.EventoError;
+import java.util.Iterator;
 import lexico.*;
 
 /**
@@ -56,9 +57,11 @@ public class SemanticoTest {
     
     @Test
     public void testErrores() {
-        String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
+        //String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
+        String filePath = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\test.txt";
         SourceCode s = new SourceCode(filePath);
-        String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        //String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        String fileOutput = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\output.txt";
         OutputCode output = new OutputCode(fileOutput);
         s.generateSource();
         
@@ -66,25 +69,45 @@ public class SemanticoTest {
         int resultadoParse = this.p.parse();
         
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Resultado del análisis: ");
+        output.addLine("Resultado del análisis:");
         if (this.eventoError.hayErrores()) {
             System.out.println("Fallido - Errores");
+            output.addLine("Fallido - Errores");
         } else {
             System.out.println("Exitoso - Sin errores");
+            output.addLine("Exitoso - Sin errores");
         }
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Errores durante la compilacion: ");
+        output.addLine("Errores durante la compilacion: ");
         this.eventoError.visualizar("Error", output);
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Construcciones sintacticas: ");
+        output.addLine("Construcciones sintacticas:");
         this.eventoError.visualizar("Regla", output);
         System.out.println("\n*************************");
-        this.al.visualizarTablaSimbolos();
+        output.addLine("\n*************************");
+        this.al.visualizarTablaSimbolos(output);        
+        //this.al.visualizarTablaSimbolos(output);
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Tercetos generados: ");
-        Terceto.printTercetos();
+        output.addLine("Tercetos generados: ");
+        //Terceto.printTercetos(output);
+        printTercetos(output);
         assertTrue("Ultimos tests", resultadoParse == 0);
         
     }
-   
+    public   void printTercetos(OutputCode o) {
+        Iterator it = Terceto.tercetos.iterator();
+        while (it.hasNext()) {
+           Terceto t = (Terceto) it.next();
+           System.out.println(t.toString());
+            o.addLine(t.toString());
+        }
+    }
 }

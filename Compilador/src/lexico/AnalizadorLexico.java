@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import compilador.Error;
 import herramientaerror.EventoError;
+import filereader.OutputCode;
 
 /**
  *
@@ -590,12 +591,14 @@ public class AnalizadorLexico {
         this.errors.add(err);
     }*/
     
-   public void visualizarTablaSimbolos() {
-       Iterator it = this.tablaSimbolos.createIterator();
-       System.out.println("Tabla de símbolos: ");
-       while (it.hasNext()) {
-           Token t = (Token)it.next();
-           System.out.println("Token: " + t);
+  public void visualizarTablaSimbolos(OutputCode o) {
+     Iterator it = this.tablaSimbolos.createIterator();
+     System.out.println("Tabla de símbolos: ");
+     o.addLine("Tabla de símbolos: ");
+     while (it.hasNext()) {
+         Token t = (Token)it.next();
+         System.out.println("Token: " + t);
+         o.addLine("Token: " + t);
        }
    }
    

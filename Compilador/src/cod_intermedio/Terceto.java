@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Vector;
 import lexico.Token;
 import lexico.TypeableToken;
+import filereader.OutputCode;
 
 /**
  *
@@ -123,29 +124,42 @@ public abstract class Terceto implements Typeable {
             this.parametro2 = parametro;
     }
     
-    public String toString() {
-        String s = "Terceto: " + this.posicion + " - Operacion: " + this.operacion;
-        String param1Str = " - Null";
-        String param2Str = " - Null";
+   public String toString() {
+            String s = this.getOperacion();
+            String param1 = "NULL";
+            String param2 = "NULL";
+        
         
         if (this.parametro1 != null) {
-            param1Str =  " - Parametro 1: " + this.parametro1.toString();
+            //param1Str = this.parametro1.getTipo();
+            if (this.parametro1 instanceof TypeableToken) {
+                param1 = ((TypeableToken)this.parametro1).getLexema();
+            } else {
+                param1 = "[" + ((Terceto)this.parametro1).getPosicion() +"]";
+            }
         }
    
         if (this.parametro2 != null) {
-            param2Str = " - Parametro 2: " + this.parametro2.toString();
+            if (this.parametro2 instanceof TypeableToken) {
+                param2 = ((TypeableToken)this.parametro2).getLexema();
+            } else {
+                param2 = "[" + ((Terceto)this.parametro2).getPosicion() +"]";
+            }
         }
         
-        return s + param1Str + param2Str;
+        return "( " + s + ", " + param1 + ", " + param2+ " )";
     }
     
-    public static void printTercetos() {
+    
+ //   public static  void printTercetos(OutputCode o) {
+     /* public static  void printTercetos() {
         Iterator it = Terceto.tercetos.iterator();
         while (it.hasNext()) {
            Terceto t = (Terceto) it.next();
-            System.out.println(t.toString());
+           System.out.println(t.toString());
+      //     o.addLine(t.toString());
         }
-    }
+    }*/
     
     public String getTipoAmigable() {
         String tipoAmigable = "";

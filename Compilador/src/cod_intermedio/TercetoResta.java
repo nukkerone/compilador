@@ -20,7 +20,7 @@ public class TercetoResta extends Terceto {
         throwsError = true;
     }
     
-    public String toString() {
+   /* public String toString() {
         String s = "Terceto Resta - Posicion: " + this.posicion + " - Operacion: " + this.operacion;
         String param1Str = " - Null";
         String param2Str = " - Null";
@@ -35,7 +35,7 @@ public class TercetoResta extends Terceto {
         
         return s + param1Str + param2Str;
 
-    }
+    }*/
     
     @Override
     public Vector<String> generarAssembler(SeguidorEstReg ser) {

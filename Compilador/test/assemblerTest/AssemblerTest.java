@@ -61,10 +61,11 @@ public class AssemblerTest {
     @Test
     public void testErrores() {
         boolean hayErrores = false;
-        //String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
-        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        //String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        String filePath = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\test.txt";
         SourceCode s = new SourceCode(filePath);
-        String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        String fileOutput = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\output.txt";
+        //String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
         OutputCode output = new OutputCode(fileOutput);
         
         s.generateSource();
@@ -102,12 +103,14 @@ public class AssemblerTest {
         this.eventoError.visualizar("Regla", output);
         System.out.println("\n*************************");
         output.addLine("\n*************************");
-        this.al.visualizarTablaSimbolos();
+      //  this.al.visualizarTablaSimbolos();
+        this.al.visualizarTablaSimbolos(output);
         System.out.println("\n*************************");
         output.addLine("\n*************************");
         System.out.println("Tercetos generados: ");
         output.addLine("Tercetos generados: ");
-        Terceto.printTercetos();
+        //Terceto.printTercetos(output);
+        printTercetos(output);
         System.out.println("\n*************************");
         output.addLine("\n*************************");
         
@@ -123,6 +126,14 @@ public class AssemblerTest {
         output.output();
         assertTrue("Ultimos tests", resultadoParse == 0);
         
+    }
+    public   void printTercetos(OutputCode o) {
+        Iterator it = Terceto.tercetos.iterator();
+        while (it.hasNext()) {
+           Terceto t = (Terceto) it.next();
+           System.out.println(t.toString());
+            o.addLine(t.toString());
+        }
     }
    
 }

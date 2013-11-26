@@ -20,7 +20,7 @@ public class TercetoDivision extends Terceto {
         throwsError = true;
     }
     
-    public String toString() {
+ /*   public String toString() {
         String s = "Terceto Division - Posicion: " + this.posicion + " - Operacion: " + this.operacion;
         String param1Str = " - Null";
         String param2Str = " - Null";
@@ -34,7 +34,7 @@ public class TercetoDivision extends Terceto {
         }
         
         return s + param1Str + param2Str;
-    }
+    }*/
 
     public Vector<String> generarAssembler(SeguidorEstReg ser) {
         Vector<String> v = null;
