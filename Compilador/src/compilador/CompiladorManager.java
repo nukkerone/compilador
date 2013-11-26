@@ -5,6 +5,7 @@
 package compilador;
 
 import cod_intermedio.Terceto;
+import filereader.OutputCode;
 import filereader.SourceCode;
 import herramientaerror.EventoError;
 import java.io.Console;
@@ -19,6 +20,7 @@ public class CompiladorManager {
     private EventoError eventoError;
     private Parser parser;
     private AnalizadorLexico analizadorLexico;
+    private OutputCode output;
         
     CompiladorManager() {
         this.eventoError = new EventoError();
@@ -26,6 +28,9 @@ public class CompiladorManager {
         this.parser.addEventoError(this.eventoError);
         this.analizadorLexico = new AnalizadorLexico(this.eventoError);
         this.parser.addAnalizadorLexico(this.analizadorLexico);
+        
+        String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        this.output = new OutputCode(fileOutput);
     }
     
     public void start() {
@@ -72,10 +77,10 @@ public class CompiladorManager {
         }
         System.out.println("\n*************************");
         System.out.println("Errores durante la compilacion: ");
-        this.eventoError.visualizar("Error");
+        this.eventoError.visualizar("Error", this.output);
         System.out.println("\n*************************");
         System.out.println("Construcciones sintacticas: ");
-        this.eventoError.visualizar("Regla");
+        this.eventoError.visualizar("Regla", this.output);
         System.out.println("\n*************************");
         this.analizadorLexico.visualizarTablaSimbolos();
         System.out.println("\n*************************");
