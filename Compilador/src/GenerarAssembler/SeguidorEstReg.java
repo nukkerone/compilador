@@ -76,7 +76,7 @@ static int CANTREG = 4;
 	int ultimoReg;
 	
 	/**
-	 * UbicarEnRegistro(tipable)
+	 * UbicarEnRegistro(typeable)
 	 * damelo en un registro cualquiera
 	 * puede ser que ya estaba en un registro
 	 * trata de que sea B o C

@@ -18,7 +18,7 @@ public class TercetoPrint extends Terceto {
         super("Print",p1,null);
     }
     
-    public String toString() {
+ /*   public String toString() {
         String s = "Terceto Print - Posicion: " + this.posicion + " - Operacion: " + this.operacion;
         String param1Str = " - Null";
         
@@ -27,7 +27,7 @@ public class TercetoPrint extends Terceto {
         }
         
         return s + param1Str;
-    }
+    }*/
     
     @Override
     public Vector<String> generarAssembler(SeguidorEstReg mr) {

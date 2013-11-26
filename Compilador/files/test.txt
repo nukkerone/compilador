@@ -4,7 +4,7 @@ int color, i, e, a;
 function func1(int param) begin
 	int a;
 	
-	a = 10;
+	a = 10 + 5;
 	e = a;
 end
 

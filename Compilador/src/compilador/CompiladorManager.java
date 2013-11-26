@@ -9,6 +9,7 @@ import filereader.OutputCode;
 import filereader.SourceCode;
 import herramientaerror.EventoError;
 import java.io.Console;
+import java.util.Iterator;
 import lexico.AnalizadorLexico;
 import sintactico.Parser;
 
@@ -29,7 +30,8 @@ public class CompiladorManager {
         this.analizadorLexico = new AnalizadorLexico(this.eventoError);
         this.parser.addAnalizadorLexico(this.analizadorLexico);
         
-        String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        //String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+         String fileOutput = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\output.txt";
         this.output = new OutputCode(fileOutput);
     }
     
@@ -69,23 +71,44 @@ public class CompiladorManager {
         this.prepareParser(s.getAsString());
         this.parser.parse();
         System.out.println("\n*************************");
+        System.out.println("\n*************************");
+        System.out.println("Resultado del análisis: ");
         System.out.println("Resultado del análisis: ");
         if (this.eventoError.hayErrores()) {
             System.out.println("Fallido - Errores");
+            this.output.addLine("Fallido - Errores");
         } else {
             System.out.println("Exitoso - Sin errores");
+            this.output.addLine("Exitoso - Sin errores");
         }
         System.out.println("\n*************************");
+        this.output.addLine("\n*************************");
         System.out.println("Errores durante la compilacion: ");
+        this.output.addLine("Errores durante la compilacion: ");
         this.eventoError.visualizar("Error", this.output);
         System.out.println("\n*************************");
+        this.output.addLine("\n*************************");
         System.out.println("Construcciones sintacticas: ");
+        this.output.addLine("Construcciones sintacticas: ");
         this.eventoError.visualizar("Regla", this.output);
         System.out.println("\n*************************");
-        this.analizadorLexico.visualizarTablaSimbolos();
+        this.output.addLine("\n*************************");
+        this.analizadorLexico.visualizarTablaSimbolos(this.output);
         System.out.println("\n*************************");
+        this.output.addLine("\n*************************");
         System.out.println("Tercetos generados: ");
-        Terceto.printTercetos();
+        this.output.addLine("Tercetos generados: ");
+        printTercetos();
         System.out.println("\n*************************");
+        this.output.addLine("\n*************************");
+    }
+
+      public   void printTercetos() {
+        Iterator it = Terceto.tercetos.iterator();
+        while (it.hasNext()) {
+           Terceto t = (Terceto) it.next();
+           System.out.println(t.toString());
+            this.output.addLine(t.toString());
+        }
     }
 }

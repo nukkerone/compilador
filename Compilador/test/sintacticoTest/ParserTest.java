@@ -158,9 +158,10 @@ public class ParserTest {
     @Test
     public void testErrores() {
         //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
-        String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";
+        String filePath = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\test.txt";
         SourceCode s = new SourceCode(filePath);
-        String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        String fileOutput = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\test.txt";
+        //String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
         OutputCode output = new OutputCode(fileOutput);
         s.generateSource();
         
@@ -168,23 +169,36 @@ public class ParserTest {
         int resultadoParse = this.p.parse();
         
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Resultado del análisis: ");
+        output.addLine("Resultado del análisis: ");
         if (this.eventoError.hayErrores()) {
             System.out.println("Fallido - Errores");
+            output.addLine("Fallido - Errores");
         } else {
             System.out.println("Exitoso - Sin errores");
+            output.addLine("Exitoso - Sin errores");
         }
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Errores durante la compilacion: ");
+        output.addLine("Errores durante la compilacion: ");
         this.eventoError.visualizar("Error", output);
+        output.addLine("");
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Warnings durante la compilacion: ");
+        output.addLine("Warnings durante la compilacion:");
         this.eventoError.visualizar("Warning", output);
         System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Construcciones sintacticas: ");
+        output.addLine("Construcciones sintacticas:");
         this.eventoError.visualizar("Regla", output);
         System.out.println("\n*************************");
-        this.al.visualizarTablaSimbolos();
+        output.addLine("\n*************************");
+       //this.al.visualizarTablaSimbolos(output);
+        this.al.visualizarTablaSimbolos(output);
         assertTrue("Ultimos tests", resultadoParse == 0);
     }
    

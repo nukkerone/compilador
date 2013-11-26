@@ -27,13 +27,13 @@ public class TercetoSalto extends Terceto {
             this.dirSalto = dirSalto;
     }
     
-    @Override
+  /*  @Override
     public String toString() {
         String s = "Terceto Salto - Posicion: " + this.posicion + " - Operacion: " + this.operacion + " - Posicion Salto: "
                 + this.dirSalto;
 
         return s;
-    }
+    }*/
     
     public String getNombreEtiq() {
         return "_etiq" + this.posicion;

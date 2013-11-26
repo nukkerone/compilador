@@ -17,11 +17,11 @@ public class TercetoPush extends Terceto {
         super("Push");
     }
     
-    public String toString() {
+ /*   public String toString() {
         String s = "Terceto Push - Posicion: " + this.posicion;
         
         return s;
-    }
+    }*/
 
     @Override
     public String getEtiqueta() {
