@@ -44,7 +44,7 @@ public class OutputCode {
         try {
         BufferedWriter output = new BufferedWriter(new FileWriter(this.filePath));
             for (int i = 0; i < this.source.size(); i++) {
-                output.write("test " + "\n");
+                output.write(this.source.get(i));
             }
             output.close();
             return false;
