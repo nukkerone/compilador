@@ -4,6 +4,8 @@
  */
 package lexico;
 
+import java.util.Objects;
+
 /**
  *
  * @author Gabriel
@@ -45,24 +47,25 @@ public class IdTS {
 		return result;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		IdTS other = (IdTS) obj;
-		if (lexema == null) {
-			if (other.lexema != null)
-				return false;
-		} else if (!lexema.equals(other.lexema))
-			return false;
-		if (uso != other.uso)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IdTS other = (IdTS) obj;
+        if (!Objects.equals(this.lexema, other.lexema)) {
+            return false;
+        }
+        if (this.uso != other.uso) {
+            return false;
+        }
+        return true;
+    }
+
+	
 	
 	
 	

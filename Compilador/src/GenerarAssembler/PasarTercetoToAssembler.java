@@ -18,7 +18,7 @@ public class PasarTercetoToAssembler {
     
     public Vector<String> traducir(Vector<Terceto> tercs, TablaSimbolos ts){
 
-        SeguidorEstReg ser = new SeguidorEstReg();
+        SeguidorEstReg ser = new SeguidorEstReg(ts);
         Vector<String> asm = new Vector<String>();
         Hashtable<String, String> Messages = new Hashtable<String, String>();
         Hashtable<String, String> Codigo = new Hashtable<String, String>();
@@ -38,10 +38,17 @@ public class PasarTercetoToAssembler {
         // Obtener todas las variables generadas
         Vector<String> variables = ser.getVariables();
         // Codigo de cabecera para las variables
-        variables.insertElementAt(".MODEL small",0);
-        variables.insertElementAt(".386",1);
-        variables.insertElementAt(".STACK 200h",2);
-        variables.insertElementAt(".DATA",3);
+        variables.insertElementAt(".386",0);
+        variables.insertElementAt(".model flat, stdcall",1);
+        variables.insertElementAt("option casemap :none",2);
+        variables.insertElementAt("include \\masm32\\include\\windows.inc", 3);
+        variables.insertElementAt("include \\masm32\\include\\kernel32.inc", 4);
+        variables.insertElementAt("include \\masm32\\include\\user32.inc", 5);
+        variables.insertElementAt("include \\masm32\\include\\masm32.inc", 6);
+        variables.insertElementAt("includelib \\masm32\\lib\\kernel32.lib", 7);
+        variables.insertElementAt("includelib \\masm32\\lib\\user32.lib", 8);
+        variables.insertElementAt("includelib \\masm32\\lib\\user32.lib", 9);
+        variables.insertElementAt(".DATA",10);
         
         Collection<String> e = Messages.values();
         for (Iterator<String> it = e.iterator(); it.hasNext();) {
@@ -56,12 +63,10 @@ public class PasarTercetoToAssembler {
             variables.add(Codigo.get(etiq));
         }
         variables.add("SALIR:");
-        variables.add("MOV ah,4ch			; DOS: termina el programa");
-        variables.add("MOV al,0			; el código de retorno será 0");
-        variables.add("INT 21h			; termina el programa");
+        variables.add("invoke ExitProcess,0			; DOS: termina el programa");
         variables.add("START:");
-        variables.add("MOV ax,@DATA ;obtener la posicion de los datos");
-        variables.add("MOV ds,ax ; cargar el segmento de datos con el puntero");
+        //variables.add("MOV ax,@DATA ;obtener la posicion de los datos");
+        //variables.add("MOV ds,ax ; cargar el segmento de datos con el puntero");
 
         variables.addAll(asm);
         variables.add("JMP SALIR");

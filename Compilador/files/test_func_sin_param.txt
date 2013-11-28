@@ -1,0 +1,12 @@
+\\ Seccion declaraciones
+int x, y;
+
+function func1() begin
+	if (x != 10) then begin
+		print("Moncho");
+	end
+end
+
+y = 10;
+
+x = func1();

@@ -147,7 +147,7 @@ public abstract class Terceto implements Typeable {
             }
         }
         
-        return "( " + s + ", " + param1 + ", " + param2+ " )";
+        return "( " + this.posicion + ": " + s + ", " + param1 + ", " + param2+ " )";
     }
     
     
@@ -181,10 +181,9 @@ public abstract class Terceto implements Typeable {
     }
     
     public String getErrorCode(){
-        return "MOV dx, OFFSET "+getEtiqueta()+"_MESSAGE\n" +
-        "MOV ah, 9\n" +
-        "int 21h\n" +
-        "JMP SALIR";
+        return 
+        "invoke MessageBox, NULL, addr " + getEtiqueta() + "_MESSAGE, addr " + getEtiqueta() + "_MESSAGE, MB_OK \n" +
+        "invoke ExitProcess,0";
     }
     
     public boolean throwsError() {

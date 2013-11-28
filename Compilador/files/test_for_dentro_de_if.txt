@@ -1,0 +1,10 @@
+\\ Seccion declaraciones
+int x, y;
+
+y = 10;
+
+if (y==10) then begin
+	for(x=1; x<=3) begin
+		print("For dentro de if");
+	end
+end

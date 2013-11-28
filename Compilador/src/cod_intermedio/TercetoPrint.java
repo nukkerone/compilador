@@ -35,9 +35,11 @@ public class TercetoPrint extends Terceto {
         mr.desocuparD();
         DireccionRepreVarAssembler d2 = mr.ubicarEnMemoria(this.parametro1);
         v = mr.getCodigoAsm();
-        v.add("MOV dx,OFFSET " + d2.getNombre());
-        v.add("mov	ah,9");
-        v.add("int	21h");
+        //v.add("MOV dx,OFFSET " + d2.getNombre());
+        v.add("invoke MessageBox, NULL, addr " + d2.getNombre() +", addr " + d2.getNombre() + ", MB_OK");
+        
+        //v.add("mov	ah,9");
+        //v.add("int	21h");
         return v;
     }
 

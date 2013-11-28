@@ -40,7 +40,9 @@ programa: {
     ((TypeableToken)tokenParamReal).setTipo(Typeable.TIPO_INT);
     this.anLexico.getTablaSimbolos().addSimbolo(tokenParamReal, true);
 
-} declaraciones ejecutable
+} declaraciones ejecutable {
+    setAmbitoTercetos("main", true);
+}
 FIN
 ;
 
@@ -161,7 +163,7 @@ parametro_formal:
 }
 ;
 
-parametro_real:
+parametro_real: { $$ = new ParserVal(null); }
 | ID   
 | constante         
 ;
@@ -201,8 +203,9 @@ bloque: sentencia
 
 llamado_funcion: ID '(' parametro_real ')'      { 
     this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
-    if ($3.obj != null) {
-        TypeableToken tokenAux = ((TypeableToken)$3.obj);
+    Typeable typeableParam = ((Typeable)$3.obj);
+    if (typeableParam != null) {
+        TypeableToken tokenAux = ((TypeableToken)typeableParam);
         
         TypeableToken tokenParamReal = (TypeableToken) this.anLexico.getTablaSimbolos().getSimbolo(new IdTS("_PARAM", Uso.USO_VARIABLE));
         new TercetoAsignacion((Typeable)tokenParamReal, (Typeable)tokenAux);

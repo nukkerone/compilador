@@ -20,11 +20,24 @@ public abstract class TypeableToken extends Token implements Typeable {
     
     public String getInitialValue() {
         if (this.getTipo() == Typeable.TIPO_CADENA) {
-            String aux = lexema.substring(1, lexema.length()-1);
-            return "'"+aux+"$'";
+            //String aux = lexema.substring(1, lexema.length()-1);
+            //return "'"+aux+"$'";
+            return "'" + this.getLexema() + "'";
         }
         
-        return this.getLexema();
+        if (this.getTipo() == Typeable.TIPO_CTE_ENTERA) {
+            //String aux = lexema.substring(1, lexema.length()-1);
+            //return "'"+aux+"$'";
+            return  this.getLexema();
+        }
+        
+        if (this.getTipo() == Typeable.TIPO_INT) {
+            //String aux = lexema.substring(1, lexema.length()-1);
+            //return "'"+aux+"$'";
+            return "0";
+        }
+        
+        return "'?'";
     }
     
     @Override

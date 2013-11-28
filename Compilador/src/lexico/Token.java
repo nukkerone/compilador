@@ -5,6 +5,7 @@
 package lexico;
 
 import interfaces.Uso;
+import java.util.Objects;
 
 /**
  *
@@ -67,6 +68,27 @@ public class Token implements Uso{
     
     public int getNroLinea() {
         return this.nroLinea;
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return lexema.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Token other = (Token) obj;
+        if (!Objects.equals(this.lexema, other.lexema)) {
+            return false;
+        }
+        return true;
     }
     
 }

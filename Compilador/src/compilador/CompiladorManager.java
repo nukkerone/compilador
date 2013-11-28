@@ -4,12 +4,14 @@
  */
 package compilador;
 
+import GenerarAssembler.PasarTercetoToAssembler;
 import cod_intermedio.Terceto;
 import filereader.OutputCode;
 import filereader.SourceCode;
 import herramientaerror.EventoError;
 import java.io.Console;
 import java.util.Iterator;
+import java.util.Vector;
 import lexico.AnalizadorLexico;
 import sintactico.Parser;
 
@@ -22,6 +24,8 @@ public class CompiladorManager {
     private Parser parser;
     private AnalizadorLexico analizadorLexico;
     private OutputCode output;
+    private OutputCode asmOutput;
+    private PasarTercetoToAssembler trad;
         
     CompiladorManager() {
         this.eventoError = new EventoError();
@@ -30,9 +34,11 @@ public class CompiladorManager {
         this.analizadorLexico = new AnalizadorLexico(this.eventoError);
         this.parser.addAnalizadorLexico(this.analizadorLexico);
         
-        //String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
-         String fileOutput = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\output.txt";
-        this.output = new OutputCode(fileOutput);
+        String fileOutputPath = "output.txt";
+        String asmOutputPath = "generated.asm";
+        this.output = new OutputCode(fileOutputPath);
+        this.asmOutput = new OutputCode(asmOutputPath);
+        this.trad = new PasarTercetoToAssembler();
     }
     
     public void start() {
@@ -68,39 +74,60 @@ public class CompiladorManager {
     }
     
     public  void analizar(SourceCode s, Console console) {
+        boolean hayErrores = false;
         this.prepareParser(s.getAsString());
         this.parser.parse();
+        
+        hayErrores = this.eventoError.hayErrores();
+        
+        Vector<String> asm = trad.traducir(Terceto.tercetos, this.analizadorLexico.getTablaSimbolos());
+        
         System.out.println("\n*************************");
-        System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Resultado del análisis: ");
-        System.out.println("Resultado del análisis: ");
-        if (this.eventoError.hayErrores()) {
+        output.addLine("Resultado del análisis: ");
+        if (hayErrores) {
             System.out.println("Fallido - Errores");
-            this.output.addLine("Fallido - Errores");
+            output.addLine("Fallido - Errores");
+            System.out.println("\n*************************");
+            output.addLine("\n*************************");
+            System.out.println("Errores durante la compilacion: ");
+            output.addLine("Errores durante la compilacion: ");
+            this.eventoError.visualizar("Error", output);
         } else {
             System.out.println("Exitoso - Sin errores");
-            this.output.addLine("Exitoso - Sin errores");
+            output.addLine("Exitoso - Sin errores");
         }
-        System.out.println("\n*************************");
-        this.output.addLine("\n*************************");
-        System.out.println("Errores durante la compilacion: ");
-        this.output.addLine("Errores durante la compilacion: ");
-        this.eventoError.visualizar("Error", this.output);
-        System.out.println("\n*************************");
-        this.output.addLine("\n*************************");
+        
+        /*System.out.println("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Construcciones sintacticas: ");
-        this.output.addLine("Construcciones sintacticas: ");
-        this.eventoError.visualizar("Regla", this.output);
+        output.addLine("Construcciones sintacticas: ");
+        this.eventoError.visualizar("Regla", output);*/
         System.out.println("\n*************************");
-        this.output.addLine("\n*************************");
-        this.analizadorLexico.visualizarTablaSimbolos(this.output);
+        output.addLine("\n*************************");
+      //  this.al.visualizarTablaSimbolos();
+        this.analizadorLexico.visualizarTablaSimbolos(output);
         System.out.println("\n*************************");
-        this.output.addLine("\n*************************");
+        output.addLine("\n*************************");
         System.out.println("Tercetos generados: ");
-        this.output.addLine("Tercetos generados: ");
-        printTercetos();
+        output.addLine("Tercetos generados: ");
+        //Terceto.printTercetos(output);
+        this.printTercetos();
         System.out.println("\n*************************");
-        this.output.addLine("\n*************************");
+        output.addLine("\n*************************");
+        
+        if (!hayErrores) {
+            Iterator it = asm.iterator();
+            while (it.hasNext()) {
+               String assemblerLine = (String) it.next();
+                System.out.println(assemblerLine);
+                asmOutput.addLine(assemblerLine);
+            }
+        }
+        
+        this.output.output();
+        this.asmOutput.output();
     }
 
       public   void printTercetos() {

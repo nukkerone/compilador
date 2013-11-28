@@ -32,7 +32,9 @@ public class TokenLexemaDistinto extends TypeableToken {
     
     @Override
     public void setAmbito(String ambito) {
-        if (this.getTipo() == Typeable.TIPO_CTE_ENTERA ||
+        int tipo = this.getTipo();
+        if (tipo == Typeable.TIPO_CTE_ENTERA ||
+                tipo == Typeable.TIPO_CADENA ||
                 this.lexema.equals("_RET") ||
                 this.lexema.equals("_PARAM")) {
             return;

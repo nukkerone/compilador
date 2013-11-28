@@ -1,0 +1,14 @@
+\\ Seccion declaraciones
+int x, y;
+
+y = 10;
+
+function func1(int param) begin
+	if (x != 10) then begin
+		print("Prueba damian");
+	end
+end
+
+y = 10;
+
+x = func1(y);

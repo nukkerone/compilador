@@ -47,9 +47,9 @@ public class TercetoRetorno extends Terceto {
         Vector<String> v = new Vector<String>();
         // Ubico memoria auxiliar
 
-        DireccionRepreVarAssembler valRet = seguidor.ubicarAuxiliarEnMemoria((TypeableToken)this.parametro1, "RET");
+        //DireccionRepreVarAssembler valRet = seguidor.ubicarAuxiliarEnMemoria((TypeableToken)this.parametro1, "_RET");
         
-        String lexemaRet = ((TypeableToken) this.parametro1).getLexema();
+        //String lexemaRet = ((TypeableToken) this.parametro1).getLexema();
         
         //v.add("MOV " + valRet.getNombre() + ", " + lexemaRet);
         v.add("POP DX");

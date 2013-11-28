@@ -11,6 +11,8 @@ import assembler.Registro;
 import assembler.VariableAuxiliar;
 import lexico.TypeableToken;
 import interfaces.Typeable;
+import lexico.IdTS;
+import lexico.TablaSimbolos;
 
 /*import assembler.Inmediate;
 import assembler.PosMemoria;
@@ -34,6 +36,8 @@ static int CANTREG = 4;
      * Almacena
      */
     private Hashtable<TypeableToken, PosMemoria> memoria = new Hashtable<TypeableToken, PosMemoria>();
+    
+    private TablaSimbolos tablaSimbolos;
 
 
     public boolean estaEnRegistro(Typeable t){
@@ -266,7 +270,8 @@ static int CANTREG = 4;
             }
 	}
 
-	public SeguidorEstReg(){
+	public SeguidorEstReg(TablaSimbolos ts){
+            this.tablaSimbolos = ts;
 	}
 	
 	Vector<String> codigoAux = new Vector<String>();
@@ -285,13 +290,25 @@ static int CANTREG = 4;
             Enumeration<PosMemoria> e = memoria.elements();
             while (e.hasMoreElements()) {
                 PosMemoria variable = (PosMemoria) e.nextElement();
-                if ( false /* variable.getTk().getTipo() == Typeable.TIPO_UINT */ )
-                    salida.add(variable.getNombre()+" DW "+variable.getTk().getInitialValue());
-                else
-                    if ( false /* variable.getTk().getTipo() == Typeable.TIPO_ULONG */ )
-                        salida.add(variable.getNombre()+" DD "+variable.getTk().getInitialValue());
-                    else
-                        salida.add(variable.getNombre()+" DB "+variable.getTk().getInitialValue());
+                TypeableToken tt = variable.getTk();
+                TypeableToken tt_fromTs = (TypeableToken)this.tablaSimbolos.getSimbolo(new IdTS(tt.getLexema(), tt.getUso()));
+                int tipoReal = tt_fromTs.getTipo();
+                if ( tipoReal == Typeable.TIPO_CTE_ENTERA  ) {
+                    salida.add(variable.getNombre()+" DD "+tt_fromTs.getInitialValue());
+                    continue;
+                }
+                if ( false /* tipoReal == Typeable.TIPO_ULONG */ ) {
+                    salida.add(variable.getNombre()+" DW "+tt_fromTs.getInitialValue());
+                    continue;
+                }
+                
+                if (tipoReal == Typeable.TIPO_CADENA) {
+                    salida.add(variable.getNombre()+" DB "+tt_fromTs.getInitialValue());
+                    continue;
+                }
+                
+                salida.add(variable.getNombre()+" DD "+tt_fromTs.getInitialValue());
+                        
             }
             return salida;
 	}

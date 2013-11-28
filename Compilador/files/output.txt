@@ -6,104 +6,80 @@ Exitoso - Sin errores
 *************************
 Construcciones sintacticas: 
 Sintactico: Declaración de variables-- Linea: 2-- Tipo: Regla
-Sintactico: Declaración de variables-- Linea: 5-- Tipo: Regla
-Sintactico: Operación de suma-- Linea: 7-- Tipo: Regla
+Sintactico: Asignacion-- Linea: 4-- Tipo: Regla
 Sintactico: Asignacion-- Linea: 7-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 8-- Tipo: Regla
-Sintactico: Declaración de Funcion-- Linea: 10-- Tipo: Regla
-Sintactico: Llamado a funcion-- Linea: 11-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 11-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 8-- Tipo: Regla
+Sintactico: Sentencia For-- Linea: 10-- Tipo: Regla
+Sintactico: Sentencia If Incompleta-- Linea: 10-- Tipo: Regla
 
 *************************
 Tabla de símbolos: 
-Token: PalabraReservada: ID --- Lexema: func1 --- Linea: 4
-Token: PalabraReservada: ID --- Lexema: param_func1 --- Linea: 4
+Token: PalabraReservada: string --- Lexema: For dentro de if --- Linea: 8
 Token: PalabraReservada: ID --- Lexema: _PARAM --- Linea: 0
-Token: PalabraReservada: ID --- Lexema: a_main --- Linea: 2
-Token: PalabraReservada: ID --- Lexema: i_main --- Linea: 2
-Token: PalabraReservada: ID --- Lexema: _RET --- Linea: 0
-Token: PalabraReservada: ID --- Lexema: color_main --- Linea: 2
-Token: PalabraReservada: ID --- Lexema: color --- Linea: 10
-Token: PalabraReservada: ID --- Lexema: a --- Linea: 5
-Token: PalabraReservada: CTE --- Lexema: 5 --- Linea: 7
-Token: PalabraReservada: ID --- Lexema: e_main --- Linea: 2
-Token: PalabraReservada: ID --- Lexema: a_func1 --- Linea: 5
-Token: PalabraReservada: CTE --- Lexema: 0 --- Linea: 0
-Token: PalabraReservada: ID --- Lexema: e --- Linea: 7
-Token: PalabraReservada: CTE --- Lexema: 10 --- Linea: 7
-Token: PalabraReservada: ID --- Lexema: func1 --- Linea: 4
+Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
+Token: PalabraReservada: CTE --- Lexema: 1 --- Linea: 7
+Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 7
+Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
+Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
+Token: PalabraReservada: CTE --- Lexema: 3 --- Linea: 7
+Token: PalabraReservada: CTE --- Lexema: 10 --- Linea: 6
 
 *************************
 Tercetos generados: 
-( Label, NULL, NULL )
-( BI, NULL, NULL )
-( Label, NULL, NULL )
-( Push, NULL, NULL )
-( =, param_func1, _PARAM )
-( +, 10, 5 )
-( =, a, [5] )
-( =, e, a )
-( =, _RET, 0 )
-( Retorno, 0, NULL )
-( Label, NULL, NULL )
-( =, _PARAM, e )
-( Call, [2], NULL )
-( =, color, _RET )
+( 0: =, y_main, 10 )
+( 1: ==, y_main, 10 )
+( 2: BF, NULL, NULL )
+( 3: =, x_main, 1 )
+( 4: Label, NULL, NULL )
+( 5: <=, x_main, 3 )
+( 6: BF, NULL, NULL )
+( 7: Print, For dentro de if, NULL )
+( 8: +, x_main, 1 )
+( 9: =, x_main, [8] )
+( 10: BI, NULL, NULL )
+( 11: Label, NULL, NULL )
+( 12: Label, NULL, NULL )
 
 *************************
-.MODEL small
 .386
-.STACK 200h
+.model flat, stdcall
+option casemap :none
+include \masm32\include\windows.inc
+include \masm32\include\kernel32.inc
+include \masm32\include\user32.inc
+include \masm32\include\masm32.inc
+includelib \masm32\lib\kernel32.lib
+includelib \masm32\lib\user32.lib
+includelib \masm32\lib\user32.lib
 .DATA
-__PARAM DB _PARAM
-_color DB color
-_e DB e
-__RET DB _RET
-_a DB a
-_a DB a
-_e DB e
-_RET DB RET
-_param_func1 DB param_func1
-OVERFLOW_SUMA_MESSAGE DB "Fuera de rango en Suma$"
+_y_main DD 0
+_x_main DD 0
+_1 DD 1
+cadena0 DB 'For dentro de if'
+OVERFLOW_SUMA_MESSAGE DB "Fuera de rango en Suma$",0
 .CODE
 OVERFLOW_SUMA:
-MOV dx, OFFSET OVERFLOW_SUMA_MESSAGE
-MOV ah, 9
-int 21h
-JMP SALIR
+invoke MessageBox, NULL, addr OVERFLOW_SUMA_MESSAGE, addr OVERFLOW_SUMA_MESSAGE, MB_OK 
+invoke ExitProcess,0
 SALIR:
-MOV ah,4ch			; DOS: termina el programa
-MOV al,0			; el código de retorno será 0
-INT 21h			; termina el programa
+invoke ExitProcess,0			; DOS: termina el programa
 START:
-MOV ax,@DATA ;obtener la posicion de los datos
-MOV ds,ax ; cargar el segmento de datos con el puntero
-_etiq0: 
-JMP _etiq10
-_etiq2: 
-PUSH AX
-PUSH BX
-PUSH CX
-PUSH DX
-MOV EBX, __PARAM
-MOV _param_func1, EBX
-MOV EBX, 10
-ADD EBX, 5
+MOV _y_main, 10
+MOV EBX, _y_main
+CMP EBX, 10
+JNE _etiq12
+MOV _x_main, 1
+_etiq4: 
+MOV EBX, _x_main
+CMP EBX, 3
+JNBE _etiq11
+invoke MessageBox, NULL, addr cadena0, addr cadena0, MB_OK
+MOV EBX, _x_main
+ADD EBX, _1
 JC OVERFLOW_SUMA
-MOV _a, EBX
-MOV EBX, _a
-MOV _e, EBX
-MOV __RET, 0
-POP DX
-POP CX
-POP BX
-POP AX
-ret
-_etiq10: 
-MOV EBX, _e
-MOV __PARAM, EBX
-CALL _etiq2
-MOV EBX, __RET
-MOV _color, EBX
+MOV _x_main, EBX
+JMP _etiq4
+_etiq11: 
+_etiq12: 
 JMP SALIR
 END START
