@@ -1,28 +1,38 @@
 
 *************************
 Resultado del análisis: 
-Exitoso - Sin errores
+Fallido - Errores
+
+*************************
+Errores durante la compilacion: 
+Semantico: Variable 'A' no se encuentra disponible en el ambito: f1-- Linea: 99-- Tipo: Error
 
 *************************
 Construcciones sintacticas: 
 Sintactico: Declaración de variables-- Linea: 2-- Tipo: Regla
-Sintactico: Declaración de variables-- Linea: 5-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 6-- Tipo: Regla
-Sintactico: Declaración de Funcion-- Linea: 8-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 8-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 7-- Tipo: Regla
+Sintactico: Sentencia If Incompleta-- Linea: 9-- Tipo: Regla
+Sintactico: Declaración de Funcion-- Linea: 11-- Tipo: Regla
+Sintactico: Asignacion-- Linea: 12-- Tipo: Regla
+Sintactico: Llamado a funcion-- Linea: 13-- Tipo: Regla
+Sintactico: Asignacion-- Linea: 13-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 17-- Tipo: Regla
+Sintactico: Sentencia If Incompleta-- Linea: 18-- Tipo: Regla
 
 *************************
 Tabla de símbolos: 
 Token: PalabraReservada: ID --- Lexema: _PARAM --- Linea: 0
 Token: PalabraReservada: ID --- Lexema: _RET --- Linea: 0
 Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
-Token: PalabraReservada: ID --- Lexema: param_funct1 --- Linea: 4
-Token: PalabraReservada: ID --- Lexema: b_funct1 --- Linea: 5
+Token: PalabraReservada: CTE --- Lexema: 1 --- Linea: 15
+Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 13
+Token: PalabraReservada: ID --- Lexema: z_main --- Linea: 2
 Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
-Token: PalabraReservada: ID --- Lexema: funct1 --- Linea: 4
-Token: PalabraReservada: ID --- Lexema: funct1 --- Linea: 4
-Token: PalabraReservada: CTE --- Lexema: 0 --- Linea: 0
-Token: PalabraReservada: CTE --- Lexema: 10 --- Linea: 8
+Token: PalabraReservada: string --- Lexema: OK PARAM --- Linea: 7
+Token: PalabraReservada: ID --- Lexema: f1 --- Linea: 4
+Token: PalabraReservada: string --- Lexema: OK RETORNO --- Linea: 17
+Token: PalabraReservada: ID --- Lexema: param_f1 --- Linea: 4
+Token: PalabraReservada: CTE --- Lexema: 10 --- Linea: 12
 
 *************************
 Tercetos generados: 
@@ -30,51 +40,23 @@ Tercetos generados:
 ( 1: BI, NULL, NULL )
 ( 2: Label, NULL, NULL )
 ( 3: Push, NULL, NULL )
-( 4: =, param_funct1, _PARAM )
-( 5: =, b_funct1, 10 )
-( 6: =, _RET, 0 )
-( 7: Retorno, 0, NULL )
+( 4: =, param_f1, _PARAM )
+( 5: ==, A_main, 10 )
+( 6: BF, NULL, NULL )
+( 7: Print, OK PARAM, NULL )
 ( 8: Label, NULL, NULL )
-( 9: =, y_main, 10 )
+( 9: =, _RET, 1 )
+( 10: Retorno, 1, NULL )
+( 11: =, _RET, 0 )
+( 12: Retorno, 0, NULL )
+( 13: Label, NULL, NULL )
+( 14: =, y_main, 10 )
+( 15: =, _PARAM, x_main )
+( 16: Call, [2], NULL )
+( 17: =, z_main, _RET )
+( 18: ==, z_main, 1 )
+( 19: BF, NULL, NULL )
+( 20: Print, OK RETORNO, NULL )
+( 21: Label, NULL, NULL )
 
 *************************
-.386
-.model flat, stdcall
-option casemap :none
-include \masm32\include\windows.inc
-include \masm32\include\kernel32.inc
-include \masm32\include\user32.inc
-include \masm32\include\masm32.inc
-includelib \masm32\lib\kernel32.lib
-includelib \masm32\lib\user32.lib
-includelib \masm32\lib\user32.lib
-.DATA
-_y_main DD 0
-__RET DD 0
-_b_funct1 DD 0
-__PARAM DD 0
-_param_funct1 DD 0
-.CODE
-SALIR:
-invoke ExitProcess,0			; DOS: termina el programa
-START:
-_etiq0: 
-JMP _etiq8
-_etiq2: 
-PUSH AX
-PUSH BX
-PUSH CX
-PUSH DX
-MOV EBX, __PARAM
-MOV _param_funct1, EBX
-MOV _b_funct1, 10
-MOV __RET, 0
-POP DX
-POP CX
-POP BX
-POP AX
-ret
-_etiq8: 
-MOV _y_main, 10
-JMP SALIR
-END START

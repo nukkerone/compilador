@@ -232,7 +232,7 @@ return_funcion: RETURN ';' {
     this.finalizarFuncion(null); 
 }
 | RETURN '(' expresion ')' ';' {
-    this.finalizarFuncion((TypeableToken) $2.obj);
+    this.finalizarFuncion((Typeable) $3.obj);
 }
 ;
 
@@ -537,30 +537,27 @@ private void iniciarFuncion(Token identificador) {
 
 }
 
-private void finalizarFuncion(TypeableToken tt) {
-    Token tokenRet, tokenCte;
-    tokenRet = new TokenLexemaDistinto("ID", "_RET");
-    ((TypeableToken)tokenRet).setTipo(Typeable.TIPO_INT);
+private void finalizarFuncion(Typeable tt) {
+    Token tokenRetReal;
+    Typeable retorno;
+    tokenRetReal = new TokenLexemaDistinto("ID", "_RET");
+    ((TypeableToken)tokenRetReal).setTipo(Typeable.TIPO_INT);
 
     if (tt == null) {
-        tokenCte = new TokenLexemaDistinto("CTE", "0");    // Devuelvo 0 por defecto
+        retorno = new TokenLexemaDistinto("CTE", "0");    // Devuelvo 0 por defecto
+        ((TypeableToken)retorno).setTipo(Typeable.TIPO_CTE_ENTERA);
     } else {
-        tokenCte = new TokenLexemaDistinto("CTE", tt.getLexema());    // Devuelvo otra cosa
+        retorno = tt;
     }
 
-    ((TypeableToken)tokenCte).setTipo(Typeable.TIPO_CTE_ENTERA);
-    tokenCte.setUso(Uso.USO_CONSTANTE);
-    this.anLexico.getTablaSimbolos().addSimbolo(tokenRet, true);
-    this.anLexico.getTablaSimbolos().addSimbolo(tokenCte, true);
-    new TercetoAsignacion((Typeable)tokenRet, (Typeable)tokenCte);
+    
+    this.anLexico.getTablaSimbolos().addSimbolo(tokenRetReal, true);
+    new TercetoAsignacion((Typeable)tokenRetReal, (Typeable)retorno);
     agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 
-    //TypeableToken tokenRetAux = new TokenLexemaDistinto("RET", "0");
-    //((TypeableToken)tokenCte).setTipo(Typeable.TIPO_INT);
-    //tokenCte.setUso(Uso.USO_RET);
     boolean sobreescribir = true;
-    this.anLexico.getTablaSimbolos().addSimbolo((Token)tokenCte, sobreescribir);
-    Terceto t = new TercetoRetorno((Typeable)tokenCte);
+    //this.anLexico.getTablaSimbolos().addSimbolo((Token)retorno, sobreescribir);
+    Terceto t = new TercetoRetorno((Typeable) retorno);     // Al pedo enviar el retorno como parametro, porque el terceto asignacion se genero aca afuera
     agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 }
 
@@ -623,7 +620,15 @@ private void checkearVisibilidad(String ambito) {
         Token t = ts.getSimbolo(new IdTS(variable + "_" + ambito, Uso.USO_VARIABLE));
 
         if (t == null) {
-            this.eventoError.add("Variable '" + variable + "' no se encuentra disponible en el ambito: " + ambito, 99, "Semantico", "Error" );
+            if (ambito == "main") { // caso de variables globales
+                this.eventoError.add("Variable '" + variable + "' no se encuentra disponible en el ambito: " + ambito, 99, "Semantico", "Error" );
+            } else {    // Busco si está en el ambito global, porque es el caso de una funcion
+                Token tAux = ts.getSimbolo(new IdTS(variable + "_main", Uso.USO_VARIABLE));
+                if (tAux == null) {
+                    this.eventoError.add("Variable '" + variable + "' no se encuentra disponible en el ambito: " + ambito, 99, "Semantico", "Error" );
+                }
+            }
+            
         }
     }
 }
@@ -657,11 +662,12 @@ private void setAmbitoTercetos(String ambito, boolean main) {
             Token tokenParam1 = (Token) param1;
             String posibleDeclarada = tokenParam1.getLexema();
             posibleDeclarada = posibleDeclarada.replace("_main", "");
-            if (!main && declaradasFuncion.contains(posibleDeclarada + "_" + ambito) && 
-                    !posibleDeclarada.contains("_" + ambito)) {
-                //if (!posibleDeclarada.contains("_")) {
+            if (!main && !tokenParam1.getLexema().contains("_" + ambito)) {
+                if (declaradasFuncion.contains(posibleDeclarada + "_" + ambito)) {
                     tokenParam1.setAmbito("_" + ambito);
-                //}
+                } else {
+                    tokenParam1.setAmbito("_main");
+                }
             }
 
             if (main && !posibleDeclarada.contains("_")) {
@@ -673,11 +679,12 @@ private void setAmbitoTercetos(String ambito, boolean main) {
             Token tokenParam2 = (Token) param2;
             String posibleDeclarada = tokenParam2.getLexema();
             posibleDeclarada = posibleDeclarada.replace("_main", "");
-            if (!main && declaradasFuncion.contains(posibleDeclarada + "_" + ambito) && 
-                    !posibleDeclarada.contains("_" + ambito)) {
-                //if (!posibleDeclarada.contains("_")) {
+            if (!main && !tokenParam2.getLexema().contains("_" + ambito)) {
+                if (declaradasFuncion.contains(posibleDeclarada + "_" + ambito)) {
                     tokenParam2.setAmbito("_" + ambito);
-                //}
+                } else {
+                    tokenParam2.setAmbito("_main");
+                }
             }
 
             if (main && !posibleDeclarada.contains("_")) {
