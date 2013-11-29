@@ -57,15 +57,14 @@ declaracion: declaracion_simple
 
     String nombreFuncion = ((TypeableToken) $1.obj).getLexema();
 
-    //crearAmbito(nombreFuncion);
-
     functionLabels.put(nombreFuncion, labelFuncion);
     checkearVisibilidad(nombreFuncion);
     
-    Vector<Integer> tercetosAmbitoAux = tercetosAmbito;
-    tercetosAmbito = tercetosFuncion;
+    Vector<Integer> tercetosAmbitoAux = new Vector<Integer>(tercetosAmbito);
+    tercetosAmbito = new Vector<Integer>(tercetosFuncion);
     setAmbitoTercetos(nombreFuncion, false);
-    tercetosAmbito = tercetosAmbito;
+    tercetosAmbito = new Vector<Integer>(tercetosAmbitoAux);
+    tercetosFuncion = new Vector<Integer>();
 
     int indexLabel = Terceto.tercetos.size();
     new TercetoLabel();
@@ -304,6 +303,14 @@ sentencia_asignacion: ID '=' expresion ';'  {
     this.eventoError.add("Asignacion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     $$.obj = new TercetoAsignacion((Typeable)$1.obj, (Typeable)$3.obj);
     agregarTercetoAAmbito(Terceto.tercetos.size()-1);
+
+    Token t = (Token)$1.obj;
+    if (dentroDeFuncion) {
+        varFuncionUsadas.add(t.getLexema());
+    } else {
+        varGlobalesUsadas.add(t.getLexema());
+    }
+    this.anLexico.getTablaSimbolos().removeSimbolo(new IdTS(t.getLexema(), Uso.USO_VARIABLE));
 }
 ;
 
@@ -333,7 +340,15 @@ termino : termino '*' factor    {
 | factor
 ;
 
-factor: ID
+factor: ID {
+    Token t = (Token)$1.obj;
+    if (dentroDeFuncion) {
+        varFuncionUsadas.add(t.getLexema());
+    } else {
+        varGlobalesUsadas.add(t.getLexema());
+    }
+    this.anLexico.getTablaSimbolos().removeSimbolo(new IdTS(t.getLexema(), Uso.USO_VARIABLE));
+}
 | llamado_funcion
 | constante
 | '(' expresion ')' { $$ = $2; }
@@ -432,11 +447,11 @@ Vector<Typeable> pilaIndicesFor = new Vector<Typeable>();
 Stack<Token> pilaParametros = new Stack<Token>(); 
 Vector<Integer> tercetosAmbito = new Vector<Integer>();
 
-Hashtable<String, Integer> etFuncionesMapping = new Hashtable<String, Integer>();
-Hashtable<String, Integer> retFuncionesMapping = new Hashtable<String, Integer>();
-
 Hashtable<String, Integer> functionLabels = new Hashtable<String, Integer>();
 
+
+Vector<String> varGlobalesUsadas = new Vector<String>();
+Vector<String> varFuncionUsadas = new Vector<String>();
 boolean dentroDeFuncion = false;
 String nombreFuncionActual = "none";
 String nombreParametroFormalActual = null;
@@ -519,10 +534,7 @@ private void iniciarFuncion(Token identificador) {
     int dirEtFuncion = Terceto.tercetos.size();
     new TercetoLabel();
     agregarTercetoAAmbito(Terceto.tercetos.size()-1);
-    //indiceUltimaFuncion = dirEtFuncion;
 
-    this.etFuncionesMapping.put(nombreFuncion, dirEtFuncion);
-    //this.ultimoNombreFuncion = nombreFuncion;
 }
 
 private void finalizarFuncion(TypeableToken tt) {
@@ -568,10 +580,13 @@ private void llamadoFuncion(Token identificador) {
     if (labelIndex != null) {
         TercetoLabel functionLabel = (TercetoLabel)Terceto.tercetos.get(labelIndex);
         new TercetoCall(functionLabel);
-        agregarTercetoAAmbito(Terceto.tercetos.size()-1);
+        
+        // Eliminar el identificador (Uso Variable) de la TS, porque ya debería estar declarado como funcion (Uso Funcion)
     } else {
-        // @TODO No tendria que pasar esto, logear error mas adelante
+        // @TODO Generar error de funcion no declarada
     }
+    agregarTercetoAAmbito(Terceto.tercetos.size()-1);
+    this.anLexico.getTablaSimbolos().removeSimbolo(new IdTS(identificador.getLexema(), Uso.USO_VARIABLE));
 
 }
 
@@ -593,8 +608,24 @@ private void limpiarVector(int desde, int hasta) {
     }
  }
 
-private void checkearVisibilidad(String nombreFuncion) {
+private void checkearVisibilidad(String ambito) {
+    Vector<String> toCheck = new Vector<String>();
+    TablaSimbolos ts = this.anLexico.getTablaSimbolos();
+    if (ambito == "main") {
+        toCheck = varGlobalesUsadas;
+    } else {
+        toCheck = varFuncionUsadas;
+    }
 
+    Iterator it = toCheck.iterator();
+    while (it.hasNext()) {
+        String variable = (String)it.next();
+        Token t = ts.getSimbolo(new IdTS(variable + "_" + ambito, Uso.USO_VARIABLE));
+
+        if (t == null) {
+            this.eventoError.add("Variable '" + variable + "' no se encuentra disponible en el ambito: " + ambito, 99, "Semantico", "Error" );
+        }
+    }
 }
 
 private void crearAmbito(String nombreFuncion) {
@@ -612,7 +643,6 @@ private void crearAmbito(String nombreFuncion) {
             tablaSimbolos.addSimbolo(t, true);
         }
     }
-
 }
 
 private void setAmbitoTercetos(String ambito, boolean main) {
@@ -626,7 +656,8 @@ private void setAmbitoTercetos(String ambito, boolean main) {
         if (param1 != null && param1 instanceof TypeableToken) {
             Token tokenParam1 = (Token) param1;
             String posibleDeclarada = tokenParam1.getLexema();
-            if (!main && declaradasFuncion.contains(posibleDeclarada.replace("_main", "_" + ambito)) && 
+            posibleDeclarada = posibleDeclarada.replace("_main", "");
+            if (!main && declaradasFuncion.contains(posibleDeclarada + "_" + ambito) && 
                     !posibleDeclarada.contains("_" + ambito)) {
                 //if (!posibleDeclarada.contains("_")) {
                     tokenParam1.setAmbito("_" + ambito);
@@ -641,7 +672,8 @@ private void setAmbitoTercetos(String ambito, boolean main) {
         if (param2 != null && param2 instanceof TypeableToken) {
             Token tokenParam2 = (Token) param2;
             String posibleDeclarada = tokenParam2.getLexema();
-            if (!main && declaradasFuncion.contains(posibleDeclarada.replace("_main", "_" + ambito)) && 
+            posibleDeclarada = posibleDeclarada.replace("_main", "");
+            if (!main && declaradasFuncion.contains(posibleDeclarada + "_" + ambito) && 
                     !posibleDeclarada.contains("_" + ambito)) {
                 //if (!posibleDeclarada.contains("_")) {
                     tokenParam2.setAmbito("_" + ambito);
@@ -671,10 +703,6 @@ private void agregarTercetoAAmbito(int indexTerceto) {
     } else {
         tercetosAmbito.add(indexTerceto);
     }
-}
-
-private void apilarParametro(Token identificador) {
-
 }
 
 static Hashtable<String, Short> Conversor;

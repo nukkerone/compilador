@@ -115,9 +115,9 @@ public ArrayList<String> devolverMensaje(String Merror){
                if (o != null) {
                    o.addLine(log.toString());
                } else {
-                   System.out.println(log);
+                   
                }
-               
+               System.out.println(log);
            }
         }
     }

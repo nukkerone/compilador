@@ -292,7 +292,8 @@ static int CANTREG = 4;
                 PosMemoria variable = (PosMemoria) e.nextElement();
                 TypeableToken tt = variable.getTk();
                 TypeableToken tt_fromTs = (TypeableToken)this.tablaSimbolos.getSimbolo(new IdTS(tt.getLexema(), tt.getUso()));
-                int tipoReal = tt_fromTs.getTipo();
+                if (tt_fromTs != null) {
+                    int tipoReal = tt_fromTs.getTipo();
                 if ( tipoReal == Typeable.TIPO_CTE_ENTERA  ) {
                     salida.add(variable.getNombre()+" DD "+tt_fromTs.getInitialValue());
                     continue;
@@ -308,7 +309,8 @@ static int CANTREG = 4;
                 }
                 
                 salida.add(variable.getNombre()+" DD "+tt_fromTs.getInitialValue());
-                        
+                }
+                
             }
             return salida;
 	}

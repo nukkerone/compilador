@@ -6,39 +6,36 @@ Exitoso - Sin errores
 *************************
 Construcciones sintacticas: 
 Sintactico: Declaración de variables-- Linea: 2-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 4-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 7-- Tipo: Regla
-Sintactico: Sentencia Print-- Linea: 8-- Tipo: Regla
-Sintactico: Sentencia For-- Linea: 10-- Tipo: Regla
-Sintactico: Sentencia If Incompleta-- Linea: 10-- Tipo: Regla
+Sintactico: Declaración de variables-- Linea: 5-- Tipo: Regla
+Sintactico: Asignacion-- Linea: 6-- Tipo: Regla
+Sintactico: Declaración de Funcion-- Linea: 8-- Tipo: Regla
+Sintactico: Asignacion-- Linea: 8-- Tipo: Regla
 
 *************************
 Tabla de símbolos: 
-Token: PalabraReservada: string --- Lexema: For dentro de if --- Linea: 8
 Token: PalabraReservada: ID --- Lexema: _PARAM --- Linea: 0
+Token: PalabraReservada: ID --- Lexema: _RET --- Linea: 0
 Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
-Token: PalabraReservada: CTE --- Lexema: 1 --- Linea: 7
-Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 7
+Token: PalabraReservada: ID --- Lexema: param_funct1 --- Linea: 4
+Token: PalabraReservada: ID --- Lexema: b_funct1 --- Linea: 5
 Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
-Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
-Token: PalabraReservada: CTE --- Lexema: 3 --- Linea: 7
-Token: PalabraReservada: CTE --- Lexema: 10 --- Linea: 6
+Token: PalabraReservada: ID --- Lexema: funct1 --- Linea: 4
+Token: PalabraReservada: ID --- Lexema: funct1 --- Linea: 4
+Token: PalabraReservada: CTE --- Lexema: 0 --- Linea: 0
+Token: PalabraReservada: CTE --- Lexema: 10 --- Linea: 8
 
 *************************
 Tercetos generados: 
-( 0: =, y_main, 10 )
-( 1: ==, y_main, 10 )
-( 2: BF, NULL, NULL )
-( 3: =, x_main, 1 )
-( 4: Label, NULL, NULL )
-( 5: <=, x_main, 3 )
-( 6: BF, NULL, NULL )
-( 7: Print, For dentro de if, NULL )
-( 8: +, x_main, 1 )
-( 9: =, x_main, [8] )
-( 10: BI, NULL, NULL )
-( 11: Label, NULL, NULL )
-( 12: Label, NULL, NULL )
+( 0: Label, NULL, NULL )
+( 1: BI, NULL, NULL )
+( 2: Label, NULL, NULL )
+( 3: Push, NULL, NULL )
+( 4: =, param_funct1, _PARAM )
+( 5: =, b_funct1, 10 )
+( 6: =, _RET, 0 )
+( 7: Retorno, 0, NULL )
+( 8: Label, NULL, NULL )
+( 9: =, y_main, 10 )
 
 *************************
 .386
@@ -53,33 +50,31 @@ includelib \masm32\lib\user32.lib
 includelib \masm32\lib\user32.lib
 .DATA
 _y_main DD 0
-_x_main DD 0
-_1 DD 1
-cadena0 DB 'For dentro de if'
-OVERFLOW_SUMA_MESSAGE DB "Fuera de rango en Suma$",0
+__RET DD 0
+_b_funct1 DD 0
+__PARAM DD 0
+_param_funct1 DD 0
 .CODE
-OVERFLOW_SUMA:
-invoke MessageBox, NULL, addr OVERFLOW_SUMA_MESSAGE, addr OVERFLOW_SUMA_MESSAGE, MB_OK 
-invoke ExitProcess,0
 SALIR:
 invoke ExitProcess,0			; DOS: termina el programa
 START:
+_etiq0: 
+JMP _etiq8
+_etiq2: 
+PUSH AX
+PUSH BX
+PUSH CX
+PUSH DX
+MOV EBX, __PARAM
+MOV _param_funct1, EBX
+MOV _b_funct1, 10
+MOV __RET, 0
+POP DX
+POP CX
+POP BX
+POP AX
+ret
+_etiq8: 
 MOV _y_main, 10
-MOV EBX, _y_main
-CMP EBX, 10
-JNE _etiq12
-MOV _x_main, 1
-_etiq4: 
-MOV EBX, _x_main
-CMP EBX, 3
-JNBE _etiq11
-invoke MessageBox, NULL, addr cadena0, addr cadena0, MB_OK
-MOV EBX, _x_main
-ADD EBX, _1
-JC OVERFLOW_SUMA
-MOV _x_main, EBX
-JMP _etiq4
-_etiq11: 
-_etiq12: 
 JMP SALIR
 END START

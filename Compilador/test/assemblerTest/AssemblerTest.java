@@ -62,7 +62,7 @@ public class AssemblerTest {
     public void testErrores() {
         boolean hayErrores = false;
         //String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
-        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test_for_dentro_de_if.txt";        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
         //String filePath = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\test.txt";
         SourceCode s = new SourceCode(filePath);
         //String fileOutput = "C:\\Users\\Cacho\\Documents\\Compiladores\\compilador\\Compilador\\files\\output.txt";

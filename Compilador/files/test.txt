@@ -1,0 +1,8 @@
+\\ Seccion declaraciones
+int x, y;
+
+function funct1(int param) begin
+	int b;
+	b = 10;
+end
+y = 10;
