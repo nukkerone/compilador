@@ -303,7 +303,7 @@ static int CANTREG = 4;
                 }
                 
                 if (tipoReal == Typeable.TIPO_CADENA) {
-                    salida.add(variable.getNombre()+" DB "+tt_fromTs.getInitialValue());
+                    salida.add(variable.getNombre()+" DB "+tt_fromTs.getInitialValue() + ",0");
                     continue;
                 }
                 
