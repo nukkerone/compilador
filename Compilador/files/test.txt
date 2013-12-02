@@ -1,18 +1,10 @@
 \\ Seccion declaraciones
 int x, y, z;
 
-function f1(int param) begin
-	if (y == 10) then
-	begin
-		print("OK PARAM");
-	end
-	return(1);
+y = 20000  / 0;
+if (y == 1) then begin
+    print("OK EXPRESION");
 end
-
-y = 10;
-z = f1(x);
-
-if (z == 1) then
-begin
-	print("OK RETORNO");
+else begin
+	print("NO IGUAL");
 end

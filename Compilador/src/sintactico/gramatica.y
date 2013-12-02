@@ -42,6 +42,7 @@ programa: {
 
 } declaraciones ejecutable {
     setAmbitoTercetos("main", true);
+    checkearVisibilidad("main");
 }
 FIN
 ;
@@ -305,10 +306,13 @@ sentencia_asignacion: ID '=' expresion ';'  {
     agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 
     Token t = (Token)$1.obj;
+    ParserVal pVal = new ParserVal(t);
+    pVal.sval = t.getLexema();
+    pVal.ival = t.getNroLinea();
     if (dentroDeFuncion) {
-        varFuncionUsadas.add(t.getLexema());
+        varFuncionUsadas.add(pVal);
     } else {
-        varGlobalesUsadas.add(t.getLexema());
+        varGlobalesUsadas.add(pVal);
     }
     this.anLexico.getTablaSimbolos().removeSimbolo(new IdTS(t.getLexema(), Uso.USO_VARIABLE));
 }
@@ -342,10 +346,13 @@ termino : termino '*' factor    {
 
 factor: ID {
     Token t = (Token)$1.obj;
+    ParserVal pVal = new ParserVal(t);
+    pVal.sval = t.getLexema();
+    pVal.ival = t.getNroLinea();
     if (dentroDeFuncion) {
-        varFuncionUsadas.add(t.getLexema());
+        varFuncionUsadas.add(pVal);
     } else {
-        varGlobalesUsadas.add(t.getLexema());
+        varGlobalesUsadas.add(pVal);
     }
     this.anLexico.getTablaSimbolos().removeSimbolo(new IdTS(t.getLexema(), Uso.USO_VARIABLE));
 }
@@ -450,8 +457,8 @@ Vector<Integer> tercetosAmbito = new Vector<Integer>();
 Hashtable<String, Integer> functionLabels = new Hashtable<String, Integer>();
 
 
-Vector<String> varGlobalesUsadas = new Vector<String>();
-Vector<String> varFuncionUsadas = new Vector<String>();
+Vector<ParserVal> varGlobalesUsadas = new Vector<ParserVal>();
+Vector<ParserVal> varFuncionUsadas = new Vector<ParserVal>();
 boolean dentroDeFuncion = false;
 String nombreFuncionActual = "none";
 String nombreParametroFormalActual = null;
@@ -594,7 +601,7 @@ private void nombresDuplicadosCheck(TypeableToken tokenNombreFuncion) {
         tokenNombreFuncion.setUso(Uso.USO_FUNCION);
         this.anLexico.getTablaSimbolos().addSimbolo(tokenNombreFuncion, true);
     } else {
-        this.eventoError.add("Funcion con nombre " + nombreFuncionActual + " ya se encuentra declarada", 99, "Semantico", "Error" );
+        this.eventoError.add("Funcion con nombre " + nombreFuncionActual + " ya se encuentra declarada", tokenNombreFuncion.getNroLinea(), "Semantico", "Error" );
     }
 }
 
@@ -606,7 +613,7 @@ private void limpiarVector(int desde, int hasta) {
  }
 
 private void checkearVisibilidad(String ambito) {
-    Vector<String> toCheck = new Vector<String>();
+    Vector<ParserVal> toCheck = new Vector<ParserVal>();
     TablaSimbolos ts = this.anLexico.getTablaSimbolos();
     if (ambito == "main") {
         toCheck = varGlobalesUsadas;
@@ -614,21 +621,21 @@ private void checkearVisibilidad(String ambito) {
         toCheck = varFuncionUsadas;
     }
 
-    Iterator it = toCheck.iterator();
-    while (it.hasNext()) {
-        String variable = (String)it.next();
+    for (int i=0; i<toCheck.size(); i++) {
+        ParserVal pVal= (ParserVal) ((Vector) toCheck).elementAt(i);
+        String variable = pVal.sval;
+        int linea =  pVal.ival;
         Token t = ts.getSimbolo(new IdTS(variable + "_" + ambito, Uso.USO_VARIABLE));
 
         if (t == null) {
             if (ambito == "main") { // caso de variables globales
-                this.eventoError.add("Variable '" + variable + "' no se encuentra disponible en el ambito: " + ambito, 99, "Semantico", "Error" );
+                this.eventoError.add("Variable '" + variable + "' no se encuentra disponible en el ambito: " + ambito, linea, "Semantico", "Error" );
             } else {    // Busco si está en el ambito global, porque es el caso de una funcion
                 Token tAux = ts.getSimbolo(new IdTS(variable + "_main", Uso.USO_VARIABLE));
                 if (tAux == null) {
-                    this.eventoError.add("Variable '" + variable + "' no se encuentra disponible en el ambito: " + ambito, 99, "Semantico", "Error" );
+                    this.eventoError.add("Variable '" + variable + "' no se encuentra disponible en el ambito: " + ambito, linea, "Semantico", "Error" );
                 }
             }
-            
         }
     }
 }

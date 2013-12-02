@@ -173,9 +173,9 @@ static int CANTREG = 4;
 	
 	public DireccionRepreVarAssembler ubicarEnRegistroOMemoria(Typeable t) {
             DireccionRepreVarAssembler d = null;
-            if(estaEnRegistro(t))
-                d = getRegistro(t);
-            else
+            //if(estaEnRegistro(t))
+                //d = getRegistro(t);
+            //else
                 d = ubicarEnMemoria(t);
             return d;
 	}
