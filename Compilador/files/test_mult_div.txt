@@ -1,0 +1,24 @@
+\\ Seccion declaraciones
+int x, y;
+
+function func1(int p) begin
+	int r;
+	r=0;
+	if (p == 10) then
+	 begin
+	 	r=p;
+	 end
+	 return (r);
+end
+
+y=10;
+x = 10 * 2 + 4 + 6 - func1(y);
+y = x *5 / 4 - 19;
+if (y==6) then
+begin
+	print("ENTRO");
+end
+else
+	begin
+	print("NO ANDA");
+	end

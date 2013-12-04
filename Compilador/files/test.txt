@@ -1,10 +1,13 @@
 \\ Seccion declaraciones
-int x, y, z;
+int x, y;
 
-y = 20000  / 0;
-if (y == 1) then begin
-    print("OK EXPRESION");
+x = 20000 * 2;
+if (x==32768) then
+begin
+	print("ENTRO");
 end
-else begin
-	print("NO IGUAL");
-end
+else
+	begin
+	print("NO ANDA");
+	end
+
