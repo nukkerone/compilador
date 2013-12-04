@@ -173,9 +173,10 @@ static int CANTREG = 4;
 	
 	public DireccionRepreVarAssembler ubicarEnRegistroOMemoria(Typeable t) {
             DireccionRepreVarAssembler d = null;
-            //if(estaEnRegistro(t))
-                //d = getRegistro(t);
-            //else
+
+       //     if(estaEnRegistro(t))
+        //        d = getRegistro(t);
+         //   else
                 d = ubicarEnMemoria(t);
             return d;
 	}
@@ -317,7 +318,8 @@ static int CANTREG = 4;
 
 	public void actualizarRegistro(Registro r1, Typeable t) {
             Typeable t_old = r1.liberar();
-            registros.remove(t_old);
+         //   if(t_old != null)
+                registros.remove(t_old);
 
             r1.ocupar(t);
             registros.put(t, r1);

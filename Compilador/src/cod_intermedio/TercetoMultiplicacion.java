@@ -54,9 +54,14 @@ public class TercetoMultiplicacion extends Terceto {
 		}
 		v = ser.getCodigoAsm();
 		//v.add("MUL " + d1.getNombre() + ", " + d2.getNombre());
-		v.add("MUL " + d2.getNombre());
+                v.add("MUL " + d2.getNombre());
+                v.add("CMP " + "EAX" + ", 32768");
+                v.add("JNA " + getEtiqueta());
+                v.add("CMP " + "EAX" + ", -32767");
+                v.add("JNB " + getEtiqueta());
+               
 		
-		v.add("JC " + getEtiqueta());
+		//v.add("JC " + getEtiqueta());
 		//TODO:: agregar codigo de verificacion fuera de rango
 		if(this.parametro2 != this.parametro1)
                     d2.liberate();

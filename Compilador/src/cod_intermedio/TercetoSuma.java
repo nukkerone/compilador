@@ -53,7 +53,11 @@ public class TercetoSuma extends Terceto {
 
             v = ser.getCodigoAsm();
             v.add("ADD " + d1.getNombre() + ", " + d2.getNombre());
-            v.add("JC " + getEtiqueta());
+            v.add("CMP " + "EBX" + ", 32768");
+            v.add("JNB " + getEtiqueta());
+            v.add("CMP " + "EBX" + ", -32767");
+            v.add("JNA " + getEtiqueta());
+            //v.add("JC " + getEtiqueta());
             if(this.parametro2 != this.parametro1)
                 d2.liberate();
             d1.actualizarT(this);
