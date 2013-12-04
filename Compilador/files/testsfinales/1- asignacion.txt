@@ -1,0 +1,11 @@
+int x, y;
+
+x = 40000;
+
+if (x == 32768) then
+	print("Acotar variables al maximo exitoso: 40000 acotado a 32768");
+
+y = -40000;
+
+if (y == -32767) then
+	print("Acotar variables al minimo exitoso: -40000 acotado a -32767");

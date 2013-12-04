@@ -1,10 +1,8 @@
 \\ Seccion declaraciones
 int x, y, z;
 
-y = 20000  / 0;
-if (y == 1) then begin
+y = -2;
+if (y == -2) then
     print("OK EXPRESION");
-end
-else begin
+else
 	print("NO IGUAL");
-end

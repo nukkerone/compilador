@@ -368,9 +368,12 @@ constante: CTE          {
 }
 | '-' CTE                       { 
     this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Token t = (Token)$2.obj;
+    t.setLexema("- " + t.getLexema());
     Vector<ParserVal> vars = new Vector<ParserVal>();
     vars.add($2);
     this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 
+    $$ = $2;
 }
 ;
 

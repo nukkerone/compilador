@@ -436,7 +436,7 @@ final static String yyrule[] = {
 "constante : '-' CTE",
 };
 
-//#line 378 "gramatica.y"
+//#line 381 "gramatica.y"
 
 boolean finished = false;
 
@@ -1346,12 +1346,15 @@ case 80:
 //#line 369 "gramatica.y"
 { 
     this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Token t = (Token)val_peek(0).obj;
+    t.setLexema("- " + t.getLexema());
     Vector<ParserVal> vars = new Vector<ParserVal>();
     vars.add(val_peek(0));
     this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 
+    yyval = val_peek(0);
 }
 break;
-//#line 1278 "Parser.java"
+//#line 1281 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
