@@ -343,7 +343,11 @@ public class AnalizadorLexico {
                     //Error err = new Error("La entrada del símbolo " + caracter + " luego de la cadena " + this.cadenaTemporal +
                       //      " no es un token valido para el lenguaje", this.getNroLinea());
                    // this.addError(err);
-                    return this.getLastToken(); // Intento devolver el siguiente token
+                    if (this.cursorCar >= this.buffer.length()) {
+                        return null;    // Se termino
+                    } else {
+                        return this.getLastToken(); // Intento devolver el siguiente token
+                    }
                 }
             }
             

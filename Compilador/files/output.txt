@@ -6,34 +6,37 @@ Exitoso - Sin errores
 *************************
 Construcciones sintacticas: 
 Sintactico: Declaración de variables-- Linea: 2-- Tipo: Regla
-Sintactico: Operación de resta-- Linea: 5-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 5-- Tipo: Regla
-Sintactico: Sentencia Print-- Linea: 8-- Tipo: Regla
+Sintactico: Asignacion-- Linea: 4-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 7-- Tipo: Regla
+Sintactico: Sentencia If Incompleta-- Linea: 9-- Tipo: Regla
+Sintactico: Identificada constante negativa-- Linea: 9-- Tipo: Regla
+Sintactico: Asignacion-- Linea: 9-- Tipo: Regla
+Sintactico: Identificada constante negativa-- Linea: 11-- Tipo: Regla
 Sintactico: Sentencia Print-- Linea: 12-- Tipo: Regla
-Sintactico: Sentencia If completa-- Linea: 13-- Tipo: Regla
+Sintactico: Sentencia If Incompleta-- Linea: 12-- Tipo: Regla
 
 *************************
 Tabla de símbolos: 
 Token: PalabraReservada: ID --- Lexema: _PARAM --- Linea: 0
 Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
-Token: PalabraReservada: CTE --- Lexema: 1 --- Linea: 5
-Token: PalabraReservada: string --- Lexema: ENTRO --- Linea: 8
+Token: PalabraReservada: string --- Lexema: Exito truncado negativo --- Linea: 12
+Token: PalabraReservada: CTE --- Lexema: -32767 --- Linea: 11
+Token: PalabraReservada: string --- Lexema: Exito truncado positivo --- Linea: 7
 Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
 Token: PalabraReservada: CTE --- Lexema: 32767 --- Linea: 6
-Token: PalabraReservada: string --- Lexema: NO ANDA --- Linea: 12
-Token: PalabraReservada: CTE --- Lexema: 32768 --- Linea: 5
 
 *************************
 Tercetos generados: 
-( 0: -, 32768, 1 )
-( 1: =, x_main, [0] )
-( 2: ==, x_main, 32767 )
-( 3: BF, NULL, NULL )
-( 4: Print, ENTRO, NULL )
-( 5: BI, NULL, NULL )
-( 6: Label, NULL, NULL )
-( 7: Print, NO ANDA, NULL )
-( 8: Label, NULL, NULL )
+( 0: =, x_main, 32767 )
+( 1: ==, x_main, 32767 )
+( 2: BF, NULL, NULL )
+( 3: Print, Exito truncado positivo, NULL )
+( 4: Label, NULL, NULL )
+( 5: =, y_main, -32767 )
+( 6: ==, y_main, -32767 )
+( 7: BF, NULL, NULL )
+( 8: Print, Exito truncado negativo, NULL )
+( 9: Label, NULL, NULL )
 
 *************************
 .386
@@ -47,37 +50,26 @@ includelib \masm32\lib\kernel32.lib
 includelib \masm32\lib\user32.lib
 includelib \masm32\lib\user32.lib
 .DATA
+cadena1 DB 'Exito truncado negativo',0
+_y_main DD 0
 _x_main DD 0
-cadena0 DB 'ENTRO',0
-cadena1 DB 'NO ANDA',0
+cadena0 DB 'Exito truncado positivo',0
 _NEG1 DD -1
-OVERFLOW_RESTA_MESSAGE DB "Fuera de rango en Resta$"
 .CODE
-OVERFLOW_RESTA:
-invoke MessageBox, NULL, addr OVERFLOW_RESTA_MESSAGE, addr OVERFLOW_RESTA_MESSAGE, MB_OK 
-invoke ExitProcess,0
 SALIR:
 invoke ExitProcess,0			; DOS: termina el programa
 START:
-MOV EBX, 32768
-SUB EBX, 1
-CMP EBX, 0
-JNS NO_VOLVER_ABSOLUTO
-CMP EBX, -32768
-JB OVERFLOW_RESTA
-JMP ETIQUETA_NO_OVERFLOW
-NO_VOLVER_ABSOLUTO:
-CMP EBX, 32767
-JA OVERFLOW_RESTA
-ETIQUETA_NO_OVERFLOW:
-MOV _x_main, EBX
+MOV _x_main, 32767
 MOV EBX, _x_main
 CMP EBX, 32767
-JNE _etiq6
+JNE _etiq4
 invoke MessageBox, NULL, addr cadena0, addr cadena0, MB_OK
-JMP _etiq8
-_etiq6: 
+_etiq4: 
+MOV _y_main, -32767
+MOV EBX, _y_main
+CMP EBX, -32767
+JNE _etiq9
 invoke MessageBox, NULL, addr cadena1, addr cadena1, MB_OK
-_etiq8: 
+_etiq9: 
 JMP SALIR
 END START

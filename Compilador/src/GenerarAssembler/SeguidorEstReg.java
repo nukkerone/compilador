@@ -296,7 +296,8 @@ static int CANTREG = 4;
                 if (tt_fromTs != null) {
                     int tipoReal = tt_fromTs.getTipo();
                 if ( tipoReal == Typeable.TIPO_CTE_ENTERA  ) {
-                    salida.add(variable.getNombre()+" DD "+tt_fromTs.getInitialValue());
+                    salida.add(variable.getNombre().replace("-","_") +" DD "+tt_fromTs.getInitialValue());
+                    //salida.add(variable.getNombre()+" DD "+tt_fromTs.getInitialValue());
                     continue;
                 }
                 if ( false /* tipoReal == Typeable.TIPO_ULONG */ ) {

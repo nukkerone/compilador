@@ -1,0 +1,29 @@
+\\ IF
+int x, y, z;
+
+z = 10;
+if (z >= 10) then
+	print("IF 1 exitoso");
+
+if (z < 10) then
+	print("IF 2 fallido");
+else
+	print("IF 2 exitoso");
+
+if (z >= 10) then begin
+	x = 20;
+	print("IF 3 exitoso");
+end
+else begin
+	x = 30;
+	print("IF 3 fallido");
+end
+
+if (z < 10) then begin
+	x = 20;
+	print("IF 4 fallido");
+end
+else begin
+	x = 30;
+	print("IF 4 exitoso");
+end

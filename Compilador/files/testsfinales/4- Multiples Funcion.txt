@@ -1,0 +1,28 @@
+int x, y, x;
+
+function func1() begin
+	if (x == 0)then
+		print("Rama exito1");
+end
+
+function func2() begin
+	if (x != 0)then
+		print("Rama fallido2");
+	else
+		print("Rama exito2");
+end
+
+function func3() begin
+	if (x == 0)then
+		print("Rama exito3");
+end
+
+function func4() begin
+	for (y=1;y<3)
+		print("Rama exito4 dos veces");
+end
+
+func1();
+func2();
+func3();
+func4();

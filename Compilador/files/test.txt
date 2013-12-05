@@ -1,13 +1,12 @@
 \\ Seccion declaraciones
 int x, y;
 
+x = 32768;
 
-x = 32768 - 1;
-if (x==32767) then
-begin
-	print("ENTRO");
-end
-else
-begin
-    print("NO ANDA");
-end
+if (x == 32767) then
+	print("Exito truncado positivo");
+
+y = -32769;
+
+if (y == -32768) then
+	print("Exito truncado negativo");

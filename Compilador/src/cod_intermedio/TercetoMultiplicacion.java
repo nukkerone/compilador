@@ -54,24 +54,25 @@ public class TercetoMultiplicacion extends Terceto {
 		}
 		v = ser.getCodigoAsm();
 		//v.add("MUL " + d1.getNombre() + ", " + d2.getNombre());
-                v.add("MUL " + d2.getNombre());
+                String signoStandard = d2.getNombre();
+                if (d2.getNombre().contains("_-")) {
+                    signoStandard = d2.getNombre().replace("_-", "__");
+                }
+                
+                v.add("MUL " + signoStandard);
                 
                 v.add("CMP " + "EAX" + ", 0");
-                v.add("JNS " + "NO_VOLVER_ABSOLUTO");
+                v.add("JNS " + "NO_VOLVER_ABSOLUTO_MULT" + this.posicion);
                 v.add("MUL _NEG1");
                 v.add("CMP " + "EAX" + ", 32768");
                 v.add("JA " + getEtiqueta());
-                v.add("JMP ETIQUETA_NO_OVERFLOW");
-                v.add("NO_VOLVER_ABSOLUTO:");
+                v.add("MUL _NEG1");
+                v.add("JMP ETIQUETA_NO_OVERFLOW_MULT" + this.posicion);
+                v.add("NO_VOLVER_ABSOLUTO_MULT" + this.posicion + ":");
                 v.add("CMP " + "EAX" + ", 32767");
                 v.add("JA " + getEtiqueta());
-                v.add("ETIQUETA_NO_OVERFLOW:");
-                //v.add("CMP " + "EAX" + ", -32767");
-                //v.add("JNB " + getEtiqueta());
-               
-		
-		//v.add("JC " + getEtiqueta());
-		//TODO:: agregar codigo de verificacion fuera de rango
+                v.add("ETIQUETA_NO_OVERFLOW_MULT" + this.posicion + ":");
+                
 		if(this.parametro2 != this.parametro1)
                     d2.liberate();
 		d1.actualizarT(this);
@@ -80,7 +81,7 @@ public class TercetoMultiplicacion extends Terceto {
 
     @Override
     public String getMessageData() {
-            return getEtiqueta()+"_MESSAGE DB \"Fuera de rango en Multiplicación\"";
+            return getEtiqueta()+"_MESSAGE DB \"Fuera de rango en Multiplicación\",0";
     }
 
     @Override

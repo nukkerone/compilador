@@ -1,0 +1,21 @@
+\\ Multiples
+
+int x, y, z;
+
+x = 10;
+
+if (x == 10) then
+	for(y=1;y<=3)
+		print("FOR dentro de IF 3 veces");
+
+for(y=1;y<=3)
+	if (x == 10) then
+		print("IF dentro de FOR 3 veces");
+
+if (x == 10) then
+	if ( x == 10 ) then
+		print("If dentro de IF correcto");
+
+for (y=1;y<3)
+	for (z=1;z<3)
+		print("For dentro de for, imprimir 4 veces");

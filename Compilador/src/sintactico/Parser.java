@@ -453,6 +453,11 @@ int yylex()
     }
 
     Token t= anLexico.getNextToken();
+    if (t==null) {
+        finished = true;
+        return FIN;
+    }
+    
     yylval = new ParserVal(t); //seteamos el token, como objeto de yylval
     yylval.ival = anLexico.getNroLinea();
     if(t== null)
@@ -1347,7 +1352,7 @@ case 80:
 { 
     this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     Token t = (Token)val_peek(0).obj;
-    t.setLexema("- " + t.getLexema());
+    t.setLexema("-" + t.getLexema());
     Vector<ParserVal> vars = new Vector<ParserVal>();
     vars.add(val_peek(0));
     this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 

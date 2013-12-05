@@ -1,11 +1,34 @@
-int x, y;
+int x, y, z;
 
-x = 40000;
+x = -2;
 
-if (x == 32768) then
-	print("Acotar variables al maximo exitoso: 40000 acotado a 32768");
+if ( x == -2) then
+	print("Exito asignacion negativa");
+else
+	print("FALLO asignacion negativa");
 
-y = -40000;
+x = 2;
+y = -2;
 
-if (y == -32767) then
-	print("Acotar variables al minimo exitoso: -40000 acotado a -32767");
+z = x + y;
+
+if ( z == 0) then
+	print("Suma con valores negativos exitosa");
+else
+	print("Suma con valores negativos FALLIDA");
+
+x = -1;
+z = 1 * 1 * -3 + 4 / 2 * x;
+if ( z == -5) then
+	print("Operación de expresion larga exitosa");
+else
+	print("Operación de expresion larga FALLIDA");
+
+
+z = 1 + 32767;
+z = -1 + -32768;
+z = 20000 * 2;
+z = -20000 * 2;
+z = 20 / 0;
+
+print("No debe llegar aca, overflow");
