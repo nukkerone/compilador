@@ -59,7 +59,7 @@ public class TercetoDivision extends Terceto {
 
     @Override
     public String getMessageData() {
-        return getEtiqueta()+"_MESSAGE DB \"División por cero$\"";
+        return getEtiqueta()+"_MESSAGE DB \"División por cero\"";
     }
 
     @Override

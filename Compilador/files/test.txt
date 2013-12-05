@@ -1,8 +1,13 @@
 \\ Seccion declaraciones
-int x, y, z;
+int x, y;
 
-y = -2;
-if (y == -2) then
-    print("OK EXPRESION");
+
+x = 32768 - 1;
+if (x==32767) then
+begin
+	print("ENTRO");
+end
 else
-	print("NO IGUAL");
+begin
+    print("NO ANDA");
+end

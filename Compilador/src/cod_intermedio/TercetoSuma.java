@@ -53,7 +53,17 @@ public class TercetoSuma extends Terceto {
 
             v = ser.getCodigoAsm();
             v.add("ADD " + d1.getNombre() + ", " + d2.getNombre());
-            v.add("JC " + getEtiqueta());
+        
+            v.add("CMP " + "EBX" + ", 0");
+            v.add("JNS " + "NO_VOLVER_ABSOLUTO");
+            v.add("CMP " + "EBX" + ", -32768");
+            v.add("JB " + getEtiqueta());
+            v.add("JMP ETIQUETA_NO_OVERFLOW");
+            v.add("NO_VOLVER_ABSOLUTO:");
+            v.add("CMP " + "EBX" + ", 32767");
+            v.add("JA " + getEtiqueta());
+            v.add("ETIQUETA_NO_OVERFLOW:");
+            //v.add("JC " + getEtiqueta());
             if(this.parametro2 != this.parametro1)
                 d2.liberate();
             d1.actualizarT(this);
@@ -67,7 +77,7 @@ public class TercetoSuma extends Terceto {
     
     @Override
     public String getMessageData() {
-        return getEtiqueta()+"_MESSAGE DB \"Fuera de rango en Suma$\",0";
+        return getEtiqueta()+"_MESSAGE DB \"Fuera de rango en Suma\",0";
     }
         
 }

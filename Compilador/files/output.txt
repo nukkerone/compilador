@@ -5,27 +5,35 @@ Exitoso - Sin errores
 
 *************************
 Construcciones sintacticas: 
-Sintactico: Declaración de variables-- Linea: 1-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 3-- Tipo: Regla
-Sintactico: Sentencia Print-- Linea: 6-- Tipo: Regla
-Sintactico: Sentencia If Incompleta-- Linea: 6-- Tipo: Regla
+Sintactico: Declaración de variables-- Linea: 2-- Tipo: Regla
+Sintactico: Operación de resta-- Linea: 5-- Tipo: Regla
+Sintactico: Asignacion-- Linea: 5-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 8-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 12-- Tipo: Regla
+Sintactico: Sentencia If completa-- Linea: 13-- Tipo: Regla
 
 *************************
 Tabla de símbolos: 
 Token: PalabraReservada: ID --- Lexema: _PARAM --- Linea: 0
-Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 1
-Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 1
-Token: PalabraReservada: CTE --- Lexema: 32767 --- Linea: 5
-Token: PalabraReservada: string --- Lexema: Asignacion Exitosa --- Linea: 6
-Token: PalabraReservada: CTE --- Lexema: 32768 --- Linea: 3
+Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
+Token: PalabraReservada: CTE --- Lexema: 1 --- Linea: 5
+Token: PalabraReservada: string --- Lexema: ENTRO --- Linea: 8
+Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
+Token: PalabraReservada: CTE --- Lexema: 32767 --- Linea: 6
+Token: PalabraReservada: string --- Lexema: NO ANDA --- Linea: 12
+Token: PalabraReservada: CTE --- Lexema: 32768 --- Linea: 5
 
 *************************
 Tercetos generados: 
-( 0: =, x_main, 32768 )
-( 1: ==, x_main, 32767 )
-( 2: BF, NULL, NULL )
-( 3: Print, Asignacion Exitosa, NULL )
-( 4: Label, NULL, NULL )
+( 0: -, 32768, 1 )
+( 1: =, x_main, [0] )
+( 2: ==, x_main, 32767 )
+( 3: BF, NULL, NULL )
+( 4: Print, ENTRO, NULL )
+( 5: BI, NULL, NULL )
+( 6: Label, NULL, NULL )
+( 7: Print, NO ANDA, NULL )
+( 8: Label, NULL, NULL )
 
 *************************
 .386
@@ -40,16 +48,36 @@ includelib \masm32\lib\user32.lib
 includelib \masm32\lib\user32.lib
 .DATA
 _x_main DD 0
-cadena0 DB 'Asignacion Exitosa',0
+cadena0 DB 'ENTRO',0
+cadena1 DB 'NO ANDA',0
+_NEG1 DD -1
+OVERFLOW_RESTA_MESSAGE DB "Fuera de rango en Resta$"
 .CODE
+OVERFLOW_RESTA:
+invoke MessageBox, NULL, addr OVERFLOW_RESTA_MESSAGE, addr OVERFLOW_RESTA_MESSAGE, MB_OK 
+invoke ExitProcess,0
 SALIR:
 invoke ExitProcess,0			; DOS: termina el programa
 START:
-MOV _x_main, 32768
+MOV EBX, 32768
+SUB EBX, 1
+CMP EBX, 0
+JNS NO_VOLVER_ABSOLUTO
+CMP EBX, -32768
+JB OVERFLOW_RESTA
+JMP ETIQUETA_NO_OVERFLOW
+NO_VOLVER_ABSOLUTO:
+CMP EBX, 32767
+JA OVERFLOW_RESTA
+ETIQUETA_NO_OVERFLOW:
+MOV _x_main, EBX
 MOV EBX, _x_main
 CMP EBX, 32767
-JNE _etiq4
+JNE _etiq6
 invoke MessageBox, NULL, addr cadena0, addr cadena0, MB_OK
-_etiq4: 
+JMP _etiq8
+_etiq6: 
+invoke MessageBox, NULL, addr cadena1, addr cadena1, MB_OK
+_etiq8: 
 JMP SALIR
 END START
