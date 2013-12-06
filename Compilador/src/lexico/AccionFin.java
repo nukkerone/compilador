@@ -43,7 +43,7 @@ public class AccionFin extends AccionSemantica{
             if (cadenaTemporal.length() > 5) {
                 cadenaTemporal = cadenaTemporal.substring(0, 6);
             }
-            if (Integer.parseInt( cadenaTemporal ) > AccionFin.MAX_INT_VAL) {
+            /*if (Integer.parseInt( cadenaTemporal ) > AccionFin.MAX_INT_VAL) {
                 String temp = cadenaTemporal;
                 cadenaTemporal = Integer.toString(AccionFin.MAX_INT_VAL);
                 this.eventoError.add("Constante: " + temp + " superaba el máximo valor permitido, se re-asignó al máximo: " + cadenaTemporal , this.analizadorLexico.getNroLinea(), "Lexico", "Warning");
@@ -53,7 +53,7 @@ public class AccionFin extends AccionSemantica{
                     cadenaTemporal = Integer.toString(AccionFin.MIN_INT_VAL);
                     this.eventoError.add("Constante: " + temp + " superaba el minimo valor permitido, se re-asignó al mínimo: " + cadenaTemporal , this.analizadorLexico.getNroLinea(), "Lexico", "Warning");
                 }
-            }
+            }*/
             
             token = new TokenLexemaDistinto("CTE", cadenaTemporal);
             break;

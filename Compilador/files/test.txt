@@ -1,12 +1,7 @@
 \\ Seccion declaraciones
-int x, y;
+int x, y, z;
 
-x = 32768;
-
-if (x == 32767) then
-	print("Exito truncado positivo");
-
-y = -32769;
-
-if (y == -32768) then
-	print("Exito truncado negativo");
+y = 1*1+2*2+3*3+4*4;
+if (y == 30) then begin
+    print("OK EXPRESION");
+end

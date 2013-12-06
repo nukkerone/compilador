@@ -6,37 +6,45 @@ Exitoso - Sin errores
 *************************
 Construcciones sintacticas: 
 Sintactico: Declaración de variables-- Linea: 2-- Tipo: Regla
+Sintactico: Operación de multiplicacion-- Linea: 4-- Tipo: Regla
+Sintactico: Operación de multiplicacion-- Linea: 4-- Tipo: Regla
+Sintactico: Operación de suma-- Linea: 4-- Tipo: Regla
+Sintactico: Operación de multiplicacion-- Linea: 4-- Tipo: Regla
+Sintactico: Operación de suma-- Linea: 4-- Tipo: Regla
+Sintactico: Operación de multiplicacion-- Linea: 4-- Tipo: Regla
+Sintactico: Operación de suma-- Linea: 4-- Tipo: Regla
 Sintactico: Asignacion-- Linea: 4-- Tipo: Regla
-Sintactico: Sentencia Print-- Linea: 7-- Tipo: Regla
-Sintactico: Sentencia If Incompleta-- Linea: 9-- Tipo: Regla
-Sintactico: Identificada constante negativa-- Linea: 9-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 9-- Tipo: Regla
-Sintactico: Identificada constante negativa-- Linea: 11-- Tipo: Regla
-Sintactico: Sentencia Print-- Linea: 12-- Tipo: Regla
-Sintactico: Sentencia If Incompleta-- Linea: 12-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 6-- Tipo: Regla
+Sintactico: Sentencia If Incompleta-- Linea: 7-- Tipo: Regla
 
 *************************
 Tabla de símbolos: 
 Token: PalabraReservada: ID --- Lexema: _PARAM --- Linea: 0
+Token: PalabraReservada: CTE --- Lexema: 30 --- Linea: 5
 Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
-Token: PalabraReservada: string --- Lexema: Exito truncado negativo --- Linea: 12
-Token: PalabraReservada: CTE --- Lexema: -32767 --- Linea: 11
-Token: PalabraReservada: string --- Lexema: Exito truncado positivo --- Linea: 7
+Token: PalabraReservada: ID --- Lexema: _RET --- Linea: 0
+Token: PalabraReservada: CTE --- Lexema: 1 --- Linea: 4
+Token: PalabraReservada: CTE --- Lexema: 4 --- Linea: 4
+Token: PalabraReservada: string --- Lexema: OK EXPRESION --- Linea: 6
+Token: PalabraReservada: ID --- Lexema: z_main --- Linea: 2
 Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
-Token: PalabraReservada: CTE --- Lexema: 32767 --- Linea: 6
+Token: PalabraReservada: CTE --- Lexema: 2 --- Linea: 4
+Token: PalabraReservada: CTE --- Lexema: 3 --- Linea: 4
 
 *************************
 Tercetos generados: 
-( 0: =, x_main, 32767 )
-( 1: ==, x_main, 32767 )
-( 2: BF, NULL, NULL )
-( 3: Print, Exito truncado positivo, NULL )
-( 4: Label, NULL, NULL )
-( 5: =, y_main, -32767 )
-( 6: ==, y_main, -32767 )
-( 7: BF, NULL, NULL )
-( 8: Print, Exito truncado negativo, NULL )
-( 9: Label, NULL, NULL )
+( 0: *, 1, 1 )
+( 1: *, 2, 2 )
+( 2: +, [0], [1] )
+( 3: *, 3, 3 )
+( 4: +, [2], [3] )
+( 5: *, 4, 4 )
+( 6: +, [4], [5] )
+( 7: =, y_main, [6] )
+( 8: ==, y_main, 30 )
+( 9: BF, NULL, NULL )
+( 10: Print, OK EXPRESION, NULL )
+( 11: Label, NULL, NULL )
 
 *************************
 .386
@@ -50,26 +58,115 @@ includelib \masm32\lib\kernel32.lib
 includelib \masm32\lib\user32.lib
 includelib \masm32\lib\user32.lib
 .DATA
-cadena1 DB 'Exito truncado negativo',0
 _y_main DD 0
-_x_main DD 0
-cadena0 DB 'Exito truncado positivo',0
+cadena0 DB 'OK EXPRESION',0
+_4 DD 4
+_3 DD 3
+_2 DD 2
+_1 DD 1
 _NEG1 DD -1
+OVERFLOW_SUMA_MESSAGE DB "Fuera de rango en Suma",0
+OVERFLOW_MULTI_MESSAGE DB "Fuera de rango en Multiplicación",0
 .CODE
+OVERFLOW_SUMA:
+invoke MessageBox, NULL, addr OVERFLOW_SUMA_MESSAGE, addr OVERFLOW_SUMA_MESSAGE, MB_OK 
+invoke ExitProcess,0
+OVERFLOW_MULTI:
+invoke MessageBox, NULL, addr OVERFLOW_MULTI_MESSAGE, addr OVERFLOW_MULTI_MESSAGE, MB_OK 
+invoke ExitProcess,0
 SALIR:
 invoke ExitProcess,0			; DOS: termina el programa
 START:
-MOV _x_main, 32767
-MOV EBX, _x_main
+MOV EAX, 1
+MUL _1
+CMP EAX, 0
+JNS NO_VOLVER_ABSOLUTO_MULT0
+MUL _NEG1
+CMP EAX, 32768
+JA OVERFLOW_MULTI
+MUL _NEG1
+JMP ETIQUETA_NO_OVERFLOW_MULT0
+NO_VOLVER_ABSOLUTO_MULT0:
+CMP EAX, 32767
+JA OVERFLOW_MULTI
+ETIQUETA_NO_OVERFLOW_MULT0:
+MOV EBX, EAX
+MOV EAX, 2
+MUL _2
+CMP EAX, 0
+JNS NO_VOLVER_ABSOLUTO_MULT1
+MUL _NEG1
+CMP EAX, 32768
+JA OVERFLOW_MULTI
+MUL _NEG1
+JMP ETIQUETA_NO_OVERFLOW_MULT1
+NO_VOLVER_ABSOLUTO_MULT1:
+CMP EAX, 32767
+JA OVERFLOW_MULTI
+ETIQUETA_NO_OVERFLOW_MULT1:
+ADD EAX, EBX
+CMP EBX, 0
+JNS NO_VOLVER_ABSOLUTO_SUMA2
+CMP EBX, -32768
+JB OVERFLOW_SUMA
+JMP ETIQUETA_NO_OVERFLOW_SUMA2
+NO_VOLVER_ABSOLUTO_SUMA2:
 CMP EBX, 32767
-JNE _etiq4
-invoke MessageBox, NULL, addr cadena0, addr cadena0, MB_OK
-_etiq4: 
-MOV _y_main, -32767
+JA OVERFLOW_SUMA
+ETIQUETA_NO_OVERFLOW_SUMA2:
+MOV EBX, EAX
+MOV EAX, 3
+MUL _3
+CMP EAX, 0
+JNS NO_VOLVER_ABSOLUTO_MULT3
+MUL _NEG1
+CMP EAX, 32768
+JA OVERFLOW_MULTI
+MUL _NEG1
+JMP ETIQUETA_NO_OVERFLOW_MULT3
+NO_VOLVER_ABSOLUTO_MULT3:
+CMP EAX, 32767
+JA OVERFLOW_MULTI
+ETIQUETA_NO_OVERFLOW_MULT3:
+ADD EAX, EBX
+CMP EBX, 0
+JNS NO_VOLVER_ABSOLUTO_SUMA4
+CMP EBX, -32768
+JB OVERFLOW_SUMA
+JMP ETIQUETA_NO_OVERFLOW_SUMA4
+NO_VOLVER_ABSOLUTO_SUMA4:
+CMP EBX, 32767
+JA OVERFLOW_SUMA
+ETIQUETA_NO_OVERFLOW_SUMA4:
+MOV EBX, EAX
+MOV EAX, 4
+MUL _4
+CMP EAX, 0
+JNS NO_VOLVER_ABSOLUTO_MULT5
+MUL _NEG1
+CMP EAX, 32768
+JA OVERFLOW_MULTI
+MUL _NEG1
+JMP ETIQUETA_NO_OVERFLOW_MULT5
+NO_VOLVER_ABSOLUTO_MULT5:
+CMP EAX, 32767
+JA OVERFLOW_MULTI
+ETIQUETA_NO_OVERFLOW_MULT5:
+ADD EAX, EBX
+CMP EBX, 0
+JNS NO_VOLVER_ABSOLUTO_SUMA6
+CMP EBX, -32768
+JB OVERFLOW_SUMA
+JMP ETIQUETA_NO_OVERFLOW_SUMA6
+NO_VOLVER_ABSOLUTO_SUMA6:
+CMP EBX, 32767
+JA OVERFLOW_SUMA
+ETIQUETA_NO_OVERFLOW_SUMA6:
+MOV _y_main, EAX
 MOV EBX, _y_main
-CMP EBX, -32767
-JNE _etiq9
-invoke MessageBox, NULL, addr cadena1, addr cadena1, MB_OK
-_etiq9: 
+CMP EBX, 30
+JNE _etiq11
+invoke MessageBox, NULL, addr cadena0, addr cadena0, MB_OK
+_etiq11: 
 JMP SALIR
 END START

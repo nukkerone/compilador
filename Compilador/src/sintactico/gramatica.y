@@ -35,10 +35,14 @@ import java.util.Iterator;
 %%
 
 programa: {
-    TypeableToken tokenParamReal;
+    TypeableToken tokenParamReal, tokenRet;
     tokenParamReal = new TokenLexemaDistinto("ID", "_PARAM");
     ((TypeableToken)tokenParamReal).setTipo(Typeable.TIPO_INT);
     this.anLexico.getTablaSimbolos().addSimbolo(tokenParamReal, true);
+
+    tokenRet = new TokenLexemaDistinto("ID", "_RET");
+    ((TypeableToken)tokenRet).setTipo(Typeable.TIPO_INT);
+    this.anLexico.getTablaSimbolos().addSimbolo(tokenRet, true);
 
 } declaraciones ejecutable {
     setAmbitoTercetos("main", true);
@@ -111,6 +115,8 @@ cuerpo_funcion: {
     agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     // Eliminar RET basura de la tabla de simbolos, sino se empiezan a acumular
     //this.anLexico.getTablaSimbolos().removeSimbolo("_RET", false);
+    
+    varFuncionUsadas = new Vector<ParserVal>();
 
     TablaSimbolos tablaSimbolos = this.anLexico.getTablaSimbolos();
     if (nombreParametroFormalActual != null) {
@@ -202,7 +208,13 @@ bloque: sentencia
 ;
 
 llamado_funcion: ID '(' parametro_real ')'      { 
-    this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
+    Token tokenId = (Token) $1.obj;
+    if (dentroDeFuncion) {
+        this.eventoError.add("No se puede llamar una funcion dentro de otra funcion", tokenId.getNroLinea(), "Semantico", "Error" );
+    } else {
+        this.eventoError.add("Llamado a funcion", this.anLexico.getNroLinea(), "Sintactico", "Regla" );     
+    }
+    
     Typeable typeableParam = ((Typeable)$3.obj);
     if (typeableParam != null) {
         TypeableToken tokenAux = ((TypeableToken)typeableParam);
@@ -212,7 +224,7 @@ llamado_funcion: ID '(' parametro_real ')'      {
         agregarTercetoAAmbito(Terceto.tercetos.size()-1);
 
     }
-    this.llamadoFuncion((Token) $1.obj);
+    this.llamadoFuncion(tokenId);
     
     Token tt = this.anLexico.getTablaSimbolos().getSimbolo(new IdTS("_RET", Uso.USO_VARIABLE));
     $$ = new ParserVal(tt);
@@ -363,12 +375,25 @@ factor: ID {
 
 constante: CTE          { 
     Vector<ParserVal> vars = new Vector<ParserVal>();
+    Token t = (Token)$1.obj;
+    String strVal = t.getLexema();
+    if (Integer.parseInt( strVal ) > 32767) {
+        t.setLexema("32767");
+        this.eventoError.add("Constante: " + strVal + " superaba el máximo valor permitido, se re-asignó al máximo: 32767" , t.getNroLinea(), "Lexico", "Warning");
+    }
+
     vars.add($1);
     this.asignarTipo(Typeable.TIPO_CTE_ENTERA, vars); 
 }
 | '-' CTE                       { 
     this.eventoError.add("Identificada constante negativa", this.anLexico.getNroLinea(), "Sintactico", "Regla" ); 
     Token t = (Token)$2.obj;
+    String strVal = t.getLexema();
+    if (Integer.parseInt( strVal ) < -32768) {
+        t.setLexema("32768");
+        this.eventoError.add("Constante: "+ strVal + " superaba el mínimo valor permitido, se re-asignó al mínimo: -32768" , t.getNroLinea(), "Lexico", "Warning");
+    }
+
     t.setLexema("-" + t.getLexema());
     Vector<ParserVal> vars = new Vector<ParserVal>();
     vars.add($2);
@@ -591,6 +616,7 @@ private void llamadoFuncion(Token identificador) {
         // Eliminar el identificador (Uso Variable) de la TS, porque ya debería estar declarado como funcion (Uso Funcion)
     } else {
         // @TODO Generar error de funcion no declarada
+        this.eventoError.add("Funcion con nombre " + nombreFuncionActual + " no se encuentra declarada", identificador.getNroLinea(), "Semantico", "Error" );
     }
     agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     this.anLexico.getTablaSimbolos().removeSimbolo(new IdTS(identificador.getLexema(), Uso.USO_VARIABLE));
