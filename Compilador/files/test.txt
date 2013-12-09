@@ -1,5 +1,6 @@
 \\ Seccion declaraciones
 int x, y, z;
+int x;
 
 function f1() begin
 	print("f1");
@@ -8,7 +9,6 @@ end
 function f2() begin
 	print("f2");
 end
-
 
 
 f3();

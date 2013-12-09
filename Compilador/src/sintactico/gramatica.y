@@ -623,7 +623,7 @@ private void llamadoFuncion(Token identificador) {
         // Eliminar el identificador (Uso Variable) de la TS, porque ya debería estar declarado como funcion (Uso Funcion)
     } else {
         // @TODO Generar error de funcion no declarada
-        this.eventoError.add("Funcion con nombre " + nombreFuncionActual + " no se encuentra declarada", identificador.getNroLinea(), "Semantico", "Error" );
+        this.eventoError.add("Funcion con nombre " + identificador.getLexema() + " no se encuentra declarada", identificador.getNroLinea(), "Semantico", "Error" );
     }
     agregarTercetoAAmbito(Terceto.tercetos.size()-1);
     this.anLexico.getTablaSimbolos().removeSimbolo(new IdTS(identificador.getLexema(), Uso.USO_VARIABLE));

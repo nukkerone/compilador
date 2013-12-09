@@ -5,15 +5,17 @@ Fallido - Errores
 
 *************************
 Errores durante la compilacion: 
-Semantico: Funcion con nombre f2 no se encuentra declarada-- Linea: 11-- Tipo: Error
+Semantico: Variable redeclarada x en el ambito: main-- Linea: 3-- Tipo: Error
+Semantico: Funcion con nombre f3 no se encuentra declarada-- Linea: 12-- Tipo: Error
 
 *************************
 Construcciones sintacticas: 
 Sintactico: Declaraci?n de variables-- Linea: 2-- Tipo: Regla
-Sintactico: Sentencia Print-- Linea: 5-- Tipo: Regla
-Sintactico: Declaraci?n de Funcion-- Linea: 7-- Tipo: Regla
-Sintactico: Sentencia Print-- Linea: 9-- Tipo: Regla
-Sintactico: Declaraci?n de Funcion-- Linea: 11-- Tipo: Regla
+Sintactico: Declaraci?n de variables-- Linea: 3-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 6-- Tipo: Regla
+Sintactico: Declaraci?n de Funcion-- Linea: 8-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 10-- Tipo: Regla
+Sintactico: Declaraci?n de Funcion-- Linea: 12-- Tipo: Regla
 Sintactico: Llamado a funcion-- Linea: 14-- Tipo: Regla
 
 *************************
@@ -21,12 +23,13 @@ Tabla de s?mbolos:
 Token: PalabraReservada: ID --- Lexema: _PARAM --- Linea: 0
 Token: PalabraReservada: ID --- Lexema: _RET --- Linea: 0
 Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
+Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 3
 Token: PalabraReservada: ID --- Lexema: z_main --- Linea: 2
 Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
-Token: PalabraReservada: string --- Lexema: f1 --- Linea: 5
-Token: PalabraReservada: ID --- Lexema: f1 --- Linea: 4
-Token: PalabraReservada: string --- Lexema: f2 --- Linea: 9
-Token: PalabraReservada: ID --- Lexema: f2 --- Linea: 8
+Token: PalabraReservada: string --- Lexema: f1 --- Linea: 6
+Token: PalabraReservada: ID --- Lexema: f1 --- Linea: 5
+Token: PalabraReservada: string --- Lexema: f2 --- Linea: 10
+Token: PalabraReservada: ID --- Lexema: f2 --- Linea: 9
 
 *************************
 Tercetos generados: 
