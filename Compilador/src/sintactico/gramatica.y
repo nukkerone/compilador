@@ -452,8 +452,15 @@ private void asignarTipo(int tipo, Vector vars) {
             boolean sobreescribir = true;
             IdTS oldId = new IdTS(t.getLexema(), t.getUso());   // Identificador del token antes de modificarle la key
             t.setAmbito(ambito);                                // Seteo nuevo ambito
-            tablaSimbolos.removeSimbolo(oldId);                 // Remuevo el viejo identificador de la tabla de simbolos
-            tablaSimbolos.addSimbolo(t, sobreescribir);         // Agrego usando el nuevo identificador
+            IdTS newId = new IdTS(t.getLexema(), t.getUso());
+            if (t.getTipo() == Typeable.TIPO_INT && tablaSimbolos.contains(newId)) {    // Checkeo redeclarada
+                String varName = t.getLexema().replace(ambito, "");
+                this.eventoError.add("Variable redeclarada " + varName + " en el ambito: " + ambito.replace("_", ""), 
+                        t.getNroLinea(), "Semantico", "Error" );
+            } else {
+                tablaSimbolos.removeSimbolo(oldId);                 // Remuevo el viejo identificador de la tabla de simbolos
+                tablaSimbolos.addSimbolo(t, sobreescribir);         // Agrego usando el nuevo identificador
+            }
         }
         else {
             this.eventoError.add("Variable redeclarada " + t.getLexema(), p.ival, "Semantico", "Error" );

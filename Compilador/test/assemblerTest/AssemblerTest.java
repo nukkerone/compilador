@@ -61,12 +61,14 @@ public class AssemblerTest {
     @Test
     public void testErrores() {
         boolean hayErrores = false;
-        //String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        String filePath = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/test.txt";        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
         //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
-        String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
 
         SourceCode s = new SourceCode(filePath);
-        String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
+        
+        String fileOutput = "/Users/mountainlion/Documents/Projects/Java Projects/compilador/Compilador/files/output.txt";        //String filePath = "D:\\Java Projects\\Compilador\\Compilador\\files\\test.txt";
+        //String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
         //String fileOutput = "D:\\Java Projects\\Compilador\\Compilador\\files\\output.txt";
         OutputCode output = new OutputCode(fileOutput);
         

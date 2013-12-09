@@ -1,172 +1,50 @@
 
 *************************
-Resultado del análisis: 
-Exitoso - Sin errores
+Resultado del an?lisis: 
+Fallido - Errores
+
+*************************
+Errores durante la compilacion: 
+Semantico: Funcion con nombre f2 no se encuentra declarada-- Linea: 11-- Tipo: Error
 
 *************************
 Construcciones sintacticas: 
-Sintactico: Declaración de variables-- Linea: 2-- Tipo: Regla
-Sintactico: Operación de multiplicacion-- Linea: 4-- Tipo: Regla
-Sintactico: Operación de multiplicacion-- Linea: 4-- Tipo: Regla
-Sintactico: Operación de suma-- Linea: 4-- Tipo: Regla
-Sintactico: Operación de multiplicacion-- Linea: 4-- Tipo: Regla
-Sintactico: Operación de suma-- Linea: 4-- Tipo: Regla
-Sintactico: Operación de multiplicacion-- Linea: 4-- Tipo: Regla
-Sintactico: Operación de suma-- Linea: 4-- Tipo: Regla
-Sintactico: Asignacion-- Linea: 4-- Tipo: Regla
-Sintactico: Sentencia Print-- Linea: 6-- Tipo: Regla
-Sintactico: Sentencia If Incompleta-- Linea: 7-- Tipo: Regla
+Sintactico: Declaraci?n de variables-- Linea: 2-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 5-- Tipo: Regla
+Sintactico: Declaraci?n de Funcion-- Linea: 7-- Tipo: Regla
+Sintactico: Sentencia Print-- Linea: 9-- Tipo: Regla
+Sintactico: Declaraci?n de Funcion-- Linea: 11-- Tipo: Regla
+Sintactico: Llamado a funcion-- Linea: 14-- Tipo: Regla
 
 *************************
-Tabla de símbolos: 
+Tabla de s?mbolos: 
 Token: PalabraReservada: ID --- Lexema: _PARAM --- Linea: 0
-Token: PalabraReservada: CTE --- Lexema: 30 --- Linea: 5
-Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
 Token: PalabraReservada: ID --- Lexema: _RET --- Linea: 0
-Token: PalabraReservada: CTE --- Lexema: 1 --- Linea: 4
-Token: PalabraReservada: CTE --- Lexema: 4 --- Linea: 4
-Token: PalabraReservada: string --- Lexema: OK EXPRESION --- Linea: 6
+Token: PalabraReservada: ID --- Lexema: x_main --- Linea: 2
 Token: PalabraReservada: ID --- Lexema: z_main --- Linea: 2
 Token: PalabraReservada: ID --- Lexema: y_main --- Linea: 2
-Token: PalabraReservada: CTE --- Lexema: 2 --- Linea: 4
-Token: PalabraReservada: CTE --- Lexema: 3 --- Linea: 4
+Token: PalabraReservada: string --- Lexema: f1 --- Linea: 5
+Token: PalabraReservada: ID --- Lexema: f1 --- Linea: 4
+Token: PalabraReservada: string --- Lexema: f2 --- Linea: 9
+Token: PalabraReservada: ID --- Lexema: f2 --- Linea: 8
 
 *************************
 Tercetos generados: 
-( 0: *, 1, 1 )
-( 1: *, 2, 2 )
-( 2: +, [0], [1] )
-( 3: *, 3, 3 )
-( 4: +, [2], [3] )
-( 5: *, 4, 4 )
-( 6: +, [4], [5] )
-( 7: =, y_main, [6] )
-( 8: ==, y_main, 30 )
-( 9: BF, NULL, NULL )
-( 10: Print, OK EXPRESION, NULL )
-( 11: Label, NULL, NULL )
+( 0: Label, NULL, NULL )
+( 1: BI, NULL, NULL )
+( 2: Label, NULL, NULL )
+( 3: Push, NULL, NULL )
+( 4: Print, f1, NULL )
+( 5: =, _RET, 0 )
+( 6: Retorno, 0, NULL )
+( 7: Label, NULL, NULL )
+( 8: Label, NULL, NULL )
+( 9: BI, NULL, NULL )
+( 10: Label, NULL, NULL )
+( 11: Push, NULL, NULL )
+( 12: Print, f2, NULL )
+( 13: =, _RET, 0 )
+( 14: Retorno, 0, NULL )
+( 15: Label, NULL, NULL )
 
 *************************
-.386
-.model flat, stdcall
-option casemap :none
-include \masm32\include\windows.inc
-include \masm32\include\kernel32.inc
-include \masm32\include\user32.inc
-include \masm32\include\masm32.inc
-includelib \masm32\lib\kernel32.lib
-includelib \masm32\lib\user32.lib
-includelib \masm32\lib\user32.lib
-.DATA
-_y_main DD 0
-cadena0 DB 'OK EXPRESION',0
-_4 DD 4
-_3 DD 3
-_2 DD 2
-_1 DD 1
-_NEG1 DD -1
-OVERFLOW_SUMA_MESSAGE DB "Fuera de rango en Suma",0
-OVERFLOW_MULTI_MESSAGE DB "Fuera de rango en Multiplicación",0
-.CODE
-OVERFLOW_SUMA:
-invoke MessageBox, NULL, addr OVERFLOW_SUMA_MESSAGE, addr OVERFLOW_SUMA_MESSAGE, MB_OK 
-invoke ExitProcess,0
-OVERFLOW_MULTI:
-invoke MessageBox, NULL, addr OVERFLOW_MULTI_MESSAGE, addr OVERFLOW_MULTI_MESSAGE, MB_OK 
-invoke ExitProcess,0
-SALIR:
-invoke ExitProcess,0			; DOS: termina el programa
-START:
-MOV EAX, 1
-MUL _1
-CMP EAX, 0
-JNS NO_VOLVER_ABSOLUTO_MULT0
-MUL _NEG1
-CMP EAX, 32768
-JA OVERFLOW_MULTI
-MUL _NEG1
-JMP ETIQUETA_NO_OVERFLOW_MULT0
-NO_VOLVER_ABSOLUTO_MULT0:
-CMP EAX, 32767
-JA OVERFLOW_MULTI
-ETIQUETA_NO_OVERFLOW_MULT0:
-MOV EBX, EAX
-MOV EAX, 2
-MUL _2
-CMP EAX, 0
-JNS NO_VOLVER_ABSOLUTO_MULT1
-MUL _NEG1
-CMP EAX, 32768
-JA OVERFLOW_MULTI
-MUL _NEG1
-JMP ETIQUETA_NO_OVERFLOW_MULT1
-NO_VOLVER_ABSOLUTO_MULT1:
-CMP EAX, 32767
-JA OVERFLOW_MULTI
-ETIQUETA_NO_OVERFLOW_MULT1:
-ADD EAX, EBX
-CMP EBX, 0
-JNS NO_VOLVER_ABSOLUTO_SUMA2
-CMP EBX, -32768
-JB OVERFLOW_SUMA
-JMP ETIQUETA_NO_OVERFLOW_SUMA2
-NO_VOLVER_ABSOLUTO_SUMA2:
-CMP EBX, 32767
-JA OVERFLOW_SUMA
-ETIQUETA_NO_OVERFLOW_SUMA2:
-MOV EBX, EAX
-MOV EAX, 3
-MUL _3
-CMP EAX, 0
-JNS NO_VOLVER_ABSOLUTO_MULT3
-MUL _NEG1
-CMP EAX, 32768
-JA OVERFLOW_MULTI
-MUL _NEG1
-JMP ETIQUETA_NO_OVERFLOW_MULT3
-NO_VOLVER_ABSOLUTO_MULT3:
-CMP EAX, 32767
-JA OVERFLOW_MULTI
-ETIQUETA_NO_OVERFLOW_MULT3:
-ADD EAX, EBX
-CMP EBX, 0
-JNS NO_VOLVER_ABSOLUTO_SUMA4
-CMP EBX, -32768
-JB OVERFLOW_SUMA
-JMP ETIQUETA_NO_OVERFLOW_SUMA4
-NO_VOLVER_ABSOLUTO_SUMA4:
-CMP EBX, 32767
-JA OVERFLOW_SUMA
-ETIQUETA_NO_OVERFLOW_SUMA4:
-MOV EBX, EAX
-MOV EAX, 4
-MUL _4
-CMP EAX, 0
-JNS NO_VOLVER_ABSOLUTO_MULT5
-MUL _NEG1
-CMP EAX, 32768
-JA OVERFLOW_MULTI
-MUL _NEG1
-JMP ETIQUETA_NO_OVERFLOW_MULT5
-NO_VOLVER_ABSOLUTO_MULT5:
-CMP EAX, 32767
-JA OVERFLOW_MULTI
-ETIQUETA_NO_OVERFLOW_MULT5:
-ADD EAX, EBX
-CMP EBX, 0
-JNS NO_VOLVER_ABSOLUTO_SUMA6
-CMP EBX, -32768
-JB OVERFLOW_SUMA
-JMP ETIQUETA_NO_OVERFLOW_SUMA6
-NO_VOLVER_ABSOLUTO_SUMA6:
-CMP EBX, 32767
-JA OVERFLOW_SUMA
-ETIQUETA_NO_OVERFLOW_SUMA6:
-MOV _y_main, EAX
-MOV EBX, _y_main
-CMP EBX, 30
-JNE _etiq11
-invoke MessageBox, NULL, addr cadena0, addr cadena0, MB_OK
-_etiq11: 
-JMP SALIR
-END START

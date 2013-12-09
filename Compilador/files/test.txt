@@ -1,7 +1,14 @@
 \\ Seccion declaraciones
 int x, y, z;
 
-y = 1*1+2*2+3*3+4*4;
-if (y == 30) then begin
-    print("OK EXPRESION");
+function f1() begin
+	print("f1");
 end
+
+function f2() begin
+	print("f2");
+end
+
+
+
+f3();
