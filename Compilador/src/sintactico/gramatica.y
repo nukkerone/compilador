@@ -10,7 +10,7 @@ import cod_intermedio.*;
 import interfaces.*;
 import java.util.Iterator;
 
-%}
+%} 
 
 /** YACC Declarations **/
 %token IF
